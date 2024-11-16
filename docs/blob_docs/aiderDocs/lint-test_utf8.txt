@@ -1,0 +1,161 @@
+Page: aider.chat_files/aider.chat/docs/usage/lint-test.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+
+Linting and testing
+
+   Aider can automatically lint and test your code every time it makes
+   changes. This helps identify and repair any problems introduced by the
+   AI edits.
+
+Linting
+
+   Aider comes with built in linters for [85]most popular languages and
+   will automatically lint code in these languages.
+
+   Or you can specify your favorite linter with the --lint-cmd <cmd>
+   switch. The lint command should accept the filenames of the files to
+   lint. If there are linting errors, aider expects the command to print
+   them on stdout/stderr and return a non-zero exit code. This is how most
+   linters normally operate.
+
+   By default, aider will lint any files which it edits. You can disable
+   this with the --no-auto-lint switch.
+
+Testing
+
+   You can run tests with /test <test-command>. Aider will run the test
+   command without any arguments. If there are test errors, aider expects
+   the command to print them on stdout/stderr and return a non-zero exit
+   code.
+
+   Aider will try and fix any errors if the command returns a non-zero
+   exit code.
+
+   You can configure aider to run your test suite after each time the AI
+   edits your code using the --test-cmd <test-command> and --auto-test
+   switch.
+
+Compiled languages
+
+   If you want to have aider compile code after each edit, you can use the
+   lint and test commands to achieve this.
+     * You might want to recompile each file which was modified to check
+       for compile errors. To do this, provide a --lint-cmd which both
+       lints and compiles the file. You could create a small shell script
+       for this.
+     * You might want to rebuild the entire project after files are edited
+       to check for build errors. To do this, provide a --test-cmd which
+       both builds and tests the project. You could create a small shell
+       script for this. Or you may be able to do something as simple as
+       --test-cmd "dotnet build && dotnet test".
+
+Manually running code
+
+   You can use the /run command in the chat to run your code and
+   optionally share the output with aider. This can be useful to share
+   error messages or to show aider the code's output before asking for
+   changes or corrections.
+
+     Aider v0.43.5-dev
+
+/run python myscript.py
+
+Traceback (most recent call last):
+ File "myscript.py", line 22, in \<module\
+   raise ValueError("something bad happened")
+ValueError: something bad happened
+
+     Add the output to the chat? y
+

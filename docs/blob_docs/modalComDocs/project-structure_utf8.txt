@@ -1,0 +1,124 @@
+Page: modal.com_files/modal.com/docs/guide/project-structure.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+File and project structure
+
+Apps spanning multiple files
+
+   If you have a project spanning multiple files, you can either use a
+   single Modal [81]App to create Modal resources across all of them or
+   compose multiple apps using [82]app.include(other_app) into a single
+   app at deploy time.
+
+   In this guide we'll show you how to use composition of multiple smaller
+   files with their own "apps" in order to cleanly separate different
+   parts of your app into multiple files. You can see a realistic instance
+   of a single app use in our [83]LLM + TTS example.
+
+   Assume we have a package named pkg with files a.py and b.py that
+   contain functions we want to deploy:
+pkg/
++-- __init__.py
++-- a.py
++-- b.py
+
+   (BUTTON) Copy
+# pkg/a.py
+a_app = modal.App("a")
+image_1 = modal.Image.debian_slim().pip_install("some_package")
+
+@a_app.function(image=image_1)
+def f():
+    ...
+
+   (BUTTON) Copy
+# pkg/b.py
+b_app = modal.App("b")
+image_2 = modal.Image.debian_slim().pip_install("other_package")
+
+@b_app.function(image=image_2)
+def g():
+    ...
+
+   (BUTTON) Copy
+
+   To [84]deploy these resources together, make a single deployment file,
+   perhaps deploy.py (the name itself doesn't matter), that imports the
+   apps from each of the sub-modules and includes them in a common parent
+   app that represents your entire app:
+# pkg/deploy.py
+from .a import a_app
+from .b import b_app
+
+app = modal.App("multi-file-app")
+app.include(a_app)
+app.include(b_app)
+
+   (BUTTON) Copy
+
+   Now you can deploy your app by running modal deploy pkg.deploy from
+   above the pkg directory. Your deployed Modal app will have both the f
+   and g functions.
+
+   The final file structure now looks like this:
+pkg/
++-- __init__.py
++-- a.py
++-- b.py
++-- deploy.py
+
+   (BUTTON) Copy
+
+   One advantage of splitting up apps this way is that you can opt to run
+   only part of your larger app during development. For example, running
+   modal run a.py to test some functionality in that part without having
+   to process any changes to the rest of the app.
+
+   Tip: you can also make __init__.py your deployment file, which makes
+   deploying a package slightly more convenient. With this, you can deploy
+   your entire project using just modal deploy pkg.
+
+   Note: Since the multi-file app still has a single namespace for all
+   functions, it's important to name your Modal functions uniquely across
+   the project even when splitting it up across files - otherwise you risk
+   some functions "shadowing" others with the same name.
+   [85]File and project structure [86]Apps spanning multiple files
+   See it in action
+   [87]QuiLLMan - Voice Chat with LLMs
+   Modal logo © 2024
+   [88]About [89]Status [90]Changelog [91]Documentation [92]Slack
+   Community [93]Pricing [94]Examples
+

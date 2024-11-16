@@ -1,0 +1,377 @@
+Page: modal.com_files/modal.com/docs/examples/dbt_duckdb.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Build your own data warehouse with DuckDB, DBT, and Modal
+
+   This example contains a minimal but capable [63]data warehouse. It's
+   comprised of the following:
+     * [64]DuckDB as the warehouse's [65]OLAP database engine
+     * [66]AWS S3 as the data storage provider
+     * [67]DBT as the data transformation tool
+
+   Meet your new serverless cloud data warehouse, powered by Modal!
+
+Configure Modal, S3, and DBT
+
+   The only thing in the source code that you must update is the S3 bucket
+   name. AWS S3 bucket names are globally unique, and the one in this
+   source is used by us to host this example.
+
+   Update the BUCKET_NAME variable below and also any references to the
+   original value within sample_proj_duckdb_s3/models/. The AWS IAM policy
+   below also includes the bucket name and that must be updated.
+from pathlib import Path
+
+import modal
+
+BUCKET_NAME = "modal-example-dbt-duckdb-s3"
+LOCAL_DBT_PROJECT = (  # local path
+    Path(__file__).parent / "sample_proj_duckdb_s3"
+)
+PROJ_PATH = "/root/dbt"  # remote paths
+PROFILES_PATH = "/root/dbt_profile"
+TARGET_PATH = "/root/target"
+
+   (BUTTON) Copy
+
+   We also define the environment our application will run in -- a
+   container image, as in Docker. See [68]this guide for details.
+dbt_image = (  # start from a slim Linux image
+    modal.Image.debian_slim(python_version="3.11")
+    .pip_install(  # install python packages
+        "boto3~=1.34",  # aws client sdk
+        "dbt-duckdb~=1.8.1",  # dbt and duckdb and a connector
+        "pandas~=2.2.2",  # dataframes
+        "pyarrow~=16.1.0",  # columnar data lib
+        "fastapi[standard]~=0.115.4",  # web app
+    )
+    .env(  # configure DBT environment variables
+        {
+            "DBT_PROJECT_DIR": PROJ_PATH,
+            "DBT_PROFILES_DIR": PROFILES_PATH,
+            "DBT_TARGET_PATH": TARGET_PATH,
+        }
+    )
+)
+
+app = modal.App(name="example-dbt-duckdb-s3", image=dbt_image)
+
+   (BUTTON) Copy
+
+   Most of the DBT code and configuration is taken directly from the
+   classic [69]Jaffle Shop demo and modified to support using dbt-duckdb
+   with an S3 bucket.
+
+   The DBT profiles.yml configuration is taken from [70]the dbt-duckdb
+   docs.
+
+   Here we mount all this local code and configuration into the Modal
+   Function so that it will be available when we run DBT on Modal.
+dbt_project = modal.Mount.from_local_dir(
+    LOCAL_DBT_PROJECT, remote_path=PROJ_PATH
+)
+dbt_profiles = modal.Mount.from_local_file(
+    local_path=LOCAL_DBT_PROJECT / "profiles.yml",
+    remote_path=Path(PROFILES_PATH, "profiles.yml"),
+)
+dbt_target = modal.Volume.from_name("dbt-target-vol", create_if_missing=True)
+
+   (BUTTON) Copy
+
+   We'll also need to authenticate with AWS to store data in S3.
+s3_secret = modal.Secret.from_name("modal-examples-aws-user")
+
+   (BUTTON) Copy
+
+   Create this Secret using the "AWS" template at
+   [71]https://modal.com/secrets/create. Below we will use the provided
+   credentials in a Modal Function to create an S3 bucket and populate it
+   with .parquet data, so be sure to provide credentials for a user with
+   permission to create S3 buckets and read & write data from them.
+
+   The policy required for this example is the following. Not that you
+   must update the bucket name listed in the policy to your own bucket
+   name.
+{
+    "Statement": [
+        {
+            "Action": "s3:*",
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::modal-example-dbt-duckdb-s3/*",
+                "arn:aws:s3:::modal-example-dbt-duckdb-s3"
+            ],
+            "Sid": "duckdbs3access"
+        }
+    ],
+    "Version": "2012-10-17"
+}
+
+   (BUTTON) Copy
+
+Upload seed data
+
+   In order to provide source data for DBT to ingest and transform, we
+   have the below create_source_data function which creates an AWS S3
+   bucket and populates it with Parquet files based off the CSV data in
+   the seeds/ directory.
+
+   You can kick it off by running this script on Modal:
+modal run dbt_duckdb.py
+
+   (BUTTON) Copy
+
+   This script also runs the full data warehouse setup, and the whole
+   process takes a minute or two. We'll walk through the rest of the steps
+   below. See the app.local_entrypoint below for details.
+
+   Note that this is not the typical way that seeds/ data is used, but
+   it's useful for this demonstration. See [72]the DBT docs for more info.
+@app.function(
+    mounts=[dbt_project],
+    secrets=[s3_secret],
+)
+def create_source_data():
+    import boto3
+    import pandas as pd
+    from botocore.exceptions import ClientError
+
+    s3_client = boto3.client("s3")
+    s3_client.create_bucket(Bucket=BUCKET_NAME)
+
+    for seed_csv_path in Path(PROJ_PATH, "seeds").glob("*.csv"):
+        print(f"Found seed file {seed_csv_path}")
+        name = seed_csv_path.stem
+        parquet_filename = f"{name}.parquet"
+        object_key = f"sources/{parquet_filename}"
+        try:
+            s3_client.head_object(Bucket=BUCKET_NAME, Key=object_key)
+            print(
+                f"File '{object_key}' already exists in bucket '{BUCKET_NAME}'.
+Skipping."
+            )
+        except ClientError:
+            df = pd.read_csv(seed_csv_path)
+            df.to_parquet(parquet_filename)
+            print(f"Uploading '{object_key}' to S3 bucket '{BUCKET_NAME}'")
+            s3_client.upload_file(parquet_filename, BUCKET_NAME, object_key)
+            print(f"File '{object_key}' uploaded successfully.")
+
+   (BUTTON) Copy
+
+Run DBT on the cloud with Modal
+
+   Modal makes it easy to run Python code in the cloud. And DBT is a
+   Python tool, so it's easy to run DBT with Modal: below, we import the
+   dbt library's dbtRunner to pass commands from our Python code, running
+   on Modal, the same way we'd pass commands on a command line.
+
+   Note that this Modal Function has access to our AWS Secret, the mounted
+   local files with our DBT project and profiles, and a remote Modal
+   Volume that acts as a distributed file system.
+@app.function(
+    secrets=[s3_secret],
+    mounts=[dbt_project, dbt_profiles],
+    volumes={TARGET_PATH: dbt_target},
+)
+def run(command: str) -> None:
+    from dbt.cli.main import dbtRunner
+
+    res = dbtRunner().invoke(command.split(" "))
+    if res.exception:
+        print(res.exception)
+
+   (BUTTON) Copy
+
+   You can run this Modal Function from the command line with
+
+   modal run dbt_duckdb.py::run --command run
+
+   A successful run will log something like the following:
+03:41:04  Running with dbt=1.5.0
+03:41:05  Found 5 models, 8 tests, 0 snapshots, 0 analyses, 313 macros, 0 operat
+ions, 3 seed files, 3 sources, 0 exposures, 0 metrics, 0 groups
+03:41:05
+03:41:06  Concurrency: 1 threads (target='modal')
+03:41:06
+03:41:06  1 of 5 START sql table model main.stg_customers ......................
+.......... [RUN]
+03:41:06  1 of 5 OK created sql table model main.stg_customers .................
+.......... [OK in 0.45s]
+03:41:06  2 of 5 START sql table model main.stg_orders .........................
+.......... [RUN]
+03:41:06  2 of 5 OK created sql table model main.stg_orders ....................
+.......... [OK in 0.34s]
+03:41:06  3 of 5 START sql table model main.stg_payments .......................
+.......... [RUN]
+03:41:07  3 of 5 OK created sql table model main.stg_payments ..................
+.......... [OK in 0.36s]
+03:41:07  4 of 5 START sql external model main.customers .......................
+.......... [RUN]
+03:41:07  4 of 5 OK created sql external model main.customers ..................
+.......... [OK in 0.72s]
+03:41:07  5 of 5 START sql table model main.orders .............................
+.......... [RUN]
+03:41:08  5 of 5 OK created sql table model main.orders ........................
+.......... [OK in 0.22s]
+03:41:08
+03:41:08  Finished running 4 table models, 1 external model in 0 hours 0 minutes
+ and 3.15 seconds (3.15s).
+03:41:08  Completed successfully
+03:41:08
+03:41:08  Done. PASS=5 WARN=0 ERROR=0 SKIP=0 TOTAL=5
+
+   (BUTTON) Copy
+
+   Look for the 'materialized='external' DBT config in the SQL templates
+   to see how dbt-duckdb is able to write back the transformed data to AWS
+   S3!
+
+   After running the run command and seeing it succeed, check what's
+   contained under the bucket's out/ key prefix. You'll see that DBT has
+   run the transformations defined in sample_proj_duckdb_s3/models/ and
+   produced output .parquet files.
+
+Serve fresh data documentation with FastAPI and Modal
+
+   DBT also automatically generates [73]rich, interactive data docs. You
+   can serve these docs on Modal. Just define a simple [74]FastAPI app:
+@app.function(volumes={TARGET_PATH: dbt_target}, allow_concurrent_inputs=100)
+@modal.asgi_app()  # wrap a function that returns a FastAPI app in this decorato
+r to host on Modal
+def serve_dbt_docs():
+    import fastapi
+    from fastapi.staticfiles import StaticFiles
+
+    web_app = fastapi.FastAPI()
+    web_app.mount(
+        "/",
+        StaticFiles(  # dbt docs are automatically generated and sitting in the
+Volume
+            directory=TARGET_PATH, html=True
+        ),
+        name="static",
+    )
+
+    return web_app
+
+   (BUTTON) Copy
+
+   And deploy that app to Modal with
+modal deploy dbt_duckdb.py
+# ...
+# Created web function serve_dbt_docs => <output-url>
+
+   (BUTTON) Copy
+
+   If you navigate to the output URL, you should see something like
+   [75]example dbt docs
+
+   You can also check out our instance of the docs [76]here. The app will
+   be served "serverlessly" -- it will automatically scale up or down
+   during periods of increased or decreased usage, and you won't be
+   charged at all when it has scaled to zero.
+
+Schedule daily updates
+
+   The following daily_build function [77]runs on a schedule to keep the
+   DuckDB data warehouse up-to-date. It is also deployed by the same modal
+   deploy command for the docs app.
+
+   The source data for this warehouse is static, so the daily executions
+   don't really "update" anything, just re-build. But this example could
+   be extended to have sources which continually provide new data across
+   time. It will also generate the DBT docs daily to keep them fresh.
+@app.function(
+    schedule=modal.Period(days=1),
+    secrets=[s3_secret],
+    mounts=[dbt_project, dbt_profiles],
+    volumes={TARGET_PATH: dbt_target},
+)
+def daily_build() -> None:
+    run.remote("build")
+    run.remote("docs generate")
+
+
+@app.local_entrypoint()
+def main():
+    create_source_data.remote()
+    run.remote("run")
+    daily_build.remote()
+
+   (BUTTON) Copy
+   [78]Build your own data warehouse with DuckDB, DBT, and Modal
+   [79]Configure Modal, S3, and DBT [80]Upload seed data [81]Run DBT on
+   the cloud with Modal [82]Serve fresh data documentation with FastAPI
+   and Modal [83]Schedule daily updates
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [84]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [85]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 10_integrations/dbt/dbt_duckdb.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [86]About [87]Status [88]Changelog [89]Documentation [90]Slack
+   Community [91]Pricing [92]Examples
+

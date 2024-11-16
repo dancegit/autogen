@@ -1,0 +1,246 @@
+Page: modal.com_files/modal.com/docs/examples/algolia_indexer.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Algolia docsearch crawler
+
+   This tutorial shows you how to use Modal to run the [63]Algolia
+   docsearch crawler to index your website and make it searchable. This is
+   not just example code - we run the same code in production to power
+   search on this page (Ctrl+K to try it out!).
+
+Basic setup
+
+   Let's get the imports out of the way.
+import json
+import os
+import subprocess
+
+import modal
+
+   (BUTTON) Copy
+
+   Modal lets you [64]use and extend existing Docker images, as long as
+   they have python and pip available. We'll use the official crawler
+   image built by Algolia, with a small adjustment: since this image has
+   python symlinked to python3.6 and Modal is not compatible with Python
+   instead.
+algolia_image = modal.Image.from_registry(
+    "algolia/docsearch-scraper:v1.16.0",
+    add_python="3.11",
+    setup_dockerfile_commands=["ENTRYPOINT []"],
+)
+
+app = modal.App("example-algolia-indexer")
+
+   (BUTTON) Copy
+
+Configure the crawler
+
+   Now, let's configure the crawler with the website we want to index, and
+   which CSS selectors we want to scrape. Complete documentation for
+   crawler configuration is available [65]here.
+CONFIG = {
+    "index_name": "modal_docs",
+    "custom_settings": {
+        "separatorsToIndex": "._",
+        "synonyms": [["cls", "class"]],
+    },
+    "stop_urls": [
+        "https://modal.com/docs/reference/modal.Stub",
+    ],
+    "start_urls": [
+        {
+            "url": "https://modal.com/docs/guide",
+            "selectors_key": "default",
+            "page_rank": 2,
+        },
+        {
+            "url": "https://modal.com/docs/examples",
+            "selectors_key": "examples",
+            "page_rank": 1,
+        },
+        {
+            "url": "https://modal.com/docs/reference",
+            "selectors_key": "reference",
+            "page_rank": 1,
+        },
+    ],
+    "selectors": {
+        "default": {
+            "lvl0": {
+                "selector": "header .navlink-active",
+                "global": True,
+            },
+            "lvl1": "article h1",
+            "lvl2": "article h2",
+            "lvl3": "article h3",
+            "text": "article p,article ol,article ul,article pre",
+        },
+        "examples": {
+            "lvl0": {
+                "selector": "header .navlink-active",
+                "global": True,
+            },
+            "lvl1": "article h1",
+            "text": "article p,article ol,article ul,article pre",
+        },
+        "reference": {
+            "lvl0": {
+                "selector": "//div[contains(@class, 'sidebar')]//a[contains(@cla
+ss, 'active')]//preceding::a[contains(@class, 'header')][1]",
+                "type": "xpath",
+                "global": True,
+                "default_value": "",
+                "skip": {"when": {"value": ""}},
+            },
+            "lvl1": "article h1",
+            "lvl2": "article h2",
+            "lvl3": "article h3",
+            "text": "article p,article ol,article ul,article pre",
+        },
+    },
+}
+
+   (BUTTON) Copy
+
+Create an API key
+
+   If you don't already have one, sign up for an account on [66]Algolia.
+   Set up a project and create an API key with write access to your index,
+   and with the ACL permissions addObject, editSettings and deleteIndex.
+   Now, create a secret on the Modal [67]Secrets page with the API_KEY and
+   APPLICATION_ID you just created. You can name this anything you want,
+   we named it algolia-secret.
+
+The actual function
+
+   We want to trigger our crawler from our CI/CD pipeline, so we're
+   serving it as a [68]web endpoint that can be triggered by a GET request
+   during deploy. You could also consider running the crawler on a
+   [69]schedule.
+
+   The Algolia crawler is written for Python 3.6 and needs to run in the
+   pipenv created for it, so we're invoking it using a subprocess.
+@app.function(
+    image=algolia_image,
+    secrets=[modal.Secret.from_name("algolia-secret")],
+)
+def crawl():
+    # Installed with a 3.6 venv; Python 3.6 is unsupported by Modal, so use a su
+bprocess instead.
+    subprocess.run(
+        ["pipenv", "run", "python", "-m", "src.index"],
+        env={**os.environ, "CONFIG": json.dumps(CONFIG)},
+    )
+
+   (BUTTON) Copy
+
+   We want to be able to trigger this function through a webhook.
+@app.function(image=modal.Image.debian_slim().pip_install("fastapi[standard]"))
+@modal.web_endpoint()
+def crawl_webhook():
+    crawl.remote()
+    return "Finished indexing docs"
+
+   (BUTTON) Copy
+
+Deploy the indexer
+
+   That's all the code we need! To deploy your application, run
+modal deploy algolia_indexer.py
+
+   (BUTTON) Copy
+
+   If successful, this will print a URL for your new webhook, that you can
+   hit using curl or a browser. Logs from webhook invocations can be found
+   from the [70]apps page.
+
+   The indexed contents can be found at
+   [71]https://www.algolia.com/apps/APP_ID/explorer/browse/, for your
+   APP_ID. Once you're happy with the results, you can [72]set up the
+   docsearch package with your website, and create a search component that
+   uses this index.
+
+Entrypoint for development
+
+   To make it easier to test this, we also have an entrypoint for when you
+   run modal run algolia_indexer.py
+@app.local_entrypoint()
+def run():
+    crawl.remote()
+
+   (BUTTON) Copy
+   [73]Algolia docsearch crawler [74]Basic setup [75]Configure the crawler
+   [76]Create an API key [77]The actual function [78]Deploy the indexer
+   [79]Entrypoint for development
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [80]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [81]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 10_integrations/algolia_indexer.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [82]About [83]Status [84]Changelog [85]Documentation [86]Slack
+   Community [87]Pricing [88]Examples
+

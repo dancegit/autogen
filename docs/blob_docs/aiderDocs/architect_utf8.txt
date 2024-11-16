@@ -1,0 +1,240 @@
+Page: aider.chat_files/aider.chat/2024/09/26/architect.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+   September 26, 2024
+
+Separating code reasoning and editing
+
+   Aider now has experimental support for using two models to complete
+   each coding task:
+     * An Architect model is asked to describe how to solve the coding
+       problem.
+     * An Editor model is given the Architect's solution and asked to
+       produce specific code editing instructions to apply those changes
+       to existing source files.
+
+   Splitting up "code reasoning" and "code editing" in this manner has
+   produced SOTA results on [84]aider's code editing benchmark. Using
+   o1-preview as the Architect with either DeepSeek or o1-mini as the
+   Editor produced the SOTA score of 85%. Using the Architect/Editor
+   approach also significantly improved the benchmark scores of many
+   models, compared to their previous "solo" baseline scores (striped
+   bars).
+
+Motivation
+
+   This approach was motivated by the release of OpenAI's o1 models. They
+   are strong at reasoning, but often fail to output properly formatted
+   code editing instructions. It helps to instead let them describe the
+   solution however they prefer and then pass that output to a more
+   traditional LLM. This second Editor LLM can then interpret the solution
+   description and produce the code editing instructions needed to update
+   the existing source code.
+
+   This approach has recently become attractive for aider due to rapid
+   improvements in the speed and costs of frontier models. In particular,
+   chaining older LLMs would have been quite slow and incompatible with
+   aider's goal of providing an interactive, pair programming AI coding
+   experience.
+
+Code reasoning and code editing
+
+   Normally aider asks the model to solve a coding problem in one prompt,
+   asking the LLM to explain the solution and return a well formatted
+   series of file edits. All of [85]aider's editing formats require the
+   LLM to return source code edits in a specific text format, so that
+   aider can process the edits and apply them to the local source files.
+
+   Because this all happens in a single prompt/response round trip to the
+   LLM, the model has to split its attention between solving the coding
+   problem and conforming to the edit format.
+
+   The Architect/Editor approach splits this into two inference steps,
+   possibly using two different LLMs:
+       (Editor).
+
+   The Architect/Editor approach allows the Architect to focus on solving
+   the coding problem and describe the solution however comes naturally to
+   it. Similarly, the Editor can focus all of its attention on properly
+   formatting the edits without needing to reason much about how to solve
+   the coding problem.
+
+   We can assign the Architect and Editor roles to LLMs which are well
+   suited to their needs. Strong reasoning model like o1-preview make
+   excellent Architects, while the Editor role can be assigned to an
+   appropriate model based on cost, speed and code editing skill.
+
+Results
+
+   The graph above and the table below show the [86]aider's code editing
+   benchmark score for various combinations of Architect and Editor
+   models.
+
+   Some noteworthy observations:
+     * Pairing o1-preview as Architect with either Deepseek or o1-mini as
+       Editor sets a SOTA significantly above the previous best score.
+       This result is obtained with the "whole" editing format, requiring
+       the Editor to output a full update copy of each edited source file.
+       Both of these steps are therefore quite slow, so probably not
+       practical for interactive use with aider.
+     * Pairing OpenAI's o1-preview with Anthropic's Sonnet as the Editor
+       produces the second best result. This is an entirely practical
+       configuration for users able to work with both providers.
+     * Pairing many models with themselves in the Architect/Editor
+       configuration can provide significant benefits. Sonnet, GPT-4o and
+       GPT-4o-mini all scored higher when used as an Architect/Editor
+       pair.
+     * Deepseek is surprisingly effective as an Editor model. It seems
+       remarkably capable at turning proposed coding solutions into new,
+       updated versions of the source files. Using the efficient "diff"
+       editing format, Deepseek helps all the Architect models except for
+       Sonnet.
+
+Try it!
+
+   The development version of aider has built in defaults to support
+   Architect/Editor coding with o1-preview, o1-mini, GPT-4o and Claude 3.5
+   Sonnet. Run aider with --architect or get started quickly like this:
+pip install -U aider-chat
+
+# Change directory into a git repo
+cd /to/your/git/repo
+
+# Work with Claude 3.5 Sonnet as the Architect and Editor
+export ANTHROPIC_API_KEY=your-key-goes-here
+aider --sonnet --architect
+
+# Work with OpenAI models, using gpt-4o as the Editor
+export OPENAI_API_KEY=your-key-goes-here
+aider --4o --architect
+aider --o1-mini --architect
+aider --o1-preview --architect
+
+More info
+
+   Aider has a number of "chat modes", and "architect" is available as a
+   new chat mode. The --architect switch is a shortcut for --chat-mode
+   architect. For more details, see documentation on [87]aider's chat
+   modes.
+
+Full results
+
+   Below are the benchmark results using various models as the Architect,
+   paired with various models as the Editor. Each section includes a
+   "baseline" result, where the model works by itself in aider's normal
+   "code" editing mode (not as part of an Architect/Editor configuration).
+   This "solo" baseline represents the performance previously available
+   when using this model with aider.
+       Architect          Editor       Edit Format Pass Rate
+   o1-preview        o1-mini           whole       85.0%
+   o1-preview        deepseek          whole       85.0%
+   o1-preview        claude-3-5-sonnet diff        82.7%
+   o1-preview        deepseek          diff        80.5%
+   o1-preview        gpt-4o            diff        80.5%
+   o1-preview        Baseline          diff        79.7%
+   claude-3.5-sonnet claude-3.5-sonnet diff        80.5%
+   claude-3.5-sonnet deepseek          diff        78.9%
+   claude-3.5-sonnet deepseek          whole       78.9%
+   claude-3.5-sonnet Baseline          diff        77.4%
+   gpt-4o            gpt-4o            diff        75.2%
+   gpt-4o            deepseek          diff        74.4%
+   gpt-4o            deepseek          whole       73.7%
+   gpt-4o            Baseline          diff        71.4%
+   o1-mini           deepseek          whole       71.4%
+   o1-mini           gpt-4o            diff        70.7%
+   o1-mini           deepseek          diff        69.2%
+   o1-mini           Baseline          diff        61.1%
+   gpt-4o-mini       gpt-4o-mini       whole       60.2%
+   gpt-4o-mini       Baseline          whole       55.6%
+

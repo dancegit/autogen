@@ -1,0 +1,270 @@
+Page: modal.com_files/modal.com/docs/guide/gpu.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+GPU acceleration
+
+   Contemporary machine learning models are large linear algebra machines,
+   and running them with reasonable latency and throughput requires
+   specialized hardware for executing large linear algebra tasks. The
+   weapon of choice here is the venerable Graphics Processing Unit, or
+   GPU.
+
+   Modal is designed from the ground up to make running your ML-powered
+   functions on GPUs as easy, cost-effective, and performant as possible.
+   And Modal GPUs are great for [81]graphics too!
+
+   This guide will walk you through all the options available for running
+   your GPU-acclerated code on Modal and suggest techniques for choosing
+   the right hardware for your problem. If you're looking for information
+   on how to install the CUDA stack, check out [82]this guide.
+
+   If you have code or use libraries that benefit from GPUs, you can
+   attach the first available GPU to your function by passing the
+   gpu="any" argument to the @app.function decorator:
+import modal
+
+app = modal.App()
+
+@app.function(gpu="any")
+def render_toy_story():
+    # code here will be executed on a machine with an available GPU
+    ...
+
+   (BUTTON) Copy
+
+Specifying GPU type
+
+   When gpu="any" is specified, your function runs in a container with
+   access to a GPU. Currently this GPU will be either an NVIDIA [83]Tesla
+   T4, [84]L4, or [85]A10G instance, and [86]pricing is based on which one
+   you land on.
+
+   If you need more control, you can pick a specific GPU type by changing
+   this argument:
+@app.function(gpu="A10G")
+def run_sdxl_turbo():
+    ...
+
+@app.function(gpu="A100")
+def run_sdxl_batch():
+    ...
+
+@app.function(gpu="H100")
+def finetune_sdxl():
+    ...
+
+   (BUTTON) Copy
+
+   You can also specify a list of GPU types if your function is compatible
+   with multiple options.
+@app.function(gpu=["H100", "A100-80GB"])
+def finetune_sdxl():
+    ...
+
+   (BUTTON) Copy
+
+   For information on all valid values for the gpu parameter see [87]the
+   reference docs.
+
+   For running, rather than training, neural networks, we recommend
+   starting off with the A10Gs, which offer an excellent trade-off of cost
+   and performance and 24 GB of GPU RAM for storing model weights. For
+   historical reasons, Modal does not distinguish between [88]A10G GPUs
+   and [89]A10s.
+
+   For more on how to pick a GPU for use with neural networks like LLaMA
+   or Stable Diffusion, and for tips on how to make that GPU go brrr,
+   check out [90]Tim Dettemers' blog post or the [91]Full Stack Deep
+   Learning page on Cloud GPUs.
+
+Specifying GPU count
+
+   The largest machine learning models are too large to fit in the memory
+   of just one of even the most capacious GPUs. Rather than off-loading
+   from GPU memory to CPU memory or disk, which leads to punishing drops
+   in latency and throughput, the usual tactic is to parallelize the model
+   across several GPUs on the same machine -- or even to distribute it
+   across several machines, each with several GPUs.
+
+   You can run your function on a Modal machine with more than one GPU by
+   changing the count argument in the [92]object form of the gpu
+   parameter:
+@app.function(gpu=modal.gpu.H100(count=8))
+def train_sdxl():
+    ...
+
+   (BUTTON) Copy
+
+   We also support an equivalent string-based shorthand for specifying the
+   count:
+@app.function(gpu="H100:8")
+def train_sdxl():
+    ...
+
+   (BUTTON) Copy
+
+   Currently H100, A100, L4, and T4 instances support up to 8 GPUs (up to
+   640 GB GPU RAM), and A10G instances support up to 4 GPUs (up to 96 GB
+   GPU RAM). Note that requesting more than 2 GPUs per container will
+   usually result in larger wait times. These GPUs are always attached to
+   the same physical machine.
+
+H100 GPUs
+
+   Modal's fastest GPUs are the [93]H100s, NVIDIA's flagship data center
+   chip for the Hopper/Lovelace architecture.
+
+   To request an H100, set the gpu argument to "H100"
+@app.function(gpu="H100")
+def run_mixtral():
+    ...
+
+   (BUTTON) Copy
+
+   Check out [94]this example to see how you can run 7B parameter language
+   models at thousands of tokens per second using an H100 on Modal.
+
+   Before you jump for the most powerful (and so most expensive) GPU, make
+   sure you understand where the bottlenecks are in your computations. For
+   example, running language models with small batch sizes (e.g. one
+   prompt at a time) results in a [95]bottleneck on memory, not
+   arithmetic. Since arithmetic throughput has risen faster than memory
+   throughput in recent hardware generations, speedups for memory-bound
+   GPU jobs are not as extreme and may not be worth the extra cost.
+
+A100 GPUs
+
+   [96]A100s are the previous generation of top-of-the-line data center
+   chip from NVIDIA, based on the Ampere architecture. Modal offers two
+   versions of the A100: one with 40 GB of RAM and another with 80 GB of
+   RAM.
+
+   To request an A100 with 40 GB of GPU memory, replace the gpu="any"
+   argument with gpu="A100":
+@app.function(gpu="A100")
+def llama_7b():
+    ...
+
+   (BUTTON) Copy
+
+   At half precision, a 34B parameter language model like LLaMA 34B will
+   require more than 40 GB of RAM (16 bits = 2 bytes and 34 × 2 > 40). To
+   request an 80 GB A100 that can run those models, use the string
+   a100-80gb or the [97]object form of the gpu argument:
+@app.function(gpu=modal.gpu.A100(size="80GB"))
+def llama_34b():
+    ...
+
+   (BUTTON) Copy
+
+   To run the largest useful open source models, or when finetuning models
+   that are of size 7B or higher, you may need multiple GPUs to have
+   enough GPU RAM (off-loading weights to CPU RAM or disk generally leads
+   to unacceptable latency penalties). Finetuning models can be
+   particularly RAM intensive because optimizing neural networks requires
+   [98]storing a lot of things in memory: not only input data and weights,
+   but also intermediate calculations, gradients, and optimizer
+   parameters.
+
+   To use more than one GPU, set the count argument to an integer value
+   between 2 and 8.
+@app.function(gpu=modal.gpu.A100(size="80GB", count=4))
+def finetune_llama_70b():
+    ...
+
+
+@app.function(gpu=modal.gpu.H100(count=8))
+def run_llama_405b_fp8():
+    ...
+
+   (BUTTON) Copy
+
+Multi GPU training
+
+   Modal currently supports multi-GPU training on a single machine, but
+   not multi-node training (yet). Depending on which framework you are
+   using, you may need to use different techniques to train on multiple
+   GPUs.
+
+   If the framework re-executes the entrypoint of the Python process (like
+   [99]PyTorch Lightning) you need to either set the strategy to ddp_spawn
+   or ddp_notebook if you wish to invoke the training directly. Another
+   option is to run the training script as a subprocess instead.
+@app.function(gpu=modal.gpu.A100(count=2))
+def run():
+    import subprocess
+    import sys
+    subprocess.run(
+        ["python", "train.py"],
+        stdout=sys.stdout, stderr=sys.stderr,
+        check=True,
+    )
+
+   (BUTTON) Copy
+
+GPU fallbacks
+
+   Modal allows specifying a list of possible GPU types, suitable for
+   functions that are compatible with multiple options. Modal respects the
+   ordering of this list and will try to allocate the most preferred GPU
+   type before falling back to less preferred ones.
+@app.function(gpu=["h100", "a100-40gb:2"])
+def run_on_80gb():
+    ...
+
+   (BUTTON) Copy
+
+   See [100]this example for more detail.
+
+Examples
+
+   Take a look at some of our examples that use GPUs:
+     * [101]Fast multi-GPU inference with vLLM (Mixtral 8x7B)
+     * [102]Finetuning Stable Diffusion on pictures of your pet
+     * [103]Real-time Stable Diffusion XL Turbo
+     * [104]Rendering Blender videos
+
+   [105]GPU acceleration [106]Specifying GPU type [107]Specifying GPU
+   count [108]H100 GPUs [109]A100 GPUs [110]Multi GPU training [111]GPU
+   fallbacks [112]Examples
+   See it in action
+   [113]High-speed inference with vLLM
+   [114]Stable Diffusion XL Turbo
+   [115]Blender video renderer
+   Modal logo © 2024
+   [116]About [117]Status [118]Changelog [119]Documentation [120]Slack
+   Community [121]Pricing [122]Examples
+

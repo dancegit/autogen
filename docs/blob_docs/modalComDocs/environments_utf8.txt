@@ -1,0 +1,114 @@
+Page: modal.com_files/modal.com/docs/guide/environments.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Environments
+
+   Environments are sub-divisons of workspaces, allowing you to deploy the
+   same app (or set of apps) in multiple instances for different purposes
+   without changing your code. Typical use cases for environments include
+   having one dev environment and one prod environment, preventing
+   overwriting production apps when developing new features, while still
+   being able to deploy changes to a "live" and potentially complex
+   structure of apps.
+
+   Each environment has its own set of [81]Secrets and any object lookups
+   performed from an app in an environment will by default look for
+   objects in the same environment.
+
+   By default, every workspace has a single Environment called "main". New
+   Environments can be created on the CLI:
+modal environment create dev
+
+   (BUTTON) Copy
+
+   (You can run modal environment --help for more info)
+
+   Once created, Environments show up as a dropdown menu in the navbar of
+   the [82]Modal dashboard, letting you set browse all Modal Apps and
+   Secrets filtered by which Environment they were deployed to.
+
+   Most CLI commands also support an --env flag letting you specify which
+   Environment you intend to interact with, e.g.:
+modal run --env=dev app.py
+modal nfs create --env=dev storage
+
+   (BUTTON) Copy
+
+   Note that if you have multiple Environments in your workspace and try
+   to interact with it without specifying an Environment, an error will be
+   raised.
+
+   To set a default Environment for your current CLI profile you can use
+   modal config set-environment, e.g.:
+modal config set-environment dev
+
+   (BUTTON) Copy
+
+   Alternatively, you can set the MODAL_ENVIRONMENT environment variable.
+
+Environment web suffixes
+
+   Environments have a `web suffix' which is used to make [83]web endpoint
+   URLs unique across your workspace. One Environment is allowed to have
+   no suffix ("").
+
+Cross environment lookups
+
+   It's possible to explicitly look up objects in Environments other than
+   the Environment your app runs within:
+production_secret = modal.Secret.from_name(
+    "my-secret",
+    environment_name="main"
+)
+
+   (BUTTON) Copy
+modal.Function.lookup(
+    "my_app",
+    "some_function",
+    environment_name="dev"
+)
+
+   (BUTTON) Copy
+
+   However, the environment_name argument is optional and omitting it will
+   use the Environment from the object's associated App or calling
+   context.
+   [84]Environments [85]Environment web suffixes [86]Cross environment
+   lookups
+   Modal logo © 2024
+   [87]About [88]Status [89]Changelog [90]Documentation [91]Slack
+   Community [92]Pricing [93]Examples
+

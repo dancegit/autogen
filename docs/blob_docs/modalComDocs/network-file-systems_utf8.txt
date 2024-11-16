@@ -1,0 +1,117 @@
+Page: modal.com_files/modal.com/docs/guide/network-file-systems.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Network file systems (superseded)
+
+   Modal lets you create [81]writeable volumes that can be simultaneously
+   attached to multiple Modal Functions. These are helpful for use cases
+   such as:
+       storage
+
+   Note: NetworkFileSystems have been superseded. Modal NetworkFileSystems
+   are limited by the fact that they are located in only one cloud region.
+   Since Modal compute runs in multiple regions, this causes variable
+   latency and throughput issues when accessing the file system.
+
+   To address this, we have a new distributed storage primitive,
+   [82]modal.Volume, that offers fast reads and writes across all regions.
+   NetworkFileSystems are still supported and useful in some
+   circumstances, but we recommend trying out Volumes first for most new
+   projects.
+
+Basic example
+
+   The [83]modal.NetworkFileSystem.from_name constructor. You can either
+   create this network file system using the command
+modal nfs create
+
+   (BUTTON) Copy
+
+   Or you can also provide create_if_missing=True in the code.
+
+   This can be mounted within a Function by providing a mapping between
+   mount paths and NetworkFileSystem objects. For example, to use a
+   NetworkFileSystem to initialize a shared [84]shelve disk cache:
+import shelve
+import modal
+
+volume = modal.NetworkFileSystem.from_name("my-cache", create_if_missing=True)
+
+@app.function(network_file_systems={"/root/cache": volume})
+def expensive_computation(key: str):
+    with shelve.open("/root/cache/shelve") as cache:
+        cached_val = cache.get(key)
+
+    if cached_val is not None:
+        return cached_val
+
+    # cache miss; populate value
+    ...
+
+   (BUTTON) Copy
+
+   The above implements basic disk caching, but be aware that shelve does
+   not [85]guarantee correctness in the event of concurrent read/write
+   operations. To protect against concurrent write conflicts, the
+   [86]flufl.lock package is useful.
+
+Deleting volumes
+
+   To remove a persisted network file system, deleting all its data, you
+   must "stop" it. This can be done via the network file system's
+   dashboard app page or the CLI.
+
+   For example, a file system with the name my-vol that lives in the
+   e-corp workspace could be stopped (i.e. deleted) by going to its
+   dashboard page at [87]https://modal.com/apps/e-corp/my-vol and clicking
+   the trash icon. Alternatively, you can use the file system's app ID
+   with [88]modal app stop.
+
+   (Network File Systems are currently a specialized app type within
+   Modal, which is why deleting one is done by stopping an app.)
+
+Further examples
+
+     * The [89]Modal Podcast Transcriber uses a persisted network file
+       system to durably store raw audio, metadata, and finished
+       transcriptions.
+
+   [90]Network file systems (superseded) [91]Basic example [92]Deleting
+   volumes [93]Further examples
+   Modal logo © 2024
+   [94]About [95]Status [96]Changelog [97]Documentation [98]Slack
+   Community [99]Pricing [100]Examples
+

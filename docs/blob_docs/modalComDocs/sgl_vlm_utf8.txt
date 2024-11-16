@@ -1,0 +1,348 @@
+Page: modal.com_files/modal.com/docs/examples/sgl_vlm.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Run LLaVA-Next on SGLang for Visual QA
+
+   Vision-Language Models (VLMs) are like LLMs with eyes: they can
+   generate text based not just on other text, but on images as well.
+
+   This example shows how to run a VLM on Modal using the [63]SGLang
+   library.
+
+   Here's a sample inference, with the image rendered directly in the
+   terminal:
+
+   Sample output answering a question about a photo of the Statue of
+   Liberty
+
+Setup
+
+   First, we'll import the libraries we need locally and define some
+   constants.
+import os
+import time
+import warnings
+from uuid import uuid4
+
+import modal
+import requests
+
+   (BUTTON) Copy
+
+   VLMs are generally larger than LLMs with the same cognitive capability.
+   LLMs are already hard to run effectively on CPUs, so we'll use a GPU
+   here. We find that inference for a single input takes about 3-4 seconds
+   on an A10G.
+
+   You can customize the GPU type and count using the GPU_TYPE and
+   GPU_COUNT environment variables. If you want to see the model really
+   rip, try an "a100-80gb" or an "h100" on a large batch.
+GPU_TYPE = os.environ.get("GPU_TYPE", "a10g")
+GPU_COUNT = os.environ.get("GPU_COUNT", 1)
+
+GPU_CONFIG = f"{GPU_TYPE}:{GPU_COUNT}"
+
+SGL_LOG_LEVEL = "error"  # try "debug" or "info" if you have issues
+
+MINUTES = 60  # seconds
+
+   (BUTTON) Copy
+
+   We use a [64]LLaVA-NeXT model built on top of Meta's LLaMA 3 8B.
+MODEL_PATH = "lmms-lab/llama3-llava-next-8b"
+MODEL_REVISION = "e7e6a9fd5fd75d44b32987cba51c123338edbede"
+TOKENIZER_PATH = "lmms-lab/llama3-llava-next-8b-tokenizer"
+MODEL_CHAT_TEMPLATE = "llama-3-instruct"
+
+   (BUTTON) Copy
+
+   We download it from the Hugging Face Hub using the Python function
+   below.
+def download_model_to_image():
+    import transformers
+    from huggingface_hub import snapshot_download
+
+    snapshot_download(
+        MODEL_PATH,
+        revision=MODEL_REVISION,
+        ignore_patterns=["*.pt", "*.bin"],
+    )
+
+    # otherwise, this happens on first inference
+    transformers.utils.move_cache()
+
+   (BUTTON) Copy
+
+   Modal runs Python functions on containers in the cloud. The environment
+   those functions run in is defined by the container's Image. The block
+   of code below defines our example's Image.
+vlm_image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .pip_install(  # add sglang and some Python dependencies
+        "sglang[all]==0.1.17",
+        "transformers==4.40.2",
+        "numpy<2",
+        "fastapi[standard]==0.115.4",
+        "pydantic==2.9.2",
+        "starlette==0.41.2",
+    )
+    .run_function(  # download the model by running a Python function
+        download_model_to_image
+    )
+    .pip_install(  # add an optional extra that renders images in the terminal
+        "term-image==0.7.1"
+    )
+)
+
+   (BUTTON) Copy
+
+Defining a Visual QA service
+
+   Running an inference service on Modal is as easy as writing inference
+   in Python.
+
+   The code below adds a modal Cls to an App that runs the VLM.
+
+   We define a method generate that takes a URL for an image URL and a
+   question about the image as inputs and returns the VLM's answer.
+
+   By decorating it with @modal.web_endpoint, we expose it as an HTTP
+   endpoint, so it can be accessed over the public internet from any
+   client.
+app = modal.App("example-sgl-vlm")
+
+
+@app.cls(
+    gpu=GPU_CONFIG,
+    timeout=20 * MINUTES,
+    container_idle_timeout=20 * MINUTES,
+    allow_concurrent_inputs=100,
+    image=vlm_image,
+)
+class Model:
+    @modal.enter()  # what should a container do after it starts but before it g
+ets input?
+    def start_runtime(self):
+        """Starts an SGL runtime to execute inference."""
+        import sglang as sgl
+
+        self.runtime = sgl.Runtime(
+            model_path=MODEL_PATH,
+            tokenizer_path=TOKENIZER_PATH,
+            tp_size=GPU_COUNT,  # t_ensor p_arallel size, number of GPUs to spli
+t the model over
+            log_level=SGL_LOG_LEVEL,
+        )
+        self.runtime.endpoint.chat_template = (
+            sgl.lang.chat_template.get_chat_template(MODEL_CHAT_TEMPLATE)
+        )
+        sgl.set_default_backend(self.runtime)
+
+    @modal.web_endpoint(method="POST", docs=True)
+    def generate(self, request: dict):
+        import sglang as sgl
+        from term_image.image import from_file
+
+        start = time.monotonic_ns()
+        request_id = uuid4()
+        print(f"Generating response to request {request_id}")
+
+        image_url = request.get("image_url")
+        if image_url is None:
+            image_url = "https://modal-public-assets.s3.amazonaws.com/golden-gat
+e-bridge.jpg"
+
+        image_filename = image_url.split("/")[-1]
+        image_path = f"/tmp/{uuid4()}-{image_filename}"
+        response = requests.get(image_url)
+
+        response.raise_for_status()
+
+        with open(image_path, "wb") as file:
+            file.write(response.content)
+
+        @sgl.function
+        def image_qa(s, image_path, question):
+            s += sgl.user(sgl.image(image_path) + question)
+            s += sgl.assistant(sgl.gen("answer"))
+
+        question = request.get("question")
+        if question is None:
+            question = "What is this?"
+
+        state = image_qa.run(
+            image_path=image_path, question=question, max_new_tokens=128
+        )
+        # show the question, image, and response in the terminal for demonstrati
+on purposes
+        print(
+            Colors.BOLD, Colors.GRAY, "Question: ", question, Colors.END, sep=""
+        )
+        terminal_image = from_file(image_path)
+        terminal_image.draw()
+        answer = state["answer"]
+        print(
+            Colors.BOLD,
+            Colors.GREEN,
+            f"Answer: {answer}",
+            Colors.END,
+            sep="",
+        )
+        print(
+            f"request {request_id} completed in {round((time.monotonic_ns() - st
+art) / 1e9, 2)} seconds"
+        )
+
+    @modal.exit()  # what should a container do before it shuts down?
+    def shutdown_runtime(self):
+        self.runtime.shutdown()
+
+   (BUTTON) Copy
+
+Asking questions about images via POST
+
+   Now, we can send this Modal Function a POST request with an image and a
+   question and get back an answer.
+
+   The code below will start up the inference service so that it can be
+   run from the terminal as a one-off, like a local script would be, using
+   modal run:
+modal run sgl_vlm.py
+
+   (BUTTON) Copy
+
+   By default, we hit the endpoint twice to demonstrate how much faster
+   the inference is once the server is running.
+@app.local_entrypoint()
+def main(image_url=None, question=None, twice=True):
+    model = Model()
+
+    response = requests.post(
+        model.generate.web_url,
+        json={
+            "image_url": image_url,
+            "question": question,
+        },
+    )
+    assert response.ok, response.status_code
+
+    if twice:
+        # second response is faster, because the Function is already running
+        response = requests.post(
+            model.generate.web_url,
+            json={"image_url": image_url, "question": question},
+        )
+        assert response.ok, response.status_code
+
+   (BUTTON) Copy
+
+Deployment
+
+   To set this up as a long-running, but serverless, service, we can
+   deploy it to Modal:
+modal deploy sgl_vlm.py
+
+   (BUTTON) Copy
+
+   And then send requests from anywhere. See the [65]docs for details on
+   the web_url of the function, which also appears in the terminal output
+   when running modal deploy.
+
+   You can also find interactive documentation for the endpoint at the
+   /docs route of the web endpoint URL.
+
+Addenda
+
+   The rest of the code in this example is just utility code.
+warnings.filterwarnings(  # filter warning from the terminal image library
+    "ignore",
+    message="It seems this process is not running within a terminal. Hence, some
+ features will behave differently or be disabled.",
+    category=UserWarning,
+)
+
+
+class Colors:
+    """ANSI color codes"""
+
+    GREEN = "\033[0;32m"
+    BLUE = "\033[0;34m"
+    GRAY = "\033[0;90m"
+    BOLD = "\033[1m"
+    END = "\033[0m"
+
+   (BUTTON) Copy
+   [66]Run LLaVA-Next on SGLang for Visual QA [67]Setup [68]Defining a
+   Visual QA service [69]Asking questions about images via POST
+   [70]Deployment [71]Addenda
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [72]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [73]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 06_gpu_and_ml/llm-serving/sgl_vlm.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [74]About [75]Status [76]Changelog [77]Documentation [78]Slack
+   Community [79]Pricing [80]Examples
+

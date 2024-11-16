@@ -1,0 +1,172 @@
+Page: modal.com_files/modal.com/docs/reference/modal.Mount.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.Mount
+
+class Mount(modal.object.Object)
+
+   (BUTTON) Copy
+
+   Create a mount for a local directory or file that can be attached to
+   one or more Modal functions.
+
+   Usage
+import modal
+import os
+app = modal.App()
+
+@app.function(mounts=[modal.Mount.from_local_dir("~/foo", remote_path="/root/foo
+")])
+def f():
+    # `/root/foo` has the contents of `~/foo`.
+    print(os.listdir("/root/foo/"))
+
+   (BUTTON) Copy
+
+   Modal syncs the contents of the local directory every time the app
+   runs, but uses the hash of the file's contents to skip uploading files
+   that have been uploaded before.
+def __init__(self, *args, **kwargs):
+
+   (BUTTON) Copy
+
+add_local_dir
+
+def add_local_dir(
+    self,
+    local_path: Union[str, Path],
+    *,
+    # Where the directory is placed within in the mount
+    remote_path: Union[str, PurePosixPath, None] = None,
+    # Predicate filter function for file selection, which should accept a filepa
+th and return `True` for inclusion.
+    # Defaults to including all files.
+    condition: Optional[Callable[[str], bool]] = None,
+    # add files from subdirectories as well
+    recursive: bool = True,
+) -> "_Mount":
+
+   (BUTTON) Copy
+
+   Add a local directory to the Mount object.
+
+from_local_dir
+
+@staticmethod
+def from_local_dir(
+    local_path: Union[str, Path],
+    *,
+    # Where the directory is placed within in the mount
+    remote_path: Union[str, PurePosixPath, None] = None,
+    # Predicate filter function for file selection, which should accept a filepa
+th and return `True` for inclusion.
+    # Defaults to including all files.
+    condition: Optional[Callable[[str], bool]] = None,
+    # add files from subdirectories as well
+    recursive: bool = True,
+) -> "_Mount":
+
+   (BUTTON) Copy
+
+   Create a Mount from a local directory.
+
+   Usage
+assets = modal.Mount.from_local_dir(
+    "~/assets",
+    condition=lambda pth: not ".venv" in pth,
+    remote_path="/assets",
+)
+
+   (BUTTON) Copy
+
+add_local_file
+
+def add_local_file(
+    self, local_path: Union[str, Path], remote_path: Union[str, PurePosixPath, N
+one] = None
+) -> "_Mount":
+
+   (BUTTON) Copy
+
+   Add a local file to the Mount object.
+
+from_local_file
+
+@staticmethod
+def from_local_file(local_path: Union[str, Path], remote_path: Union[str, PurePo
+sixPath, None] = None) -> "_Mount":
+
+   (BUTTON) Copy
+
+   Create a Mount mounting a single local file.
+
+   Usage
+# Mount the DBT profile in user's home directory into container.
+dbt_profiles = modal.Mount.from_local_file(
+    local_path="~/profiles.yml",
+    remote_path="/root/dbt_profile/profiles.yml",
+)
+
+   (BUTTON) Copy
+
+from_local_python_packages
+
+@staticmethod
+def from_local_python_packages(
+    *module_names: str,
+    remote_dir: Union[str, PurePosixPath] = ROOT_DIR.as_posix(),
+    # Predicate filter function for file selection, which should accept a filepa
+th and return `True` for inclusion.
+    # Defaults to including all files.
+    condition: Optional[Callable[[str], bool]] = None,
+) -> "_Mount":
+
+   (BUTTON) Copy
+
+   Returns a modal.Mount that makes local modules listed in module_names
+   available inside the container. This works by mounting the local path
+   of each module's package to a directory inside the container that's on
+   PYTHONPATH.
+
+   Usage
+import modal
+import my_local_module
+
+app = modal.App()
+
+@app.function(mounts=[
+    modal.Mount.from_local_python_packages("my_local_module", "my_other_module")
+,
+])
+def f():
+    my_local_module.do_stuff()
+
+   (BUTTON) Copy
+   [71]modal.Mount [72]add_local_dir [73]from_local_dir [74]add_local_file
+   [75]from_local_file [76]from_local_python_packages
+   Modal logo © 2024
+   [77]About [78]Status [79]Changelog [80]Documentation [81]Slack
+   Community [82]Pricing [83]Examples
+

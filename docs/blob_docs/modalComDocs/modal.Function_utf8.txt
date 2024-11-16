@@ -1,0 +1,402 @@
+Page: modal.com_files/modal.com/docs/reference/modal.Function.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.functions
+
+modal.functions.Function
+
+class Function(typing.Generic, modal.object.Object)
+
+   (BUTTON) Copy
+
+   Functions are the basic units of serverless execution on Modal.
+
+   Generally, you will not construct a Function directly. Instead, use the
+   @app.function() decorator on the App object (formerly called "Stub")
+   for your application.
+def __init__(self, *args, **kwargs):
+
+   (BUTTON) Copy
+
+keep_warm
+
+@live_method
+def keep_warm(self, warm_pool_size: int) -> None:
+
+   (BUTTON) Copy
+
+   Set the warm pool size for the function.
+
+   Please exercise care when using this advanced feature! Setting and
+   forgetting a warm pool on functions can lead to increased costs.
+# Usage on a regular function.
+f = modal.Function.lookup("my-app", "function")
+f.keep_warm(2)
+
+# Usage on a parametrized function.
+Model = modal.Cls.lookup("my-app", "Model")
+Model("fine-tuned-model").keep_warm(2)
+
+   (BUTTON) Copy
+
+from_name
+
+@classmethod
+def from_name(
+    cls: Type["_Function"],
+    app_name: str,
+    tag: str,
+    namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
+    environment_name: Optional[str] = None,
+) -> "_Function":
+
+   (BUTTON) Copy
+
+   Reference a Function from a deployed App by its name.
+
+   In contast to modal.Function.lookup, this is a lazy method that defers
+   hydrating the local object with metadata from Modal servers until the
+   first time it is actually used.
+f = modal.Function.from_name("other-app", "function")
+
+   (BUTTON) Copy
+
+lookup
+
+@staticmethod
+def lookup(
+    app_name: str,
+    tag: str,
+    namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
+    client: Optional[_Client] = None,
+    environment_name: Optional[str] = None,
+) -> "_Function":
+
+   (BUTTON) Copy
+
+   Lookup a Function from a deployed App by its name.
+
+   In contrast to modal.Function.from_name, this is an eager method that
+   will hydrate the local object with metadata from Modal servers.
+f = modal.Function.lookup("other-app", "function")
+
+   (BUTTON) Copy
+
+web_url
+
+@property
+def web_url(self) -> str:
+
+   (BUTTON) Copy
+
+   URL of a Function running as a web endpoint.
+
+remote
+
+@live_method
+def remote(self, *args: P.args, **kwargs: P.kwargs) -> ReturnType:
+
+   (BUTTON) Copy
+
+   Calls the function remotely, executing it with the given arguments and
+   returning the execution's result.
+
+remote_gen
+
+@live_method_gen
+def remote_gen(self, *args, **kwargs) -> AsyncGenerator[Any, None]:
+
+   (BUTTON) Copy
+
+   Calls the generator remotely, executing it with the given arguments and
+   returning the execution's result.
+
+local
+
+def local(self, *args: P.args, **kwargs: P.kwargs) -> OriginalReturnType:
+
+   (BUTTON) Copy
+
+   Calls the function locally, executing it with the given arguments and
+   returning the execution's result.
+
+   The function will execute in the same environment as the caller, just
+   like calling the underlying function directly in Python. In particular,
+   only secrets available in the caller environment will be available
+   through environment variables.
+
+spawn
+
+@live_method
+def spawn(self, *args: P.args, **kwargs: P.kwargs) -> "_FunctionCall[ReturnType]
+":
+
+   (BUTTON) Copy
+
+   Calls the function with the given arguments, without waiting for the
+   results.
+
+   Returns a modal.functions.FunctionCall object, that can later be polled
+   or waited for using .get(timeout=...). Conceptually similar to
+   multiprocessing.pool.apply_async, or a Future/Promise in other
+   contexts.
+
+get_raw_f
+
+def get_raw_f(self) -> Callable[..., Any]:
+
+   (BUTTON) Copy
+
+   Return the inner Python object wrapped by this Modal Function.
+
+get_current_stats
+
+@live_method
+def get_current_stats(self) -> FunctionStats:
+
+   (BUTTON) Copy
+
+   Return a FunctionStats object describing the current function's queue
+   and runner counts.
+
+map
+
+@warn_if_generator_is_not_consumed(function_name="Function.map")
+def map(
+    self,
+    *input_iterators: typing.Iterable[Any],  # one input iterator per argument i
+n the mapped-over function/generator
+    kwargs={},  # any extra keyword arguments for the function
+    order_outputs: bool = True,  # return outputs in order
+    return_exceptions: bool = False,  # propagate exceptions (False) or aggregat
+e them in the results list (True)
+) -> AsyncOrSyncIterable:
+
+   (BUTTON) Copy
+
+   Parallel map over a set of inputs.
+
+   Takes one iterator argument per argument in the function being mapped
+   over.
+
+   Example:
+@app.function()
+def my_func(a):
+    return a ** 2
+
+
+@app.local_entrypoint()
+def main():
+    assert list(my_func.map([1, 2, 3, 4])) == [1, 4, 9, 16]
+
+   (BUTTON) Copy
+
+   If applied to a stub.function, map() returns one result per input and
+   the output order is guaranteed to be the same as the input order. Set
+   order_outputs=False to return results in the order that they are
+   completed instead.
+
+   return_exceptions can be used to treat exceptions as successful
+   results:
+@app.function()
+def my_func(a):
+    if a == 2:
+        raise Exception("ohno")
+    return a ** 2
+
+
+@app.local_entrypoint()
+def main():
+    # [0, 1, UserCodeException(Exception('ohno'))]
+    print(list(my_func.map(range(3), return_exceptions=True)))
+
+   (BUTTON) Copy
+
+starmap
+
+@warn_if_generator_is_not_consumed(function_name="Function.starmap.aio")
+def starmap(
+    self,
+    input_iterator: typing.Iterable[typing.Sequence[Any]],
+    kwargs={},
+    order_outputs: bool = True,
+    return_exceptions: bool = False,
+) -> AsyncOrSyncIterable:
+
+   (BUTTON) Copy
+
+   Like map, but spreads arguments over multiple function arguments.
+
+   Assumes every input is a sequence (e.g. a tuple).
+
+   Example:
+@app.function()
+def my_func(a, b):
+    return a + b
+
+
+@app.local_entrypoint()
+def main():
+    assert list(my_func.starmap([(1, 2), (3, 4)])) == [3, 7]
+
+   (BUTTON) Copy
+
+for_each
+
+def for_each(self, *input_iterators, kwargs={}, ignore_exceptions: bool = False)
+:
+
+   (BUTTON) Copy
+
+   Execute function for all inputs, ignoring outputs.
+
+   Convenient alias for .map() in cases where the function just needs to
+   be called. as the caller doesn't have to consume the generator to
+   process the inputs.
+
+modal.functions.FunctionCall
+
+class FunctionCall(typing.Generic, modal.object.Object)
+
+   (BUTTON) Copy
+
+   A reference to an executed function call.
+
+   Constructed using .spawn(...) on a Modal function with the same
+   arguments that a function normally takes. Acts as a reference to an
+   ongoing function call that can be passed around and used to poll or
+   fetch function results at some later time.
+
+   Conceptually similar to a Future/Promise/AsyncResult in other contexts
+   and languages.
+def __init__(self, *args, **kwargs):
+
+   (BUTTON) Copy
+
+get
+
+def get(self, timeout: Optional[float] = None) -> ReturnType:
+
+   (BUTTON) Copy
+
+   Get the result of the function call.
+
+   This function waits indefinitely by default. It takes an optional
+   timeout argument that specifies the maximum number of seconds to wait,
+   which can be set to 0 to poll for an output immediately.
+
+   The returned coroutine is not cancellation-safe.
+
+get_gen
+
+def get_gen(self) -> AsyncGenerator[Any, None]:
+
+   (BUTTON) Copy
+
+   Calls the generator remotely, executing it with the given arguments and
+   returning the execution's result.
+
+get_call_graph
+
+def get_call_graph(self) -> List[InputInfo]:
+
+   (BUTTON) Copy
+
+   Returns a structure representing the call graph from a given root call
+   ID, along with the status of execution for each node.
+
+   See [71]modal.call_graph reference page for documentation on the
+   structure of the returned InputInfo items.
+
+cancel
+
+def cancel(
+    self,
+    terminate_containers: bool = False,  # if true, containers running the input
+s are forcibly terminated
+):
+
+   (BUTTON) Copy
+
+   Cancels the function call, which will stop its execution and mark its
+   inputs as [72]TERMINATED.
+
+   If terminate_containers=True - the containers running the cancelled
+   inputs are all terminated causing any non-cancelled inputs on those
+   containers to be rescheduled in new containers.
+
+from_id
+
+@staticmethod
+def from_id(
+    function_call_id: str, client: Optional[_Client] = None, is_generator: bool
+= False
+) -> "_FunctionCall":
+
+   (BUTTON) Copy
+
+modal.functions.FunctionStats
+
+class FunctionStats(object)
+
+   (BUTTON) Copy
+
+   Simple data structure storing stats for a running function.
+def __init__(self, backlog: int, num_total_runners: int) -> None
+
+   (BUTTON) Copy
+
+modal.functions.gather
+
+async def gather(*function_calls: _FunctionCall[ReturnType]) -> typing.Sequence[
+ReturnType]:
+
+   (BUTTON) Copy
+
+   Wait until all Modal function calls have results before returning
+
+   Accepts a variable number of FunctionCall objects as returned by
+   Function.spawn().
+
+   Returns a list of results from each function call, or raises an
+   exception of the first failing function call.
+
+   E.g.
+function_call_1 = slow_func_1.spawn()
+function_call_2 = slow_func_2.spawn()
+
+result_1, result_2 = gather(function_call_1, function_call_2)
+
+   (BUTTON) Copy
+   [73]modal.functions [74]modal.functions.Function [75]keep_warm
+   [76]from_name [77]lookup [78]web_url [79]remote [80]remote_gen
+   [81]local [82]spawn [83]get_raw_f [84]get_current_stats [85]map
+   [86]starmap [87]for_each [88]modal.functions.FunctionCall [89]get
+   [90]get_gen [91]get_call_graph [92]cancel [93]from_id
+   [94]modal.functions.FunctionStats [95]modal.functions.gather
+   Modal logo © 2024
+   [96]About [97]Status [98]Changelog [99]Documentation [100]Slack
+   Community [101]Pricing [102]Examples
+

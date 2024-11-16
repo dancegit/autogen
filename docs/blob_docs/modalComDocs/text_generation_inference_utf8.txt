@@ -1,0 +1,363 @@
+Page: modal.com_files/modal.com/docs/examples/text_generation_inference.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Hosting any LLaMA 3 model with Text Generation Inference (TGI)
+
+   In this example, we show how to run an optimized inference server using
+   [63]Text Generation Inference (TGI) with performance advantages over
+   standard text generation pipelines including:
+     * continuous batching, so multiple generations can take place at the
+       same time on a single container
+     * PagedAttention, which applies memory paging to the attention
+       mechanism's key-value cache, increasing throughput
+
+   This example deployment, [64]accessible here, can serve LLaMA 3 70B
+   with 70 second cold starts, up to 200 tokens/s of throughput, and a
+   per-token latency of 55ms.
+
+Setup
+
+   First we import the components we need from modal.
+import subprocess
+from pathlib import Path
+
+import modal
+
+   (BUTTON) Copy
+
+   Next, we set which model to serve, taking care to specify the GPU
+   configuration required to fit the model into VRAM, and the quantization
+   method (bitsandbytes or gptq) if desired. Note that quantization does
+   degrade token generation performance significantly.
+
+   Any model supported by TGI can be chosen here.
+MODEL_ID = "NousResearch/Meta-Llama-3-8B"
+MODEL_REVISION = "315b20096dc791d381d514deb5f8bd9c8d6d3061"
+
+   (BUTTON) Copy
+
+   Add ["--quantize", "gptq"] for TheBloke GPTQ models.
+LAUNCH_FLAGS = [
+    "--model-id",
+    MODEL_ID,
+    "--port",
+    "8000",
+    "--revision",
+    MODEL_REVISION,
+]
+
+   (BUTTON) Copy
+
+Define a container image
+
+   We want to create a Modal Image which has the Huggingface model cache
+   pre-populated. The benefit of this is that the container no longer has
+   to re-download the model from Huggingface - instead, it will take
+   advantage of Modal's internal filesystem for faster cold starts. On the
+   largest 70B model, the 135GB model can be loaded in as little as 70
+   seconds.
+
+Download the weights
+
+   We can use the included utilities to download the model weights (and
+   convert to safetensors, if necessary) as part of the image build.
+def download_model():
+    subprocess.run(
+        [
+            "text-generation-server",
+            "download-weights",
+            MODEL_ID,
+            "--revision",
+            MODEL_REVISION,
+        ],
+    )
+
+   (BUTTON) Copy
+
+Image definition
+
+   We'll start from a Docker Hub image recommended by TGI, and override
+   the default ENTRYPOINT for Modal to run its own which enables seamless
+   serverless deployments.
+
+   Next we run the download function above to pre-populate the image with
+   our model weights.
+
+   If you adapt this example to run another model, note that for this step
+   to work on a [65]gated model the HF_TOKEN environment variable must be
+   set and provided as a [66]Modal Secret.
+
+   Finally, we install the text-generation client to interface with TGI's
+   Rust webserver over localhost.
+app = modal.App("example-tgi-" + MODEL_ID.split("/")[-1])
+
+tgi_image = (
+    modal.Image.from_registry(
+        "ghcr.io/huggingface/text-generation-inference:1.4"
+    )
+    .dockerfile_commands("ENTRYPOINT []")
+    .run_function(
+        download_model,
+        timeout=3600,
+    )
+    .pip_install("fastapi[standard]", "text-generation")
+)
+
+   (BUTTON) Copy
+
+The model class
+
+   The inference function is best represented with Modal's [67]class
+   syntax. The class syntax is a special representation for a Modal
+   function which splits logic into two parts:
+       up, and
+
+   This means the model is loaded into the GPUs, and the backend for TGI
+   is launched just once when each container starts, and this state is
+   cached for each subsequent invocation of the function. Note that on
+   start-up, we must wait for the Rust webserver to accept connections
+   before considering the container ready.
+
+   Here, we also
+     * specify the secret so the HUGGING_FACE_HUB_TOKEN environment
+       variable can be set
+     * specify how many A100s we need per container
+     * specify that each container is allowed to handle up to 10 inputs
+       (i.e. requests) simultaneously
+     * keep idle containers for 10 minutes before spinning down
+     * increase the timeout limit
+
+GPU_CONFIG = modal.gpu.H100(count=2)  # 2 H100s
+
+
+@app.cls(
+    gpu=GPU_CONFIG,
+    allow_concurrent_inputs=15,
+    container_idle_timeout=60 * 10,
+    timeout=60 * 60,
+    image=tgi_image,
+)
+class Model:
+    @modal.enter()
+    def start_server(self):
+        import socket
+        import time
+
+        from text_generation import AsyncClient
+
+        self.launcher = subprocess.Popen(
+            ["text-generation-launcher"] + LAUNCH_FLAGS,
+        )
+        self.client = AsyncClient("http://127.0.0.1:8000", timeout=60)
+        self.template = """<|begin_of_text|><|start_header_id|>user<|end_header_
+id|>
+
+{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+"""
+
+        # Poll until webserver at 127.0.0.1:8000 accepts connections before runn
+ing inputs.
+        def webserver_ready():
+            try:
+                socket.create_connection(("127.0.0.1", 8000), timeout=1).close()
+                return True
+            except (socket.timeout, ConnectionRefusedError):
+                # Check if launcher webserving process has exited.
+                # If so, a connection can never be made.
+                retcode = self.launcher.poll()
+                if retcode is not None:
+                    raise RuntimeError(
+                        f"launcher exited unexpectedly with code {retcode}"
+                    )
+                return False
+
+        while not webserver_ready():
+            time.sleep(1.0)
+
+        print("Webserver ready!")
+
+    @modal.exit()
+    def terminate_server(self):
+        self.launcher.terminate()
+
+    @modal.method()
+    async def generate(self, question: str):
+        prompt = self.template.format(user=question)
+        result = await self.client.generate(
+            prompt, max_new_tokens=1024, stop_sequences=["<|eot_id|>"]
+        )
+
+        return result.generated_text
+
+    @modal.method()
+    async def generate_stream(self, question: str):
+        prompt = self.template.format(user=question)
+
+        async for response in self.client.generate_stream(
+            prompt, max_new_tokens=1024, stop_sequences=["<|eot_id|>"]
+        ):
+            if (
+                not response.token.special
+                and response.token.text != "<|eot_id|>"
+            ):
+                yield response.token.text
+
+   (BUTTON) Copy
+
+Run the model
+
+   We define a [68]local_entrypoint to invoke our remote function. You can
+   run this script locally with modal run text_generation_inference.py.
+@app.local_entrypoint()
+def main(prompt: str = None):
+    if prompt is None:
+        prompt = "Implement a Python function to compute the Fibonacci numbers."
+    print(Model().generate.remote(prompt))
+
+   (BUTTON) Copy
+
+Serve the model
+
+   Once we deploy this model with modal deploy
+   text_generation_inference.py, we can serve it behind an ASGI app
+   front-end. The front-end code (a single file of Alpine.js) is available
+   [69]here.
+
+   You can try our deployment [70]here.
+frontend_path = Path(__file__).parent.parent / "llm-frontend"
+
+
+@app.function(
+    mounts=[modal.Mount.from_local_dir(frontend_path, remote_path="/assets")],
+    keep_warm=1,
+    allow_concurrent_inputs=10,
+    timeout=60 * 10,
+)
+@modal.asgi_app(label="llama3")
+def tgi_app():
+    import json
+
+    import fastapi
+    import fastapi.staticfiles
+    from fastapi.responses import StreamingResponse
+
+    web_app = fastapi.FastAPI()
+
+    @web_app.get("/stats")
+    async def stats():
+        stats = await Model().generate_stream.get_current_stats.aio()
+        return {
+            "backlog": stats.backlog,
+            "num_total_runners": stats.num_total_runners,
+            "model": MODEL_ID,
+        }
+
+    @web_app.get("/completion/{question}")
+    async def completion(question: str):
+        from urllib.parse import unquote
+
+        async def generate():
+            async for text in Model().generate_stream.remote_gen.aio(
+                unquote(question)
+            ):
+                yield f"data: {json.dumps(dict(text=text), ensure_ascii=False)}\
+n\n"
+
+        return StreamingResponse(generate(), media_type="text/event-stream")
+
+    web_app.mount(
+        "/", fastapi.staticfiles.StaticFiles(directory="/assets", html=True)
+    )
+    return web_app
+
+   (BUTTON) Copy
+
+Invoke the model from other apps
+
+   Once the model is deployed, we can invoke inference from other apps,
+   sharing the same pool of GPU containers with all other apps we might
+   need.
+$ python
+>>> import modal
+>>> f = modal.Function.lookup("example-tgi-Meta-Llama-3-70B-Instruct", "Model.ge
+nerate")
+>>> f.remote("What is the story about the fox and grapes?")
+'The story about the fox and grapes ...
+
+   (BUTTON) Copy
+   [71]Hosting any LLaMA 3 model with Text Generation Inference (TGI)
+   [72]Setup [73]Define a container image [74]Download the weights
+   [75]Image definition [76]The model class [77]Run the model [78]Serve
+   the model [79]Invoke the model from other apps
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [80]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [81]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 06_gpu_and_ml/llm-serving/text_generation_inference.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [82]About [83]Status [84]Changelog [85]Documentation [86]Slack
+   Community [87]Pricing [88]Examples
+

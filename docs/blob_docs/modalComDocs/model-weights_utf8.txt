@@ -1,0 +1,229 @@
+Page: modal.com_files/modal.com/docs/guide/model-weights.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Storing model weights on Modal
+
+   Efficiently managing the weights of large models is crucial for
+   optimizing the build times and startup latency of ML and AI
+   applications. This page discusses best practices for handling model
+   weights with Modal, focusing on two key patterns:
+       [81]@build
+       [82]Volumes
+
+   The first pattern leads to faster downloads and startup times, but it
+   is only possible for weights that are known at build time, like the
+   weights of pretrained models.
+
+   In both cases, you can further optimize latencies by loading weights
+   into memory at container startup.
+
+Pattern #1 - Storing weights in container images
+
+   Whenever possible, you should store weights in your image as it is
+   built, just as you store your code dependencies. Modal's custom
+   container runtime stack is designed to make builds and loads of large
+   images as fast as possible.
+
+   In the code below, we demonstrate this pattern. We define a Python
+   function, download_model_to_folder, that downloads the weights of a
+   model from Hugging Face. Notice that the method has been annotated with
+   the [83]@build decorator. Methods of modal.Clss that are decorated with
+   @build are run while your container image is being built, just like
+   commands to install dependencies with .pip_install. You can also use
+   the [84]run_function method on the Image class for the same purpose.
+import modal
+
+# start building the image
+image = modal.Image.debian_slim().pip_install("huggingface", "other-packages")
+
+# ... other setup
+
+@app.cls(gpu="any", image=image)
+class Model:
+    @modal.build()  # add another step to the image build
+    def download_model_to_folder(self):
+        from huggingface_hub import snapshot_download
+
+        os.makedirs(MODEL_DIR, exist_ok=True)
+        snapshot_download("stabilityai/sdxl-turbo", local_dir=MODEL_DIR)
+
+   (BUTTON) Copy
+
+Pre-loading weights into memory with @enter
+
+   Because they are part of the container image, your model weights will
+   be available as files when your functions start, just like your code
+   dependencies. But model weights must still be loaded into memory before
+   they can be used for inference. For models with billions of weights,
+   that can still take several seconds.
+
+   To avoid spending that time on every input, you can load the weights
+   into memory when your Modal containers start, but before they begin
+   running your function, with another decorator: @enter. A method
+   decorated with the @enter decorator will only run once at container
+   startup.
+import modal
+
+@app.cls()
+class Model:
+    @modal.enter()
+    def setup(self):
+        self.pipe = AutoPipelineForImage2Image.from_pretrained("stabilityai/sdxl
+-turbo")
+
+    @modal.method()
+    def inference(self, prompt):
+        return self.pipe(prompt)
+
+   (BUTTON) Copy
+
+   You can also stack @build and @enter decorators on the same method.
+   This can have some benefits, as discussed [85]here.
+
+Pattern #2 - Storing weights in Volumes
+
+   Not all applications use model weights that are known when the app's
+   container image is built.
+
+   For example, you might be
+     * serving models that are regularly fine-tuned
+     * serving too many different large models from one app to store them
+       in a single image
+     * training models on the fly as your app runs
+
+   In each case, different components of your application will need to
+   store, retrieve, and communicate weights over time. For this, we
+   recommend Modal [86]Volumes, which act as a distributed file system, a
+   "shared disk" all of your Modal functions can access.
+
+   To store your model weights in a Volume, you need to make the Volume
+   available to a function that creates or retrieves the model weights, as
+   in the snippet below.
+import modal
+
+# create a Volume, or retrieve it if it exists
+volume = modal.Volume.from_name("model-weights-vol", create_if_missing=True)
+MODEL_DIR = "/vol/models"
+
+
+@app.function(
+    volumes={MODEL_DIR: volume},  # "mount" the Volume, sharing it with your fun
+ction
+    gpu="any",
+)
+def run_training():
+    model = train(...)
+    save(MODEL_DIR, model)
+
+   (BUTTON) Copy
+
+   You can then read those weights from the Volume as you would normally
+   read them from disk, so long as you attach the Volume to your function
+   or class.
+import modal
+
+MODEL_DIR = "/vol/models"
+volume = modal.Volume.from_name("model-weights-vol", create_if_missing=True)
+
+
+@app.cls(gpu="any", volumes={MODEL_DIR: volume})
+class Model:
+    @modal.method()
+    def inference(self, prompt):
+        model = load_model(MODEL_DIR)
+        self.model.run(prompt)
+
+   (BUTTON) Copy
+
+   In the above code sample, weights are loaded into memory each time the
+   inference function is run. You can once again use @enter to load
+   weights only once, at container boot.
+import modal
+
+MODEL_DIR = "/vol/models"
+volume = modal.Volume.from_name("model-weights-vol", create_if_missing=True)
+
+
+@app.cls(gpu="any", volumes={MODEL_DIR: volume})
+class Model:
+    @modal.enter()
+    def setup(self):
+        self.model = load_model(MODEL_DIR)
+
+    @modal.method()
+    def inference(self, prompt):
+        return self.model.run(prompt)
+
+   (BUTTON) Copy
+
+Pre-loading weights for multiple models dynamically with __init__ and @enter
+
+   Finally, you might be serving several different models from the same
+   app and so need to dynamically determine which weights to load.
+
+   Even in this case, you can avoid loading the weights at every
+   inference. You can [87]parameterize the inference function by defining
+   a modal_id class attribute and then use the [88]@enter method decorator
+   to load those weights into memory:
+import modal
+
+MODEL_DIR = "/vol/models"
+volume = modal.Volume.from_name("model-weights-vol", create_if_missing=True)
+
+
+@app.cls(gpu="any", volumes={MODEL_DIR: volume})
+class Model:
+
+    model_id: str = modal.parameter()
+
+    @modal.enter()
+    def setup(self):
+        volume.reload()  # Fetch latest changes to the volume
+        self.model = load_model(MODEL_DIR, self.model_id)
+
+    @modal.method()
+    def inference(self, prompt):
+        return self.model.run(prompt)
+
+   (BUTTON) Copy
+   [89]Storing model weights on Modal [90]Pattern #1 - Storing weights in
+   container images [91]Pre-loading weights into memory with @enter
+   [92]Pattern #2 - Storing weights in Volumes [93]Pre-loading weights for
+   multiple models dynamically with __init__ and @enter
+   Modal logo © 2024
+   [94]About [95]Status [96]Changelog [97]Documentation [98]Slack
+   Community [99]Pricing [100]Examples
+

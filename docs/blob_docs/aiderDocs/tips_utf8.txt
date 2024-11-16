@@ -1,0 +1,181 @@
+Page: aider.chat_files/aider.chat/docs/usage/tips.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+
+Tips
+
+Just add the files that need to be changed to the chat
+
+   Take a moment and think about which files will need to be changed.
+   Aider can often figure out which files to edit all by itself, but the
+   most efficient approach is for you to add the files to the chat.
+
+Don't add lots of files to the chat
+
+   Just add the files you think need to be edited. Too much irrelevant
+   code will distract and confuse the LLM. Aider uses a [85]map of your
+   entire git repo so is usually aware of relevant
+   classes/functions/methods elsewhere in your code base. It's ok to add
+   1-2 highly relevant files that don't need to be edited, but be
+   selective.
+
+Break your goal down into bite sized steps
+
+   Do them one at a time. Adjust the files added to the chat as you go:
+   /drop files that don't need any more changes, /add files that need
+   changes for the next step.
+
+For complex changes, discuss a plan first
+
+   Use the [86]/ask command to make a plan with aider. Once you are happy
+   with the approach, just say "go ahead" without the /ask prefix.
+
+If aider gets stuck
+
+     * Use /clear to discard the chat history and make a fresh start.
+     * Can you /drop any extra files?
+     * Use /ask to discuss a plan before aider starts editing code.
+     * Use the [87]/model command to switch to a different model and try
+       again. Switching between GPT-4o and Sonnet will often get past
+       problems.
+     * If aider is hopelessly stuck, just code the next step yourself and
+       try having aider code some more after that. Take turns and pair
+       program with aider.
+
+Creating new files
+
+   If you want aider to create a new file, add it to the repository first
+   with /add <file>. This way aider knows this file exists and will write
+   to it. Otherwise, aider might write the changes to an existing file.
+   This can happen even if you ask for a new file, as LLMs tend to focus a
+   lot on the existing information in their contexts.
+
+Fixing bugs and errors
+
+   If your code is throwing an error, use the [88]/run command to share
+   the error output with the aider. Or just paste the errors into the
+   chat. Let the aider figure out how to fix the bug.
+
+   If test are failing, use the [89]/test command to run tests and share
+   the error output with the aider.
+
+Providing docs
+
+   LLMs know about a lot of standard tools and libraries, but may get some
+   of the fine details wrong about API versions and function arguments.
+
+   You can provide up-to-date documentation in a few ways:
+     * Paste doc snippets into the chat.
+     * Include a URL to docs in your chat message and aider will scrape
+       and read it. For example: Add a submit button like this
+       https://ui.shadcn.com/docs/components/button.
+     * Use the [90]/read command to read doc files into the chat from
+       anywhere on your filesystem.
+     * If you have coding conventions or standing instructions you want
+       aider to follow, consider using a [91]conventions file.
+
+Interrupting & inputting
+
+   Use Control-C to interrupt aider if it isn't providing a useful
+   response. The partial response remains in the conversation, so you can
+   refer to it when you reply with more information or direction.
+
+   You can send long, multi-line messages in the chat in a few ways:
+     * Paste a multi-line message directly into the chat.
+     * Enter { alone on the first line to start a multiline message and }
+       alone on the last line to end it.
+     * Use Meta-ENTER to start a new line without sending the message
+       (Esc+ENTER in some environments).
+     * Use /paste to paste text from the clipboard into the chat.
+

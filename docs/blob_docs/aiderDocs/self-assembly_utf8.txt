@@ -1,0 +1,156 @@
+Page: aider.chat_files/aider.chat/2024/05/24/self-assembly.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+   May 24, 2024
+
+Aider has written 7% of its own code
+
+   [84]self assembly
+
+   This article is quite out dated. For current statistics, see
+   [85]aider's release history.
+
+   The [86]aider git repo currently contains about 4K commits and 14K
+   lines of code.
+
+   Aider made 15% of the commits, inserting 4.8K and deleting 1.5K lines
+   of code.
+
+   About 7% of the code now in the repo is attributable to an aider commit
+   using git blame. This number is probably a significant undercount,
+   because periodic reformatting by black is likely obscuring aider's
+   authorship of many lines.
+
+   Here's the breakdown of the code aider wrote in the current code base
+   according to git blame.
+                   File                     Lines     Percent
+   aider/args.py                        6 of 449      1.3%
+   aider/coders/base_coder.py           37 of 1354    2.7%
+   aider/coders/editblock_coder.py      14 of 507     2.8%
+   aider/coders/editblock_func_coder.py 6 of 141      4.3%
+   aider/coders/udiff_coder.py          2 of 421      0.5%
+   aider/coders/wholefile_coder.py      5 of 146      3.4%
+   aider/coders/wholefile_func_coder.py 4 of 134      3.0%
+   aider/commands.py                    67 of 703     9.5%
+   aider/diffs.py                       15 of 129     11.6%
+   aider/gui.py                         2 of 533      0.4%
+   aider/history.py                     19 of 124     15.3%
+   aider/io.py                          55 of 368     14.9%
+   aider/linter.py                      30 of 240     12.5%
+   aider/main.py                        30 of 466     6.4%
+   aider/mdstream.py                    3 of 122      2.5%
+   aider/models.py                      22 of 549     4.0%
+   aider/repo.py                        19 of 266     7.1%
+   aider/repomap.py                     17 of 518     3.3%
+   aider/scrape.py                      12 of 199     6.0%
+   aider/versioncheck.py                10 of 37      27.0%
+   aider/voice.py                       9 of 104      8.7%
+   benchmark/benchmark.py               33 of 730     4.5%
+   benchmark/over_time.py               32 of 60      53.3%
+   benchmark/swe_bench_lite.py          40 of 71      56.3%
+   scripts/blame.py                     55 of 212     25.9%
+   scripts/versionbump.py               96 of 123     78.0%
+   setup.py                             11 of 47      23.4%
+   tests/test_coder.py                  48 of 612     7.8%
+   tests/test_commands.py               135 of 588    23.0%
+   tests/test_editblock.py              23 of 403     5.7%
+   tests/test_io.py                     30 of 65      46.2%
+   tests/test_main.py                   13 of 239     5.4%
+   tests/test_models.py                 6 of 28       21.4%
+   tests/test_repo.py                   2 of 296      0.7%
+   tests/test_repomap.py                70 of 217     32.3%
+   tests/test_udiff.py                  7 of 119      5.9%
+   tests/test_wholefile.py              37 of 321     11.5%
+   Total                                1022 of 14219 7.2%
+

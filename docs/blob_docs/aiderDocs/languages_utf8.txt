@@ -1,0 +1,181 @@
+Page: aider.chat_files/aider.chat/docs/languages.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+
+Supported languages
+
+   Aider should work well with most popular coding languages. This is
+   because top LLMs are fluent in most mainstream languages, and familiar
+   with popular libraries, packages and frameworks.
+
+   Aider has specific support for linting many languages. By default,
+   aider runs the built in linter any time a file is edited. If it finds
+   syntax errors, aider will offer to fix them for you. This helps catch
+   small code issues and quickly fix them.
+
+   Aider also does code analysis to help the LLM navigate larger code
+   bases by producing a [85]repository map. Aider can currently produce
+   repository maps for many popular mainstream languages, listed below.
+
+How to add support for another language
+
+   Aider should work quite well for other languages, even those without
+   repo map or linter support. You should really try coding with aider
+   before assuming it needs better support for your language.
+
+   That said, if aider already has support for linting your language, then
+   it should be possible to add repo map support. To build a repo map,
+   aider needs the tags.scm file from the given language's tree-sitter
+   grammar. If you can find and share that file in a [86]GitHub issue,
+   then it may be possible to add repo map support.
+
+   If aider doesn't support linting, it will be complicated to add linting
+   and repo map support. That is because aider relies on
+   [87]py-tree-sitter-languages to provide pre-packaged versions of
+   tree-sitter parsers for many languages.
+
+   Aider needs to be easy for users to install in many environments, and
+   it is probably too complex to add dependencies on additional individual
+   tree-sitter parsers.
+       Language      File extension Repo map Linter
+   bash              .bash                   X
+   c                 .c             X        X
+   c_sharp           .cs            X        X
+   commonlisp        .cl                     X
+   cpp               .cc            X        X
+   cpp               .cpp           X        X
+   css               .css                    X
+   dockerfile        .dockerfile             X
+   dot               .dot                    X
+   elisp             .el            X        X
+   elixir            .ex            X        X
+   elm               .elm           X        X
+   embedded_template .et                     X
+   erlang            .erl                    X
+   go                .go            X        X
+   gomod             .gomod                  X
+   hack              .hack                   X
+   haskell           .hs                     X
+   hcl               .hcl                    X
+   html              .html                   X
+   java              .java          X        X
+   javascript        .js            X        X
+   javascript        .mjs           X        X
+   jsdoc             .jsdoc                  X
+   json              .json                   X
+   julia             .jl                     X
+   kotlin            .kt                     X
+   lua               .lua                    X
+   make              .mk                     X
+   objc              .m                      X
+   ocaml             .ml            X        X
+   perl              .pl                     X
+   php               .php           X        X
+   python            .py            X        X
+   ql                .ql            X        X
+   r                 .R                      X
+   r                 .r                      X
+   regex             .regex                  X
+   rst               .rst                    X
+   ruby              .rb            X        X
+   rust              .rs            X        X
+   scala             .scala                  X
+   sql               .sql                    X
+   sqlite            .sqlite                 X
+   toml              .toml                   X
+   tsq               .tsq                    X
+   typescript        .ts            X        X
+   typescript        .tsx           X        X
+   yaml              .yaml                   X
+

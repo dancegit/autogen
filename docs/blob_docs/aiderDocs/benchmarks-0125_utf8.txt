@@ -1,0 +1,133 @@
+Page: aider.chat_files/aider.chat/2024/01/25/benchmarks-0125.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+   January 25, 2024
+
+The January GPT-4 Turbo is lazier than the last version
+
+   [84]benchmark results
+
+   [85]OpenAI just released a new version of GPT-4 Turbo. This new model
+   is intended to reduce the "laziness" that has been widely observed with
+   the previous gpt-4-1106-preview model:
+
+     Today, we are releasing an updated GPT-4 Turbo preview model,
+     gpt-4-0125-preview. This model completes tasks like code generation
+     more thoroughly than the previous preview model and is intended to
+     reduce cases of "laziness" where the model doesn't complete a task.
+
+   With that in mind, I've been benchmarking the new model using aider's
+   existing [86]lazy coding benchmark.
+
+Benchmark results
+
+   Overall, the new gpt-4-0125-preview model seems lazier than the
+   November gpt-4-1106-preview model:
+     * It gets worse benchmark scores when using the [87]unified diffs
+       code editing format.
+     * Using aider's older SEARCH/REPLACE block editing format, the new
+       January model outperforms the older November model. But it still
+       performs worse than both models using unified diffs.
+
+Related reports
+
+   This is one in a series of reports that use the aider benchmarking
+   suite to assess and compare the code editing capabilities of OpenAI's
+   GPT models. You can review the other reports for additional
+   information:
+     * [88]GPT code editing benchmarks evaluates the March and June
+       versions of GPT-3.5 and GPT-4.
+     * [89]Code editing benchmarks for OpenAI's "1106" models.
+     * [90]Aider's lazy coding benchmark.
+

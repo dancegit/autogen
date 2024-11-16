@@ -1,0 +1,513 @@
+Page: modal.com_files/modal.com/docs/guide/custom-container.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Custom containers
+
+   This guide walks you through how to define the environment your Modal
+   functions and applications run within.
+
+   These environments are called containers. Containers are like
+   light-weight virtual machines -- container engines use [81]operating
+   system tricks to isolate programs from each other ("containing" them),
+   making them work as though they were running on their own hardware with
+   their own filesystem. This makes execution environments more
+   reproducible, for example by preventing accidental cross-contamination
+   of environments on the same machine. For added security, Modal runs
+   containers using the sandboxed [82]gVisor container runtime.
+
+   Containers are started up from a stored "snapshot" of their filesystem
+   state called an image. Producing the image for a container is called
+   building the image.
+
+   By default, Modal functions are executed in a [83]Debian Linux
+   container with a basic Python installation of the same minor version
+   v3.x as your local Python interpreter.
+
+   Customizing this environment is critical. To make your apps and
+   functions useful, you will probably need some third party system
+   packages or Python libraries. To make them start up faster, you can
+   bake data like model weights into the container image, taking advantage
+   of Modal's optimized filesystem for serving containers.
+
+   Modal provides a number of options to customize your container images
+   at different levels of abstraction and granularity, from high-level
+   convenience methods like pip_install through wrappers of core container
+   image build features like RUN and ENV to full on
+   "bring-your-own-Dockerfile". We'll cover each of these in this guide,
+   along with tips and tricks for building images effectively when using
+   each tool.
+
+   The typical flow for defining an image in Modal is [84]method chaining
+   starting from a base image, like this:
+import modal
+
+image = (
+    modal.Image.debian_slim(python_version="3.10")
+    .apt_install("git")
+    .pip_install("torch==2.2.1")
+    .env({"HALT_AND_CATCH_FIRE": 0})
+    .run_commands("git clone https://github.com/modal-labs/agi && echo 'ready to
+ go!'")
+)
+
+   (BUTTON) Copy
+
+   In addition to being Pythonic and clean, this also matches the
+   onion-like [85]layerwise build process of container images.
+
+Add Python packages with pip_install
+
+   The simplest and most common container modification is to add some
+   third party Python package, like [86]pandas.
+
+   You can add Python packages to the environment by passing all the
+   packages you need to the [87]pip_install method of an image.
+
+   You can include [88]typical Python dependency version specifiers, like
+   "torch <= 2.0", in the arguments. But we recommend pinning dependencies
+   tightly, like "torch == 1.9.1", to improve the reproducibility and
+   robustness of your builds.
+
+   Of course, that means you need to start from some image. Below, we use
+   the recommended [89]debian_slim image as our base.
+import modal
+
+datascience_image = (
+    modal.Image.debian_slim(python_version="3.10")
+    .pip_install("pandas==2.2.0", "numpy")
+)
+
+
+@app.function(image=datascience_image)
+def my_function():
+    import pandas as pd
+    import numpy as np
+
+    df = pd.DataFrame()
+    ...
+
+   (BUTTON) Copy
+
+   Note that because you can define a different environment for each and
+   every Modal function if you so choose, you don't need to worry about
+   virtual environment management. Containers make for much better
+   separation of concerns!
+
+   If you want to run a specific version of Python remotely rather than
+   just matching the one you're running locally, provide the
+   python_version as a string when constructing the base image, like we
+   did above.
+
+What if I have different Python packages locally and remotely?
+
+   You might want to use packages inside your Modal code that you don't
+   have on your local computer. In the example above, we build a container
+   that uses pandas. But if we don't have pandas locally, on the computer
+   launching the Modal job, we can't put import pandas at the top of the
+   script, since it would cause an ImportError.
+
+   The easiest solution to this is to put import pandas in the function
+   body instead, as you can see above. This means that pandas is only
+   imported when running inside the remote Modal container, which has
+   pandas installed.
+
+   Be careful about what you return from Modal functions that have
+   different packages installed than the ones you have locally! Modal
+   functions return Python objects, like pandas.DataFrames, and if your
+   local machine doesn't have pandas installed, it won't be able to handle
+   a pandas object (the error message you see will mention
+   [90]serialization/[91]deserialization).
+
+   If you have a lot of functions and a lot of Python packages, you might
+   want to keep the imports in the global scope so that every function can
+   use the same imports. In that case, you can use the [92]imports()
+   context manager:
+import modal
+
+pandas_image = modal.Image.debian_slim().pip_install("pandas", "numpy")
+
+
+with pandas_image.imports():
+    import pandas as pd
+    import numpy as np
+
+
+@app.function(image=pandas_image)
+def my_function():
+    df = pd.DataFrame()
+
+   (BUTTON) Copy
+
+   Note that this feature is still in beta.
+
+Run shell commands with .run_commands
+
+   You can also supply shell commands that should be executed when
+   building the container image.
+
+   You might use this to preload custom assets, like model parameters, so
+   that they don't need to be retrieved when functions start up:
+import modal
+
+image_with_model = (
+    modal.Image.debian_slim().apt_install("curl").run_commands(
+        "curl -O https://raw.githubusercontent.com/opencv/opencv/master/data/haa
+rcascades/haarcascade_frontalcatface.xml",
+    )
+)
+
+
+@app.function(image=image_with_model)
+def find_cats():
+    content = open("/haarcascade_frontalcatface.xml").read()
+    ...
+
+   (BUTTON) Copy
+
+   You can also use this command to install Python packages. For example,
+   some libraries require a complicated pip invocation that is not
+   supported by .pip_install:
+import modal
+
+image = (
+    modal.Image.from_registry("pytorch/pytorch:2.3.1-cuda12.1-cudnn8-devel", add
+_python="3.11")
+    .apt_install("git")
+    .run_commands("pip install flash-attn --no-build-isolation")
+)
+
+   (BUTTON) Copy
+
+   Or you can install packages with [93]uv, which can be substantially
+   faster than pip:
+import modal
+
+image = (
+    modal.Image.debian_slim()
+    .pip_install("uv")
+    .run_commands("uv pip install --system --compile-bytecode torch")
+)
+
+   (BUTTON) Copy
+
+   Note that it is important to pass --compile-bytecode when using uv; its
+   default behavior differs from that of pip, but it is important to
+   compile the bytecode when you build the image so that it doesn't happen
+   on every container cold start.
+
+Run a Modal function during your build with .run_function
+
+   Instead of using shell commands, you can also run a Python function as
+   an image build step using the [94]Image.run_function method. For
+   example, you can use this to download model parameters from Hugging
+   Face into your image, massively speeding up function starts:
+import os
+import modal
+
+def download_models() -> None:
+    import diffusers
+
+    model_name = "segmind/small-sd"
+    pipe = diffusers.StableDiffusionPipeline.from_pretrained(
+        model_name, use_auth_token=os.environ["HF_TOKEN"]
+    )
+    pipe.save_pretrained("/model")
+
+
+image = (
+    modal.Image.debian_slim()
+        .pip_install("diffusers[torch]", "transformers", "ftfy", "accelerate")
+        .run_function(download_models, secrets=[modal.Secret.from_name("huggingf
+ace-secret")])
+)
+
+   (BUTTON) Copy
+
+   Any kwargs accepted by [95]@app.function (such as [96]Mounts,
+   [97]NetworkFileSystems, and specifications of resources like [98]GPUs)
+   can be supplied here.
+
+   Essentially, this is equivalent to running a Modal function and
+   snapshotting the resulting filesystem as an image.
+
+   Whenever you change other features of your image, like the base image
+   or the version of a Python package, the image will automatically be
+   rebuilt the next time it is used. This is a bit more complicated when
+   changing the contents of Modal functions. See the [99]reference
+   documentation for details.
+
+Attach GPUs during setup
+
+   If a step in the setup of your container image should be run on an
+   instance with a GPU (e.g., so that a package can be linked against CUDA
+   libraries), pass a desired GPU type when defining that step:
+import modal
+
+image = (
+    modal.Image.debian_slim()
+    .pip_install("bitsandbytes", gpu="H100")
+)
+
+   (BUTTON) Copy
+
+Use mamba instead of pip with micromamba_install
+
+   pip installs Python packages, but some Python workloads require the
+   coordinated installation of system packages as well. The mamba package
+   manager can install both. Modal provides a pre-built [100]Micromamba
+   base image that makes it easy to work with micromamba:
+import modal
+
+app = modal.App("bayes-pgm")
+
+numpyro_pymc_image = (
+    modal.Image.micromamba()
+    .micromamba_install("pymc==5.10.4", "numpyro==0.13.2", channels=["conda-forg
+e"])
+)
+
+
+@app.function(image=numpyro_pymc_image)
+def sample():
+    import pymc as pm
+    import numpyro as np
+
+    print(f"Running on PyMC v{pm.__version__} with JAX/numpyro v{np.__version__}
+ backend")
+    ...
+
+   (BUTTON) Copy
+
+Use an existing container image with .from_registry
+
+   You don't always need to start from scratch! Public registries like
+   [101]Docker Hub have many pre-built container images for common
+   software packages.
+
+   You can use any public image in your function using
+   [102]Image.from_registry, so long as:
+     * Python 3.8 or above is present, and is available as python
+     * pip is installed correctly
+     * The image is built for the [103]linux/amd64 platform
+     * The image has a [104]valid ENTRYPOINT
+
+import modal
+
+sklearn_image = modal.Image.from_registry("huanjason/scikit-learn")
+
+
+@app.function(image=sklearn_image)
+def fit_knn():
+    from sklearn.neighbors import KNeighborsClassifier
+    ...
+
+   (BUTTON) Copy
+
+   If an existing image does not have either python or pip set up
+   properly, you can still use it. Just provide a version number as the
+   add_python argument to install a reproducible, [105]standalone build of
+   Python:
+import modal
+
+image1 = modal.Image.from_registry("ubuntu:22.04", add_python="3.11")
+image2 = modal.Image.from_registry("gisops/valhalla:latest", add_python="3.11")
+
+   (BUTTON) Copy
+
+   The from_registry method can load images from all public registries,
+   such as [106]Nvidia's nvcr.io, [107]AWS ECR, and [108]GitHub's ghcr.io.
+
+   We also support access to [109]private AWS ECR and GCP Artifact
+   Registry images.
+
+Bring your own image definition with .from_dockerfile
+
+   Sometimes, you might be working in a setting where the environment is
+   already defined as a container image in the form of a Dockerfile.
+
+   Modal supports defining a container image directly from a Dockerfile
+   via the [110]Image.from_dockerfile function. It takes a path to an
+   existing Dockerfile.
+
+   For instance, we might write a Dockerfile based on the official Python
+   image and adding scikit-learn:
+FROM python:3.9
+RUN pip install sklearn
+
+   (BUTTON) Copy
+
+   and then define an image for Modal based on it:
+import modal
+
+dockerfile_image = modal.Image.from_dockerfile("Dockerfile")
+
+
+@app.function(image=dockerfile_image)
+def fit():
+    import sklearn
+    ...
+
+   (BUTTON) Copy
+
+   Note that you can still do method chaining to extend this image!
+
+Dockerfile command compatibility
+
+   Since Modal doesn't use Docker to build containers, we have our own
+   implementation of the [111]Dockerfile specification. Most Dockerfiles
+   should work out of the box, but there are some differences to be aware
+   of.
+
+   First, a few minor Dockerfile commands and flags have not been
+   implemented yet. Please reach out to us if your use case requires any
+   of these.
+
+   Next, there are some command-specific things that may be useful when
+   porting a Dockerfile to Modal.
+
+ENTRYPOINT
+
+   While the [112]ENTRYPOINT command is supported, there is an additional
+   constraint to the entrypoint script provided: it must also exec the
+   arguments passed to it at some point. This is so that Modal's own
+   Python entrypoint can run after your own. Most entrypoint scripts in
+   Docker containers are wrappers over other scripts, so this is likely
+   already the case.
+
+   If you wish to write your own entrypoint script, you can use the
+   following as a template:
+#!/usr/bin/env bash
+
+# Your custom startup commands here.
+
+exec "$@" # Runs the command passed to the entrypoint script.
+
+   (BUTTON) Copy
+
+   If the above file is saved as /usr/bin/my_entrypoint.sh in your
+   container, then you can register it as an entrypoint with ENTRYPOINT
+   ["/usr/bin/my_entrypoint.sh"] in your Dockerfile, or with
+   [113]entrypoint as an Image build step.
+import modal
+
+image = (
+    modal.Image.debian_slim()
+    .pip_install("foo")
+    .entrypoint(["/usr/bin/my_entrypoint.sh"])
+)
+
+   (BUTTON) Copy
+
+ENV
+
+   We currently don't support Default value in [114]Interpolation, such as
+   ${VAR:-default}
+
+Image caching and rebuilds
+
+   Modal uses the definition of an image to determine whether it needs to
+   be rebuilt. If the definition hasn't changed since the last time you
+   ran or deployed your App, the previous version will be pulled from the
+   cache.
+
+   Images are cached per layer (i.e., per Image method call), and breaking
+   the cache on a single layer will cause cascading rebuilds for all
+   subsequent layers. You can shorten iteration cycles by defining
+   frequently-changing layers last so that the cached version of all other
+   layers can be used.
+
+   In some cases, you may want to force an image to rebuild, even if the
+   definition hasn't changed. You can do this by adding the
+   force_build=True argument to any of the image build steps.
+import modal
+
+image = (
+    modal.Image.debian_slim()
+    .apt_install("git")
+    .pip_install("slack-sdk", force_build=True)
+    .run_commands("echo hi")
+)
+
+   (BUTTON) Copy
+
+   As in other cases where a layer's definition changes, both the
+   pip_install and run_commands layers will rebuild, but the apt_install
+   will not. Remember to remove force_build=True after you've rebuilt the
+   image, otherwise it will rebuild every time you run your code.
+
+   Alternatively, you can set the MODAL_FORCE_BUILD environment variable
+   (e.g. MODAL_FORCE_BUILD=1 modal run ...) to rebuild all images attached
+   to your App. But note that, when you rebuild a base layer, the cache
+   will be invalidated for all images that depend on it, and they will
+   rebuild the next time you run or deploy any App that uses that base.
+
+Image builder updates
+
+   Because changes to base images will cause cascading rebuilds, Modal is
+   conservative about updating the base definitions that we provide. But
+   many things are baked into these definitions, like the specific
+   versions of the Image OS, the included Python, and the Modal client
+   dependencies.
+
+   We provide a separate mechanism for keeping base images up-to-date
+   without causing unpredictable rebuilds: the "Image Builder Version".
+   This is a workspace level-configuration that will be used for every
+   Image built in your workspace. We release a new Image Builder Version
+   every few months but allow you to update your workspace's configuration
+   when convenient. After updating, your next deployment will take longer,
+   because your Images will rebuild. You may also encounter problems,
+   especially if your Image definition does not pin the version of the
+   third-party libraries that it installs (as your new Image will get the
+   latest version of these libraries, which may contain breaking changes).
+
+   You can set the Image Builder Version for your workspace by going to
+   your [115]workspace settings. This page also documents the important
+   updates in each version.
+   [116]Custom containers [117]Add Python packages with pip_install
+   [118]What if I have different Python packages locally and remotely?
+   [119]Run shell commands with .run_commands [120]Run a Modal function
+   during your build with .run_function [121]Attach GPUs during setup
+   [122]Use mamba instead of pip with micromamba_install [123]Use an
+   existing container image with .from_registry [124]Bring your own image
+   definition with .from_dockerfile [125]Dockerfile command compatibility
+   [126]ENTRYPOINT [127]ENV [128]Image caching and rebuilds [129]Image
+   builder updates
+   See it in action
+   [130]Registry image for Algolia indexing
+   Modal logo © 2024
+   [131]About [132]Status [133]Changelog [134]Documentation [135]Slack
+   Community [136]Pricing [137]Examples
+

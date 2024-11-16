@@ -1,0 +1,693 @@
+Page: modal.com_files/modal.com/docs/reference/modal.Image.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.Image
+
+class Image(modal.object.Object)
+
+   (BUTTON) Copy
+
+   Base class for container images to run functions in.
+
+   Do not construct this class directly; instead use one of its static
+   factory methods, such as modal.Image.debian_slim,
+   modal.Image.from_registry, or modal.Image.micromamba.
+def __init__(self, *args, **kwargs):
+
+   (BUTTON) Copy
+
+copy_mount
+
+def copy_mount(self, mount: _Mount, remote_path: Union[str, Path] = ".") -> "_Im
+age":
+
+   (BUTTON) Copy
+
+   Copy the entire contents of a modal.Mount into an image. Useful when
+   files only available locally are required during the image build
+   process.
+
+   Example
+static_images_dir = "./static"
+# place all static images in root of mount
+mount = modal.Mount.from_local_dir(static_images_dir, remote_path="/")
+# place mount's contents into /static directory of image.
+image = modal.Image.debian_slim().copy_mount(mount, remote_path="/static")
+
+   (BUTTON) Copy
+
+copy_local_file
+
+def copy_local_file(self, local_path: Union[str, Path], remote_path: Union[str,
+Path] = "./") -> "_Image":
+
+   (BUTTON) Copy
+
+   Copy a file into the image as a part of building it.
+
+   This works in a similar way to [71]COPY works in a Dockerfile.
+
+copy_local_dir
+
+def copy_local_dir(self, local_path: Union[str, Path], remote_path: Union[str, P
+ath] = ".") -> "_Image":
+
+   (BUTTON) Copy
+
+   Copy a directory into the image as a part of building the image.
+
+   This works in a similar way to [72]COPY works in a Dockerfile.
+
+pip_install
+
+def pip_install(
+    self,
+    *packages: Union[str, List[str]],  # A list of Python packages, eg. ["numpy"
+, "matplotlib>=3.5.0"]
+    find_links: Optional[str] = None,  # Passes -f (--find-links) pip install
+    index_url: Optional[str] = None,  # Passes -i (--index-url) to pip install
+    extra_index_url: Optional[str] = None,  # Passes --extra-index-url to pip in
+stall
+    pre: bool = False,  # Passes --pre (allow pre-releases) to pip install
+    extra_options: str = "",  # Additional options to pass to pip install, e.g.
+"--no-build-isolation --no-clean"
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+    secrets: Sequence[_Secret] = [],
+    gpu: GPU_T = None,
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Install a list of Python packages using pip.
+
+   Examples
+
+   Simple installation:
+image = modal.Image.debian_slim().pip_install("click", "httpx~=0.23.3")
+
+   (BUTTON) Copy
+
+   More complex installation:
+image = (
+    modal.Image.from_registry(
+        "nvidia/cuda:12.2.0-devel-ubuntu22.04", add_python="3.11"
+    )
+    .pip_install(
+        "ninja",
+        "packaging",
+        "wheel",
+        "transformers==4.40.2",
+    )
+    .pip_install(
+        "flash-attn==2.5.8", extra_options="--no-build-isolation"
+    )
+)
+
+   (BUTTON) Copy
+
+pip_install_private_repos
+
+def pip_install_private_repos(
+    self,
+    *repositories: str,
+    git_user: str,
+    find_links: Optional[str] = None,  # Passes -f (--find-links) pip install
+    index_url: Optional[str] = None,  # Passes -i (--index-url) to pip install
+    extra_index_url: Optional[str] = None,  # Passes --extra-index-url to pip in
+stall
+    pre: bool = False,  # Passes --pre (allow pre-releases) to pip install
+    extra_options: str = "",  # Additional options to pass to pip install, e.g.
+"--no-build-isolation --no-clean"
+    gpu: GPU_T = None,
+    secrets: Sequence[_Secret] = [],
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Install a list of Python packages from private git repositories using
+   pip.
+
+   This method currently supports Github and Gitlab only.
+     * Github: Provide a modal.Secret that contains a GITHUB_TOKEN
+       key-value pair
+     * Gitlab: Provide a modal.Secret that contains a GITLAB_TOKEN
+       key-value pair
+
+   These API tokens should have permissions to read the list of private
+   repositories provided as arguments.
+
+   We recommend using Github's [73]`fine-grained' access tokens. These
+   tokens are repo-scoped, and avoid granting read permission across all
+   of a user's private repos.
+
+   Example
+image = (
+    modal.Image
+    .debian_slim()
+    .pip_install_private_repos(
+        "github.com/ecorp/private-one@1.0.0",
+        "github.com/ecorp/private-two@main"
+        "github.com/ecorp/private-three@d4776502"
+        # install from 'inner' directory on default branch.
+        "github.com/ecorp/private-four#subdirectory=inner",
+        git_user="erikbern",
+        secrets=[modal.Secret.from_name("github-read-private")],
+    )
+)
+
+   (BUTTON) Copy
+
+pip_install_from_requirements
+
+def pip_install_from_requirements(
+    self,
+    requirements_txt: str,  # Path to a requirements.txt file.
+    find_links: Optional[str] = None,  # Passes -f (--find-links) pip install
+    *,
+    index_url: Optional[str] = None,  # Passes -i (--index-url) to pip install
+    extra_index_url: Optional[str] = None,  # Passes --extra-index-url to pip in
+stall
+    pre: bool = False,  # Passes --pre (allow pre-releases) to pip install
+    extra_options: str = "",  # Additional options to pass to pip install, e.g.
+"--no-build-isolation --no-clean"
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+    secrets: Sequence[_Secret] = [],
+    gpu: GPU_T = None,
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Install a list of Python packages from a local requirements.txt file.
+
+pip_install_from_pyproject
+
+def pip_install_from_pyproject(
+    self,
+    pyproject_toml: str,
+    optional_dependencies: List[str] = [],
+    *,
+    find_links: Optional[str] = None,  # Passes -f (--find-links) pip install
+    index_url: Optional[str] = None,  # Passes -i (--index-url) to pip install
+    extra_index_url: Optional[str] = None,  # Passes --extra-index-url to pip in
+stall
+    pre: bool = False,  # Passes --pre (allow pre-releases) to pip install
+    extra_options: str = "",  # Additional options to pass to pip install, e.g.
+"--no-build-isolation --no-clean"
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+    secrets: Sequence[_Secret] = [],
+    gpu: GPU_T = None,
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Install dependencies specified by a local pyproject.toml file.
+
+   optional_dependencies is a list of the keys of the
+   optional-dependencies section(s) of the pyproject.toml file (e.g. test,
+   doc, experiment, etc). When provided, all of the packages in each
+   listed section are installed as well.
+
+poetry_install_from_file
+
+def poetry_install_from_file(
+    self,
+    poetry_pyproject_toml: str,
+    # Path to the lockfile. If not provided, uses poetry.lock in the same direct
+ory.
+    poetry_lockfile: Optional[str] = None,
+    # If set to True, it will not use poetry.lock
+    ignore_lockfile: bool = False,
+    # If set to True, use old installer. See https://github.com/python-poetry/po
+etry/issues/3336
+    old_installer: bool = False,
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+    # Selected optional dependency groups to install (See https://python-poetry.
+org/docs/cli/#install)
+    with_: List[str] = [],
+    # Selected optional dependency groups to exclude (See https://python-poetry.
+org/docs/cli/#install)
+    without: List[str] = [],
+    # Only install dependency groups specifed in this list.
+    only: List[str] = [],
+    *,
+    secrets: Sequence[_Secret] = [],
+    gpu: GPU_T = None,
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Install poetry dependencies specified by a local pyproject.toml file.
+
+   If not provided as argument the path to the lockfile is inferred.
+   However, the file has to exist, unless ignore_lockfile is set to True.
+
+   Note that the root project of the poetry project is not installed, only
+   the dependencies. For including local packages see
+   modal.Mount.from_local_python_packages
+
+dockerfile_commands
+
+def dockerfile_commands(
+    self,
+    *dockerfile_commands: Union[str, List[str]],
+    context_files: Dict[str, str] = {},
+    secrets: Sequence[_Secret] = [],
+    gpu: GPU_T = None,
+    # modal.Mount with local files to supply as build context for COPY commands
+    context_mount: Optional[_Mount] = None,
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Extend an image with arbitrary Dockerfile-like commands.
+
+entrypoint
+
+def entrypoint(
+    self,
+    entrypoint_commands: List[str],
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Set the entrypoint for the image.
+
+shell
+
+def shell(
+    self,
+    shell_commands: List[str],
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Overwrite default shell for the image.
+
+run_commands
+
+def run_commands(
+    self,
+    *commands: Union[str, List[str]],
+    secrets: Sequence[_Secret] = [],
+    gpu: GPU_T = None,
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Extend an image with a list of shell commands to run.
+
+micromamba
+
+@staticmethod
+def micromamba(
+    python_version: Optional[str] = None,
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   A Micromamba base image. Micromamba allows for fast building of small
+   Conda-based containers.
+
+micromamba_install
+
+def micromamba_install(
+    self,
+    # A list of Python packages, eg. ["numpy", "matplotlib>=3.5.0"]
+    *packages: Union[str, List[str]],
+    # A local path to a file containing package specifications
+    spec_file: Optional[str] = None,
+    # A list of Conda channels, eg. ["conda-forge", "nvidia"].
+    channels: List[str] = [],
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+    secrets: Sequence[_Secret] = [],
+    gpu: GPU_T = None,
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Install a list of additional packages using micromamba.
+
+from_registry
+
+@staticmethod
+def from_registry(
+    tag: str,
+    *,
+    secret: Optional[_Secret] = None,
+    setup_dockerfile_commands: List[str] = [],
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+    add_python: Optional[str] = None,
+    **kwargs,
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Build a Modal image from a public or private image registry, such as
+   Docker Hub.
+
+   The image must be built for the linux/amd64 platform.
+
+   If your image does not come with Python installed, you can use the
+   add_python parameter to specify a version of Python to add to the
+   image. Otherwise, the image is expected to have Python on PATH as
+   python, along with pip.
+
+   You may also use setup_dockerfile_commands to run Dockerfile commands
+   before the remaining commands run. This might be useful if you want a
+   custom Python installation or to set a SHELL. Prefer run_commands()
+   when possible though.
+
+   To authenticate against a private registry with static credentials, you
+   must set the secret parameter to a modal.Secret containing a username
+   (REGISTRY_USERNAME) and an access token or password
+   (REGISTRY_PASSWORD).
+
+   To authenticate against private registries with credentials from a
+   cloud provider, use Image.from_gcp_artifact_registry() or
+   Image.from_aws_ecr().
+
+   Examples
+modal.Image.from_registry("python:3.11-slim-bookworm")
+modal.Image.from_registry("ubuntu:22.04", add_python="3.11")
+modal.Image.from_registry("nvcr.io/nvidia/pytorch:22.12-py3")
+
+   (BUTTON) Copy
+
+from_gcp_artifact_registry
+
+@staticmethod
+def from_gcp_artifact_registry(
+    tag: str,
+    secret: Optional[_Secret] = None,
+    *,
+    setup_dockerfile_commands: List[str] = [],
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+    add_python: Optional[str] = None,
+    **kwargs,
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Build a Modal image from a private image in Google Cloud Platform (GCP)
+   Artifact Registry.
+
+   You will need to pass a modal.Secret containing [74]your GCP service
+   account key data as SERVICE_ACCOUNT_JSON. This can be done from the
+   [75]Secrets page. Your service account should be granted a specific
+   role depending on the GCP registry used:
+     * For Artifact Registry images (pkg.dev domains) use the
+       [76]"Artifact Registry Reader" role
+     * For Container Registry images (gcr.io domains) use the [77]"Storage
+       Object Viewer" role
+
+   Note: This method does not use GOOGLE_APPLICATION_CREDENTIALS as that
+   variable accepts a path to a JSON file, not the actual JSON string.
+
+   See Image.from_registry() for information about the other parameters.
+
+   Example
+modal.Image.from_gcp_artifact_registry(
+    "us-east1-docker.pkg.dev/my-project-1234/my-repo/my-image:my-version",
+    secret=modal.Secret.from_name("my-gcp-secret"),
+    add_python="3.11",
+)
+
+   (BUTTON) Copy
+
+from_aws_ecr
+
+@staticmethod
+def from_aws_ecr(
+    tag: str,
+    secret: Optional[_Secret] = None,
+    *,
+    setup_dockerfile_commands: List[str] = [],
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+    add_python: Optional[str] = None,
+    **kwargs,
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Build a Modal image from a private image in AWS Elastic Container
+   Registry (ECR).
+
+   You will need to pass a modal.Secret containing an AWS key
+   (AWS_ACCESS_KEY_ID) and secret (AWS_SECRET_ACCESS_KEY) with permissions
+   to access the target ECR registry.
+
+   IAM configuration details can be found in the AWS documentation for
+   [78]"Private repository policies".
+
+   See Image.from_registry() for information about the other parameters.
+
+   Example
+modal.Image.from_aws_ecr(
+    "000000000000.dkr.ecr.us-east-1.amazonaws.com/my-private-registry:my-version
+",
+    secret=modal.Secret.from_name("aws"),
+    add_python="3.11",
+)
+
+   (BUTTON) Copy
+
+from_dockerfile
+
+@staticmethod
+def from_dockerfile(
+    # Filepath to Dockerfile.
+    path: Union[str, Path],
+    # modal.Mount with local files to supply as build context for COPY commands.
+    # NOTE: The remote_path of the Mount should match the Dockerfile's WORKDIR.
+    context_mount: Optional[_Mount] = None,
+    # Ignore cached builds, similar to 'docker build --no-cache'
+    force_build: bool = False,
+    *,
+    secrets: Sequence[_Secret] = [],
+    gpu: GPU_T = None,
+    add_python: Optional[str] = None,
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Build a Modal image from a local Dockerfile.
+
+   If your Dockerfile does not have Python installed, you can use the
+   add_python parameter to specify a version of Python to add to the
+   image.
+
+   Example
+image = modal.Image.from_dockerfile("./Dockerfile", add_python="3.12")
+
+   (BUTTON) Copy
+
+   If your Dockerfile uses COPY instructions which copy data from the
+   local context of the build into the image, this local data must be
+   uploaded to Modal via a context mount:
+image = modal.Image.from_dockerfile(
+    "./Dockerfile",
+    context_mount=modal.Mount.from_local_dir(
+        local_path="src",
+        remote_path=".",  # to current WORKDIR
+    ),
+)
+
+   (BUTTON) Copy
+
+   The context mount will allow a COPY src/ src/ instruction to succeed in
+   Modal's remote builder.
+
+debian_slim
+
+@staticmethod
+def debian_slim(python_version: Optional[str] = None, force_build: bool = False)
+ -> "_Image":
+
+   (BUTTON) Copy
+
+   Default image, based on the official python Docker images.
+
+apt_install
+
+def apt_install(
+    self,
+    *packages: Union[str, List[str]],  # A list of packages, e.g. ["ssh", "libpq
+-dev"]
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+    secrets: Sequence[_Secret] = [],
+    gpu: GPU_T = None,
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Install a list of Debian packages using apt.
+
+   Example
+image = modal.Image.debian_slim().apt_install("git")
+
+   (BUTTON) Copy
+
+run_function
+
+def run_function(
+    self,
+    raw_f: Callable[..., Any],
+    secrets: Sequence[_Secret] = (),  # Optional Modal Secret objects with envir
+onment variables for the container
+    gpu: Union[
+        GPU_T, List[GPU_T]
+    ] = None,  # GPU request as string ("any", "T4", ...), object (`modal.GPU.A1
+00()`, ...), or a list of either
+    mounts: Sequence[_Mount] = (),  # Mounts attached to the function
+    volumes: Dict[Union[str, PurePosixPath], Union[_Volume, _CloudBucketMount]]
+= {},  # Volume mount paths
+    network_file_systems: Dict[Union[str, PurePosixPath], _NetworkFileSystem] =
+{},  # NFS mount paths
+    cpu: Optional[float] = None,  # How many CPU cores to request. This is a sof
+t limit.
+    memory: Optional[int] = None,  # How much memory to request, in MiB. This is
+ a soft limit.
+    timeout: Optional[int] = 60 * 60,  # Maximum execution time of the function
+in seconds.
+    force_build: bool = False,  # Ignore cached builds, similar to 'docker build
+ --no-cache'
+    cloud: Optional[str] = None,  # Cloud provider to run the function on. Possi
+ble values are aws, gcp, oci, auto.
+    region: Optional[Union[str, Sequence[str]]] = None,  # Region or regions to
+run the function on.
+    args: Sequence[Any] = (),  # Positional arguments to the function.
+    kwargs: Dict[str, Any] = {},  # Keyword arguments to the function.
+) -> "_Image":
+
+   (BUTTON) Copy
+
+   Run user-defined function raw_f as an image build step. The function
+   runs just like an ordinary Modal function, and any kwargs accepted by
+   @app.function (such as Mounts, NetworkFileSystems, and resource
+   requests) can be supplied to it. After it finishes execution, a
+   snapshot of the resulting container file system is saved as an image.
+
+   Note
+
+   Only the source code of raw_f, the contents of **kwargs, and any
+   referenced global variables are used to determine whether the image has
+   changed and needs to be rebuilt. If this function references other
+   functions or variables, the image will not be rebuilt if you make
+   changes to them. You can force a rebuild by changing the function's
+   source code itself.
+
+   Example
+def my_build_function():
+    open("model.pt", "w").write("parameters!")
+
+image = (
+    modal.Image
+        .debian_slim()
+        .pip_install("torch")
+        .run_function(my_build_function, secrets=[...], mounts=[...])
+)
+
+   (BUTTON) Copy
+
+env
+
+def env(self, vars: Dict[str, str]) -> "_Image":
+
+   (BUTTON) Copy
+
+   Sets the environment variables in an Image.
+
+   Example
+image = (
+    modal.Image.debian_slim()
+    .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
+)
+
+   (BUTTON) Copy
+
+workdir
+
+def workdir(self, path: str) -> "_Image":
+
+   (BUTTON) Copy
+
+   Set the working directory for subsequent image build steps and function
+   execution.
+
+   Example
+image = (
+    modal.Image.debian_slim()
+    .run_commands("git clone https://xyz app")
+    .workdir("/app")
+    .run_commands("yarn install")
+)
+
+   (BUTTON) Copy
+
+imports
+
+@contextlib.contextmanager
+def imports(self):
+
+   (BUTTON) Copy
+
+   Used to import packages in global scope that are only available when
+   running remotely. By using this context manager you can avoid an
+   ImportError due to not having certain packages installed locally.
+
+   Usage:
+with image.imports():
+    import torch
+
+   (BUTTON) Copy
+   [79]modal.Image [80]copy_mount [81]copy_local_file [82]copy_local_dir
+   [83]pip_install [84]pip_install_private_repos
+   [85]pip_install_from_requirements [86]pip_install_from_pyproject
+   [87]poetry_install_from_file [88]dockerfile_commands [89]entrypoint
+   [90]shell [91]run_commands [92]micromamba [93]micromamba_install
+   [94]from_registry [95]from_gcp_artifact_registry [96]from_aws_ecr
+   [97]from_dockerfile [98]debian_slim [99]apt_install [100]run_function
+   [101]env [102]workdir [103]imports
+   Modal logo © 2024
+   [104]About [105]Status [106]Changelog [107]Documentation [108]Slack
+   Community [109]Pricing [110]Examples
+

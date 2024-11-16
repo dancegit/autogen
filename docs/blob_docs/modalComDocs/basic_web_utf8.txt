@@ -1,0 +1,264 @@
+Page: modal.com_files/modal.com/docs/examples/basic_web.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Hello world wide web!
+
+   Modal makes it easy to turn your Python functions into serverless web
+   services: access them via a browser or call them from any client that
+   speaks HTTP, all without having to worry about setting up servers or
+   managing infrastructure.
+
+   This tutorial shows the path with the shortest [63]"time to 200":
+   [64]modal.web_endpoint.
+
+   On Modal, web endpoints have all the superpowers of Modal Functions:
+   they can be [65]accelerated with GPUs, they can access [66]Secrets or
+   [67]Volumes, and they [68]automatically scale to handle more traffic.
+
+   Under the hood, we use the [69]FastAPI library, which has
+   [70]high-quality documentation, linked throughout this tutorial.
+
+Turn a Modal Function into an endpoint with a single decorator
+
+   Modal Functions are already accessible remotely -- when you add the
+   @app.function decorator to a Python function and run modal deploy, you
+   make it possible for your [71]other Python functions to call it.
+
+   That's great, but it's not much help if you want to share what you've
+   written with someone running code in a different language -- or not
+   running code at all!
+
+   And that's where most of the power of the Internet comes from: sharing
+   information and functionality across different computer systems.
+
+   So we provide the web_endpoint decorator to wrap your Modal Functions
+   in the lingua franca of the web: HTTP. Here's what that looks like:
+import modal
+
+image = modal.Image.debian_slim().pip_install("fastapi[standard]")
+app = modal.App(name="example-lifecycle-web", image=image)
+
+
+@app.function()
+@modal.web_endpoint(
+    docs=True  # adds interactive documentation in the browser
+)
+def hello():
+    return "Hello world!"
+
+   (BUTTON) Copy
+
+   You can turn this function into a web endpoint by running modal serve
+   basic_web.py. In the output, you should see a URL that ends with
+   hello-dev.modal.run. If you navigate to this URL, you should see the
+   "Hello world!" message appear in your browser.
+
+   You can also find interactive documentation, powered by OpenAPI and
+   Swagger, if you add /docs to the end of the URL. From this
+   documentation, you can interact with your endpoint, sending HTTP
+   requests and receiving HTTP responses. For more details, see the
+   [72]FastAPI documentation.
+
+   By running the endpoint with modal serve, you created a temporary
+   endpoint that will disappear if you interrupt your terminal. These
+   temporary endpoints are great for debugging -- when you save a change
+   to any of your dependent files, the endpoint will redeploy. Try
+   changing the message to something else, hitting save, and then hitting
+   refresh in your browser or re-sending the request from /docs or the
+   command line. You should see the new message, along with logs in your
+   terminal showing the redeploy and the request.
+
+   When you're ready to deploy this endpoint permanently, run modal deploy
+   basic_web.py. Now, your function will be available even when you've
+   closed your terminal or turned off your computer.
+
+Send data to a web endpoint
+
+   The web endpoint above was a bit silly: it always returns the same
+   message.
+
+   Most endpoints need an input to be useful. There are two ways to send
+   data to a web endpoint:
+     * in the URL as a [73]query parameter
+     * in the [74]body of the request as JSON
+
+Sending data in query parameters
+
+   By default, your function's arguments are treated as query parameters:
+   they are extracted from the end of the URL, where they should be added
+   in the form ?arg1=foo&arg2=bar.
+
+   From the Python side, there's hardly anything to do:
+@app.function()
+@modal.web_endpoint(docs=True)
+def greet(user: str) -> str:
+    return f"Hello {user}!"
+
+   (BUTTON) Copy
+
+   If you are already running modal serve basic_web.py, this endpoint will
+   be available at a URL, printed in your terminal, that ends with
+   greet-dev.modal.run.
+
+   We provide Python type-hints to get type information in the docs and
+   [75]automatic validation. For example, if you navigate directly to the
+   URL for greet, you will get a detailed error message indicating that
+   the user parameter is missing. Navigate instead to /docs to see how to
+   invoke the endpoint properly.
+
+   You can read more about query parameters in the [76]FastAPI
+   documentation.
+
+Sending data in the request body
+
+   For larger and more complex data, it is generally preferrable to send
+   data in the body of the HTTP request. This body is formatted as
+   [77]JSON, the most common data interchange format on the web.
+
+   To set up an endpoint that accepts JSON data, add an argument with a
+   dict type-hint to your function. This argument will be populated with
+   the data sent in the request body.
+@app.function()
+@modal.web_endpoint(method="POST", docs=True)
+def goodbye(data: dict) -> str:
+    name = data.get("name") or "world"
+    return f"Goodbye {name}!"
+
+   (BUTTON) Copy
+
+   Note that we gave a value of "POST" for the method argument here. This
+   argument defines the HTTP request method that the endpoint will respond
+   to, and it defaults to "GET". If you head to the URL for the goodbye
+   endpoint in your browser, you will get a 405 Method Not Allowed error,
+   because browsers only send GET requests by default. While this is
+   technically a separate concern from query parameters versus request
+   bodies and you can define an endpoint that accepts GET requests and
+   uses data from the body, it is [78]considered bad form.
+
+   Navigate to /docs for more on how to invoke the endpoint properly. You
+   will need to send a POST request with a JSON body containing a name
+   key. To get the same typing and validation benefits as with query
+   parameters, use a [79]Pydantic model for this argument.
+
+   You can read more about request bodies in the [80]FastAPI
+   documentation.
+
+Handle expensive startup with modal.Cls
+
+   Sometimes your endpoint needs to do something before it can handle its
+   first request, like get a value from a database or set the value of a
+   variable. If that step is expensive, like [81]loading a large ML model,
+   it'd be a shame to have to do it every time a request comes in!
+
+   Web endpoints can be methods on a [82]modal.Cls. Note that they don't
+   need the [83]modal.method decorator.
+
+   This example will only set the start_time instance variable once, on
+   container startup.
+@app.cls()
+class WebApp:
+    @modal.enter()
+    def startup(self):
+        from datetime import datetime, timezone
+
+        print(" Starting up!")
+        self.start_time = datetime.now(timezone.utc)
+
+    @modal.web_endpoint(docs=True)
+    def web(self):
+        from datetime import datetime, timezone
+
+        current_time = datetime.now(timezone.utc)
+        return {"start_time": self.start_time, "current_time": current_time}
+
+   (BUTTON) Copy
+
+What next?
+
+   Modal's web_endpoint decorator is opinionated and designed for
+   relatively simple web applications -- one or a few independent Python
+   functions that you want to expose to the web.
+
+   Three additional decorators allow you to serve more complex web
+   applications with greater control:
+     * [84]asgi_app to serve applications compliant with the ASGI
+       standard, like [85]FastAPI
+     * [86]wsgi_app to serve applications compliant with the WSGI
+       standard, like [87]Flask
+     * [88]web_server to serve any application that listens on a port
+
+   [89]Hello world wide web! [90]Turn a Modal Function into an endpoint
+   with a single decorator [91]Send data to a web endpoint [92]Sending
+   data in query parameters [93]Sending data in the request body
+   [94]Handle expensive startup with modal.Cls [95]What next?
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [96]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [97]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal serve 07_web_endpoints/basic_web.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [98]About [99]Status [100]Changelog [101]Documentation [102]Slack
+   Community [103]Pricing [104]Examples
+

@@ -1,0 +1,176 @@
+Page: aider.chat_files/aider.chat/docs/install/optional.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+
+Optional steps
+
+   The steps below are completely optional.
+     * [85]Store your api keys
+     * [86]Enable Playwright
+     * [87]Enable voice coding
+     * [88]Add aider to your editor
+          + [89]NeoVim
+          + [90]VS Code
+          + [91]Other editors
+     * [92]Install the development version of aider
+
+Store your api keys
+
+   You can [93]store your api keys in a .env file and they will be loaded
+   automatically whenever you run aider.
+
+Enable Playwright
+
+   Aider supports adding web pages to the chat with the /web <url>
+   command. When you add a url to the chat, aider fetches the page and
+   scrapes its content.
+
+   By default, aider uses the httpx library to scrape web pages, but this
+   only works on a subset of web pages. Some sites explicitly block
+   requests from tools like httpx. Others rely heavily on javascript to
+   render the page content, which isn't possible using only httpx.
+
+   Aider works best with all web pages if you install Playwright's
+   chromium browser and its dependencies:
+playwright install --with-deps chromium
+
+   See the [94]Playwright for Python documentation for additional
+   information.
+
+Enable voice coding
+
+   Aider supports [95]coding with your voice using the in-chat /voice
+   command. Aider uses the [96]PortAudio library to capture audio.
+   Installing PortAudio is completely optional, but can usually be
+   accomplished like this:
+     * For Windows, there is no need to install PortAudio.
+     * For Mac, do brew install portaudio
+     * For Linux, do sudo apt-get install libportaudio2
+
+Add aider to your editor
+
+   Other projects have integrated aider into some IDE/editors. It's not
+   clear if they are tracking the latest versions of aider, so it may be
+   best to just run the latest aider in a terminal alongside your editor.
+
+NeoVim
+
+   [97]joshuavial provided a NeoVim plugin for aider:
+
+   [98]https://github.com/joshuavial/aider.nvim
+
+VS Code
+
+   joshuavial also confirmed that aider works inside a VS Code terminal
+   window. Aider detects if it is running inside VSCode and turns off
+   pretty/color output, since the VSCode terminal doesn't seem to support
+   it well.
+
+Other editors
+
+   If you are interested in creating an aider plugin for your favorite
+   editor, please let me know by opening a [99]GitHub issue.
+
+Install the development version of aider
+
+   If you want the very latest development version of aider you can
+   install directly from GitHub:
+python -m pip install --upgrade git+https://github.com/Aider-AI/aider.git
+
+   If you've git cloned the aider repository already, you can install
+   "live" from your local copy. This is mostly useful if you are
+   developing aider and want your current modifications to take effect
+   immediately.
+python -m pip install -e .
+

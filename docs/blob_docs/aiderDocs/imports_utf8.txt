@@ -1,0 +1,157 @@
+Page: aider.chat_files/aider.chat/docs/troubleshooting/imports.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+
+Dependency versions
+
+   Aider expects to be installed via pip or pipx, which will install
+   correct versions of all of its required dependencies.
+
+   If you've been linked to this doc from a GitHub issue, or if aider is
+   reporting ImportErrors it is likely that your aider install is using
+   incorrect dependencies.
+
+Install with pipx
+
+   If you are having dependency problems you should consider
+   [85]installing aider using pipx. This will ensure that aider is
+   installed in its own python environment, with the correct set of
+   dependencies.
+
+   Try re-installing cleanly:
+pipx uninstall aider-chat
+pipx install aider-chat
+
+Package managers like Homebrew, AUR, ports
+
+   Package managers often install aider with the wrong dependencies,
+   leading to import errors and other problems.
+
+   The recommended way to install aider is with [86]pip. Be sure to use
+   the --upgrade-strategy only-if-needed switch so that the correct
+   versions of dependencies will be installed.
+python -m pip install -U --upgrade-strategy only-if-needed aider-chat
+
+   A very safe way is to [87]install aider using pipx, which will ensure
+   it is installed in a stand alone virtual environment.
+
+Dependency versions matter
+
+   Aider pins its dependencies and is tested to work with those specific
+   versions. If you are installing aider with pip (rather than pipx), you
+   should be careful about upgrading or downgrading the python packages
+   that aider uses.
+
+   In particular, be careful with the packages with pinned versions noted
+   at the end of [88]aider's requirements.in file. These versions are
+   pinned because aider is known not to work with the latest versions of
+   these libraries.
+
+   Also be wary of upgrading litellm, as it changes versions frequently
+   and sometimes introduces bugs or backwards incompatible changes.
+
+Replit
+
+   You can pip install -U aider-chat on replit.
+
+   Or you can install aider with pipx as follows:
+
+   To use aider with pipx on replit, you can run these commands in the
+   replit shell:
+pip install pipx
+pipx run aider-chat ...normal aider args...
+
+   If you install aider with pipx on replit and try and run it as just
+   aider it will crash with a missing libstdc++.so.6 library.
+

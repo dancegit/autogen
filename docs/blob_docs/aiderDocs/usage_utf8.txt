@@ -1,0 +1,174 @@
+Page: aider.chat_files/aider.chat/docs/usage.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+Usage
+
+   Run aider with the source code files you want to edit. These files will
+   be "added to the chat session", so that aider can see their contents
+   and edit them for you. They can be existing files or the name of files
+   you want aider to create for you.
+aider <file1> <file2> ...
+
+   At the aider > prompt, ask for code changes and aider will edit those
+   files to accomplish your request.
+$ aider factorial.py
+
+Aider v0.37.1-dev
+Models: gpt-4o with diff edit format, weak model gpt-3.5-turbo
+Git repo: .git with 258 files
+Repo-map: using 1024 tokens
+Use /help to see in-chat commands, run with --help to see cmd line args
+-----------------------------------------------------------------------
+> Make a program that asks for a number and prints its factorial
+
+...
+
+   Use /help <question> to [84]ask for help about using aider, customizing
+   settings, troubleshooting, using LLMs, etc.
+
+Adding files
+
+   To edit files, you need to "add them to the chat". Do this by naming
+   them on the aider command line. Or, you can use the in-chat /add
+   command to add files.
+
+   Only add the files that need to be edited for your task. Don't add a
+   bunch of extra files. If you add too many files, the LLM can get
+   overwhelmed and confused (and it costs more tokens). Aider will
+   automatically pull in content from related files so that it can
+   [85]understand the rest of your code base.
+
+   You can use aider without adding any files, and it will try to figure
+   out which files need to be edited based on your requests.
+
+   You'll get the best results if you think about which files need to be
+   edited. Add just those files to the chat. Aider will include relevant
+   context from the rest of your repo.
+
+LLMs
+
+   Aider works best with GPT-4o & Claude 3.5 Sonnet and can [86]connect to
+   almost any LLM.
+# GPT-4o
+$ aider --4o
+
+# Claude 3.5 Sonnet
+$ aider --sonnet
+
+   Or you can run aider --model XXX to launch aider with another model.
+   During your chat you can switch models with the in-chat /model command.
+
+Making changes
+
+   Ask aider to make changes to your code. It will show you some diffs of
+   the changes it is making to complete you request. [87]Aider will git
+   commit all of its changes, so they are easy to track and undo.
+
+   You can always use the /undo command to undo AI changes that you don't
+   like.
+     __________________________________________________________________
+
+Table of contents
+
+     * [88]Tips
+     * [89]In-chat commands
+     * [90]Chat modes
+     * [91]Tutorial videos
+     * [92]Voice-to-code with aider
+     * [93]Images & web pages
+     * [94]Prompt caching
+     * [95]Aider in your browser
+     * [96]Specifying coding conventions
+     * [97]Linting and testing
+

@@ -1,0 +1,259 @@
+Page: modal.com_files/modal.com/docs/reference/modal.Dict.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.dict
+
+modal.dict.Dict
+
+class Dict(modal.object.Object)
+
+   (BUTTON) Copy
+
+   Distributed dictionary for storage in Modal apps.
+
+   Keys and values can be essentially any object, so long as they can be
+   serialized by cloudpickle, which includes other Modal objects.
+
+   Lifetime of a Dict and its items
+
+   An individual dict entry will expire 30 days after it was last added to
+   its Dict object. Additionally, data are stored in memory on the Modal
+   server and could be lost due to unexpected server restarts. Because of
+   this, Dict is best suited for storing short-term state and is not
+   recommended for durable storage.
+
+   Usage
+from modal import Dict
+
+my_dict = Dict.from_name("my-persisted_dict", create_if_missing=True)
+
+my_dict["some key"] = "some value"
+my_dict[123] = 456
+
+assert my_dict["some key"] == "some value"
+assert my_dict[123] == 456
+
+   (BUTTON) Copy
+
+   The Dict class offers a few methods for operations that are usually
+   accomplished in Python with operators, such as Dict.put and
+   Dict.contains. The advantage of these methods is that they can be
+   safely called in an asynchronous context, whereas their operator-based
+   analogues will block the event loop.
+
+   For more examples, see the [71]guide.
+
+ephemeral
+
+@classmethod
+@contextmanager
+def ephemeral(
+    cls: Type["_Dict"],
+    data: Optional[dict] = None,
+    client: Optional[_Client] = None,
+    environment_name: Optional[str] = None,
+    _heartbeat_sleep: float = EPHEMERAL_OBJECT_HEARTBEAT_SLEEP,
+) -> Iterator["_Dict"]:
+
+   (BUTTON) Copy
+
+   Creates a new ephemeral dict within a context manager:
+
+   Usage:
+from modal import Dict
+
+with Dict.ephemeral() as d:
+    d["foo"] = "bar"
+
+async with Dict.ephemeral() as d:
+    await d.put.aio("foo", "bar")
+
+   (BUTTON) Copy
+
+from_name
+
+@staticmethod
+def from_name(
+    label: str,
+    data: Optional[dict] = None,
+    namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
+    environment_name: Optional[str] = None,
+    create_if_missing: bool = False,
+) -> "_Dict":
+
+   (BUTTON) Copy
+
+   Reference a named Dict, creating if necessary.
+
+   In contrast to modal.Dict.lookup, this is a lazy method that defers
+   hydrating the local object with metadata from Modal servers until the
+   first time it is actually used.
+d = modal.Dict.from_name("my-dict", create_if_missing=True)
+d[123] = 456
+
+   (BUTTON) Copy
+
+lookup
+
+@staticmethod
+def lookup(
+    label: str,
+    data: Optional[dict] = None,
+    namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
+    client: Optional[_Client] = None,
+    environment_name: Optional[str] = None,
+    create_if_missing: bool = False,
+) -> "_Dict":
+
+   (BUTTON) Copy
+
+   Lookup a named Dict.
+
+   In contrast to modal.Dict.from_name, this is an eager method that will
+   hydrate the local object with metadata from Modal servers.
+d = modal.Dict.lookup("my-dict")
+d["xyz"] = 123
+
+   (BUTTON) Copy
+
+delete
+
+@staticmethod
+def delete(
+    label: str,
+    *,
+    client: Optional[_Client] = None,
+    environment_name: Optional[str] = None,
+):
+
+   (BUTTON) Copy
+
+clear
+
+@live_method
+def clear(self) -> None:
+
+   (BUTTON) Copy
+
+   Remove all items from the Dict.
+
+get
+
+@live_method
+def get(self, key: Any, default: Optional[Any] = None) -> Any:
+
+   (BUTTON) Copy
+
+   Get the value associated with a key.
+
+   Returns default if key does not exist.
+
+contains
+
+@live_method
+def contains(self, key: Any) -> bool:
+
+   (BUTTON) Copy
+
+   Return if a key is present.
+
+len
+
+@live_method
+def len(self) -> int:
+
+   (BUTTON) Copy
+
+   Return the length of the dictionary, including any expired keys.
+
+update
+
+@live_method
+def update(self, **kwargs) -> None:
+
+   (BUTTON) Copy
+
+   Update the dictionary with additional items.
+
+put
+
+@live_method
+def put(self, key: Any, value: Any) -> None:
+
+   (BUTTON) Copy
+
+   Add a specific key-value pair to the dictionary.
+
+pop
+
+@live_method
+def pop(self, key: Any) -> Any:
+
+   (BUTTON) Copy
+
+   Remove a key from the dictionary, returning the value if it exists.
+
+keys
+
+@live_method_gen
+def keys(self) -> Iterator[Any]:
+
+   (BUTTON) Copy
+
+   Return an iterator over the keys in this dictionary.
+
+   Note that (unlike with Python dicts) the return value is a simple
+   iterator, and results are unordered.
+
+values
+
+@live_method_gen
+def values(self) -> Iterator[Any]:
+
+   (BUTTON) Copy
+
+   Return an iterator over the values in this dictionary.
+
+   Note that (unlike with Python dicts) the return value is a simple
+   iterator, and results are unordered.
+
+items
+
+@live_method_gen
+def items(self) -> Iterator[Tuple[Any, Any]]:
+
+   (BUTTON) Copy
+
+   Return an iterator over the (key, value) tuples in this dictionary.
+
+   Note that (unlike with Python dicts) the return value is a simple
+   iterator, and results are unordered.
+   [72]modal.dict [73]modal.dict.Dict [74]ephemeral [75]from_name
+   [76]lookup [77]delete [78]clear [79]get [80]contains [81]len [82]update
+   [83]put [84]pop [85]keys [86]values [87]items
+   Modal logo © 2024
+   [88]About [89]Status [90]Changelog [91]Documentation [92]Slack
+   Community [93]Pricing [94]Examples
+

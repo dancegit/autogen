@@ -1,0 +1,256 @@
+Page: modal.com_files/modal.com/docs/examples/stable_diffusion_cli.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Run Stable Diffusion 3.5 Large Turbo from the command line
+
+   This example shows how to run [63]Stable Diffusion 3.5 Large Turbo on
+   Modal and generate images from your local command line.
+
+   Inference takes about one minute to cold start, at which point images
+   are generated at a rate of one image every 1-2 seconds for batch sizes
+   between one and 16.
+
+   Below are four images produced by the prompt "A princess riding on a
+   pony".
+
+   stable diffusion montage
+
+Basic setup
+
+import io
+import random
+import time
+from pathlib import Path
+
+import modal
+
+MINUTES = 60
+
+   (BUTTON) Copy
+
+   All Modal programs need an [64]App -- an object that acts as a recipe
+   for the application. Let's give it a friendly name.
+app = modal.App("example-stable-diffusion-cli")
+
+   (BUTTON) Copy
+
+Configuring dependencies
+
+   The model runs remotely inside a [65]container. That means we need to
+   install the necessary dependencies in that container's image.
+
+   Below, we start from a lightweight base Linux image and then install
+   our Python dependencies, like Hugging Face's diffusers library and
+   torch.
+image = (
+    modal.Image.debian_slim(python_version="3.12")
+    .pip_install(
+        "accelerate==0.33.0",
+        "diffusers==0.31.0",
+        "huggingface-hub[hf_transfer]==0.25.2",
+        "sentencepiece==0.2.0",
+        "torch==2.5.1",
+        "torchvision==0.20.1",
+        "transformers~=4.44.0",
+    )
+    .entrypoint([])  # deactivate default entrypoint to reduce log verbosity
+    .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})  # faster downloads
+)
+
+with image.imports():
+    import diffusers
+    import torch
+
+   (BUTTON) Copy
+
+Implementing SD3.5 Large Turbo inference on Modal
+
+   We wrap inference in a Modal [66]Cls that ensures models are downloaded
+   when we build our container image (just like our dependencies) and that
+   models are loaded and then moved to the GPU when a new container
+   starts.
+
+   The run_inference function just wraps a diffusers pipeline. It sends
+   the output image back to the client as bytes.
+model_id = "adamo1139/stable-diffusion-3.5-large-turbo-ungated"
+model_revision_id = "9ad870ac0b0e5e48ced156bb02f85d324b7275d2"
+
+
+@app.cls(
+    image=image,
+    gpu="H100",
+    timeout=10 * MINUTES,
+)
+class StableDiffusion:
+    @modal.build()
+    @modal.enter()
+    def initialize(self):
+        self.pipe = diffusers.StableDiffusion3Pipeline.from_pretrained(
+            model_id,
+            revision=model_revision_id,
+            torch_dtype=torch.bfloat16,
+        )
+
+    @modal.enter()
+    def move_to_gpu(self):
+        self.pipe.to("cuda")
+
+    @modal.method()
+    def run_inference(
+        self, prompt: str, batch_size: int = 4, seed: int = None
+    ) -> list[bytes]:
+        seed = seed if seed is not None else random.randint(0, 2**32 - 1)
+        print("seeding RNG with", seed)
+        torch.manual_seed(seed)
+        images = self.pipe(
+            prompt,
+            num_images_per_prompt=batch_size,  # outputting multiple images per
+prompt is much cheaper than separate calls
+            num_inference_steps=4,  # turbo is tuned to run in four steps
+            guidance_scale=0.0,  # turbo doesn't use CFG
+            max_sequence_length=512,  # T5-XXL text encoder supports longer sequ
+ences, more complex prompts
+        ).images
+
+        image_output = []
+        for image in images:
+            with io.BytesIO() as buf:
+                image.save(buf, format="PNG")
+                image_output.append(buf.getvalue())
+        torch.cuda.empty_cache()  # reduce fragmentation
+        return image_output
+
+   (BUTTON) Copy
+
+Generating images from the command line
+
+   This is the command we'll use to generate images. It takes a text
+   prompt, a batch_size that determines the number of images to generate
+   per prompt, and the number of times to run image generation (samples).
+
+   You can also provide a seed to make sampling more deterministic.
+@app.local_entrypoint()
+def entrypoint(
+    samples: int = 4,
+    prompt: str = "A princess riding on a pony",
+    batch_size: int = 4,
+    seed: int = None,
+):
+    print(
+        f"prompt => {prompt}",
+        f"samples => {samples}",
+        f"batch_size => {batch_size}",
+        f"seed => {seed}",
+        sep="\n",
+    )
+
+    output_dir = Path("/tmp/stable-diffusion")
+    output_dir.mkdir(exist_ok=True, parents=True)
+
+    sd = StableDiffusion()
+
+    for sample_idx in range(samples):
+        start = time.time()
+        images = sd.run_inference.remote(prompt, batch_size, seed)
+        duration = time.time() - start
+        print(f"Run {sample_idx+1} took {duration:.3f}s")
+        if sample_idx:
+            print(
+                f"\tGenerated {len(images)} image(s) at {(duration)/len(images):
+.3f}s / image."
+            )
+        for batch_idx, image_bytes in enumerate(images):
+            output_path = (
+                output_dir
+                / f"output_{slugify(prompt)[:64]}_{str(sample_idx).zfill(2)}_{st
+r(batch_idx).zfill(2)}.png"
+            )
+            if not batch_idx:
+                print("Saving outputs", end="\n\t")
+            print(
+                output_path,
+                end="\n" + ("\t" if batch_idx < len(images) - 1 else ""),
+            )
+            output_path.write_bytes(image_bytes)
+
+
+def slugify(s: str) -> str:
+    return "".join(c if c.isalnum() else "-" for c in s).strip("-")
+
+   (BUTTON) Copy
+   [67]Run Stable Diffusion 3.5 Large Turbo from the command line
+   [68]Basic setup [69]Configuring dependencies [70]Implementing SD3.5
+   Large Turbo inference on Modal [71]Generating images from the command
+   line
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [72]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [73]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 06_gpu_and_ml/stable_diffusion/stable_diffusion_cli.py --prompt 'A 160
+0s oil painting of the New York City skyline'
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [74]About [75]Status [76]Changelog [77]Documentation [78]Slack
+   Community [79]Pricing [80]Examples
+

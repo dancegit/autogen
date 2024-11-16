@@ -1,0 +1,324 @@
+Page: modal.com_files/modal.com/docs/reference/modal.Queue.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.queue
+
+modal.queue.Queue
+
+class Queue(modal.object.Object)
+
+   (BUTTON) Copy
+
+   Distributed, FIFO queue for data flow in Modal apps.
+
+   The queue can contain any object serializable by cloudpickle, including
+   Modal objects.
+
+   By default, the Queue object acts as a single FIFO queue which supports
+   puts and gets (blocking and non-blocking).
+
+   Queue partitions (beta)
+
+   Specifying partition keys gives access to other independent FIFO
+   partitions within the same Queue object. Across any two partitions,
+   puts and gets are completely independent. For example, a put in one
+   partition does not affect a get in any other partition.
+
+   When no partition key is specified (by default), puts and gets will
+   operate on a default partition. This default partition is also isolated
+   from all other partitions. Please see the Usage section below for an
+   example using partitions.
+
+   Lifetime of a queue and its partitions
+
+   By default, each partition is cleared 24 hours after the last put
+   operation. A lower TTL can be specified by the partition_ttl argument
+   in the put or put_many methods. Each partition's expiry is handled
+   independently.
+
+   As such, Queues are best used for communication between active
+   functions and not relied on for persistent storage.
+
+   On app completion or after stopping an app any associated Queue objects
+   are cleaned up. All its partitions will be cleared.
+
+   Limits
+
+   A single Queue can contain up to 100,000 partitions, each with up to
+   5,000 items. Each item can be up to 256 KiB.
+
+   Partition keys must be non-empty and must not exceed 64 bytes.
+
+   Usage
+from modal import Queue
+
+with Queue.ephemeral() as my_queue:
+    # Putting values
+    my_queue.put("some value")
+    my_queue.put(123)
+
+    # Getting values
+    assert my_queue.get() == "some value"
+    assert my_queue.get() == 123
+
+    # Using partitions
+    my_queue.put(0)
+    my_queue.put(1, partition="foo")
+    my_queue.put(2, partition="bar")
+
+    # Default and "foo" partition are ignored by the get operation.
+    assert my_queue.get(partition="bar") == 2
+
+    # Set custom 10s expiration time on "foo" partition.
+    my_queue.put(3, partition="foo", partition_ttl=10)
+
+    # (beta feature) Iterate through items in place (read immutably)
+    my_queue.put(1)
+    assert [v for v in my_queue.iterate()] == [0, 1]
+
+   (BUTTON) Copy
+
+   For more examples, see the [71]guide.
+
+validate_partition_key
+
+@staticmethod
+def validate_partition_key(partition: Optional[str]) -> bytes:
+
+   (BUTTON) Copy
+
+ephemeral
+
+@classmethod
+@contextmanager
+def ephemeral(
+    cls: Type["_Queue"],
+    client: Optional[_Client] = None,
+    environment_name: Optional[str] = None,
+    _heartbeat_sleep: float = EPHEMERAL_OBJECT_HEARTBEAT_SLEEP,
+) -> Iterator["_Queue"]:
+
+   (BUTTON) Copy
+
+   Creates a new ephemeral queue within a context manager:
+
+   Usage:
+from modal import Queue
+
+with Queue.ephemeral() as q:
+    q.put(123)
+
+async with Queue.ephemeral() as q:
+    await q.put.aio(123)
+
+   (BUTTON) Copy
+
+from_name
+
+@staticmethod
+def from_name(
+    label: str,
+    namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
+    environment_name: Optional[str] = None,
+    create_if_missing: bool = False,
+) -> "_Queue":
+
+   (BUTTON) Copy
+
+   Reference a named Queue, creating if necessary.
+
+   In contrast to modal.Queue.lookup, this is a lazy method the defers
+   hydrating the local object with metadata from Modal servers until the
+   first time it is actually used.
+q = modal.Queue.from_name("my-queue", create_if_missing=True)
+q.put(123)
+
+   (BUTTON) Copy
+
+lookup
+
+@staticmethod
+def lookup(
+    label: str,
+    namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
+    client: Optional[_Client] = None,
+    environment_name: Optional[str] = None,
+    create_if_missing: bool = False,
+) -> "_Queue":
+
+   (BUTTON) Copy
+
+   Lookup a named Queue.
+
+   In contrast to modal.Queue.from_name, this is an eager method that will
+   hydrate the local object with metadata from Modal servers.
+q = modal.Queue.lookup("my-queue")
+q.put(123)
+
+   (BUTTON) Copy
+
+delete
+
+@staticmethod
+def delete(label: str, *, client: Optional[_Client] = None, environment_name: Op
+tional[str] = None):
+
+   (BUTTON) Copy
+
+clear
+
+@live_method
+def clear(self, *, partition: Optional[str] = None, all: bool = False) -> None:
+
+   (BUTTON) Copy
+
+   Clear the contents of a single partition or all partitions.
+
+get
+
+@live_method
+def get(
+    self, block: bool = True, timeout: Optional[float] = None, *, partition: Opt
+ional[str] = None
+) -> Optional[Any]:
+
+   (BUTTON) Copy
+
+   Remove and return the next object in the queue.
+
+   If block is True (the default) and the queue is empty, get will wait
+   indefinitely for an object, or until timeout if specified. Raises a
+   native queue.Empty exception if the timeout is reached.
+
+   If block is False, get returns None immediately if the queue is empty.
+   The timeout is ignored in this case.
+
+get_many
+
+@live_method
+def get_many(
+    self, n_values: int, block: bool = True, timeout: Optional[float] = None, *,
+ partition: Optional[str] = None
+) -> List[Any]:
+
+   (BUTTON) Copy
+
+   Remove and return up to n_values objects from the queue.
+
+   If there are fewer than n_values items in the queue, return all of
+   them.
+
+   If block is True (the default) and the queue is empty, get will wait
+   indefinitely for at least 1 object to be present, or until timeout if
+   specified. Raises the stdlib's queue.Empty exception if the timeout is
+   reached.
+
+   If block is False, get returns None immediately if the queue is empty.
+   The timeout is ignored in this case.
+
+put
+
+@live_method
+def put(
+    self,
+    v: Any,
+    block: bool = True,
+    timeout: Optional[float] = None,
+    *,
+    partition: Optional[str] = None,
+    partition_ttl: int = 24 * 3600,  # After 24 hours of no activity, this parti
+tion will be deletd.
+) -> None:
+
+   (BUTTON) Copy
+
+   Add an object to the end of the queue.
+
+   If block is True and the queue is full, this method will retry
+   indefinitely or until timeout if specified. Raises the stdlib's
+   queue.Full exception if the timeout is reached. If blocking it is not
+   recommended to omit the timeout, as the operation could wait
+   indefinitely.
+
+   If block is False, this method raises queue.Full immediately if the
+   queue is full. The timeout is ignored in this case.
+
+put_many
+
+@live_method
+def put_many(
+    self,
+    vs: List[Any],
+    block: bool = True,
+    timeout: Optional[float] = None,
+    *,
+    partition: Optional[str] = None,
+    partition_ttl: int = 24 * 3600,  # After 24 hours of no activity, this parti
+tion will be deletd.
+) -> None:
+
+   (BUTTON) Copy
+
+   Add several objects to the end of the queue.
+
+   If block is True and the queue is full, this method will retry
+   indefinitely or until timeout if specified. Raises the stdlib's
+   queue.Full exception if the timeout is reached. If blocking it is not
+   recommended to omit the timeout, as the operation could wait
+   indefinitely.
+
+   If block is False, this method raises queue.Full immediately if the
+   queue is full. The timeout is ignored in this case.
+
+len
+
+@live_method
+def len(self, *, partition: Optional[str] = None, total: bool = False) -> int:
+
+   (BUTTON) Copy
+
+   Return the number of objects in the queue partition.
+
+iterate
+
+@warn_if_generator_is_not_consumed()
+@live_method_gen
+def iterate(
+    self, *, partition: Optional[str] = None, item_poll_timeout: float = 0.0
+) -> AsyncGenerator[Any, None]:
+
+   (BUTTON) Copy
+
+   (Beta feature) Iterate through items in the queue without mutation.
+
+   Specify item_poll_timeout to control how long the iterator should wait
+   for the next time before giving up.
+   [72]modal.queue [73]modal.queue.Queue [74]validate_partition_key
+   [75]ephemeral [76]from_name [77]lookup [78]delete [79]clear [80]get
+   [81]get_many [82]put [83]put_many [84]len [85]iterate
+   Modal logo © 2024
+   [86]About [87]Status [88]Changelog [89]Documentation [90]Slack
+   Community [91]Pricing [92]Examples
+

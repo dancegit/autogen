@@ -1,0 +1,213 @@
+Page: modal.com_files/modal.com/docs/guide/security.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Security and privacy at Modal
+
+   The document outlines Modal's security and privacy commitments.
+
+Application security (AppSec)
+
+   AppSec is the practice of building software that is secure by design,
+   secured during development, secured with testing and review, and
+   deployed securely.
+     * We build our software using memory-safe programming languages,
+       including Rust (for our worker runtime and storage infrastructure)
+       and Python (for our API servers and Modal client).
+     * Software dependencies are audited by Github's Dependabot.
+     * We make decisions that minimize our attack surface. Most
+       interactions with Modal are well-described in a gRPC API, and occur
+       through [81]modal, our open-source command-line tool and Python
+       client library.
+     * We have automated synthetic monitoring test applications that
+       continously check for network and application isolation within our
+       runtime.
+     * We use HTTPS for secure connections. Modal forces HTTPS for all
+       services using TLS (SSL), including our public website and the
+       Dashboard to ensure secure connections. Modal's [82]client library
+       connects to Modal's servers over TLS and verify TLS certificates on
+       each connection.
+     * All user data is encrypted in transit and at rest.
+     * All public Modal APIs use [83]TLS 1.3, the latest and safest
+       version of the TLS protocol.
+     * Internal code reviews are performed using a modern, PR-based
+       development workflow (Github), and engage external penetration
+       testing firms to assess our software security.
+
+Corporate security (CorpSec)
+
+   CorpSec is the practice of making sure Modal employees have secure
+   access to Modal company infrastructure, and also that exposed channels
+   to Modal are secured. CorpSec controls are the primary concern of
+   standards such as SOC2.
+     * Access to our services and applications is gated on a SSO Identity
+       Provider (IdP).
+     * We mandata phishing-resistant multi-factor authentication (MFA) in
+       all enrolled IdP accounts.
+     * We regularly audit access to internal systems.
+     * Employee laptops are protected by full disk encryption using
+       FileVault2, and managed by Secureframe MDM.
+
+Network and infrastructure security (InfraSec)
+
+   InfraSec is the practice of ensuring a hardened, minimal attack surface
+   for components we deploy on our network.
+     * Modal uses logging and metrics observability providers, including
+       Datadog and Sentry.io.
+     * Compute jobs at Modal are containerized and virtualized using
+       [84]gVisor, the sandboxing technology developed at Google and used
+       in their Google Cloud Run and Google Kubernetes Engine cloud
+       services.
+     * We conduct annual business continuity and security incident
+       exercises.
+
+Vulnerability remediation
+
+   Security vulnerabilities directly affecting Modal's systems and
+   services will be patched or otherwise remediated within a timeframe
+   appropriate for the severity of the vulnerability, subject to the
+   public availability of a patch or other remediation mechanisms.
+
+   If there is a CVSS severity rating accompanying a vulnerability
+   disclosure, we rely on that as a starting point, but may upgrade or
+   downgrade the severity using our best judgement.
+
+Severity timeframes
+
+     * Critical: 24 hours
+     * High: 1 week
+     * Medium: 1 month
+     * Low: 3 months
+     * Informational: 3 months or longer
+
+Shared responsibility model
+
+   Modal prioritizes the integrity, security, and availability of customer
+   data. Under our shared responsibility model, customers also have
+   certain responsibilities regarding data backup, recovery, and
+   availability.
+       their data. Performing daily backups is recommended. Customers must
+       routinely verify the integrity of their backups.
+       recovery plan that includes detailed procedures for data
+       restoration in the event of data loss, corruption, or system
+       failure. Customers must routinely test their recovery process.
+       availability, customers must implement contingency measures to
+       maintain business continuity during service interruptions.
+       Customers are also responsible for the reliability of their own IT
+       infrastructure.
+       measures, such as encryption and access controls, to protect their
+       data throughout the backup, storage, and recovery processes. These
+       processes must comply with all relevant laws and regulations.
+
+SOC 2
+
+   We have successfully completed a System and Organization Controls (SOC)
+   2 Type 1 audit. Contact us at [85]security@modal.com for more details
+   or access to the report.
+
+HIPAA
+
+   HIPAA, which stands for the Health Insurance Portability and
+   Accountability Act, establishes a set of standards that protect health
+   information, including individuals' medical records and other
+   individually identifiable health information. HIPAA guidelines apply to
+   both covered entities and business associates--of which Modal is the
+   latter if you are processing PHI on Modal.
+
+   Modal's services can be used in a HIPAA compliant manner. It is
+   important to note that unlike other security standards, there is no
+   officially recognized certification process for HIPAA compliance.
+   Instead, we demonstrate our compliance with regulations such as HIPAA
+   via the practices outlined in this doc, our technical and operational
+   security measures, and through official audits for standards compliance
+   such as SOC 2 certification.
+
+   To use Modal services for HIPAA-compliant workloads, a Business
+   Associate Agreement (BAA) should be established with us prior to
+   submission of any PHI. This is available on our Enterprise plan.
+   Contact us at [86]security@modal.com to get started. At the moment,
+   [87]Volumes, [88]Mounts, and user code are out of scope of the
+   commitments within our BAA, so PHI should not be used in those areas of
+   the product.
+
+PCI
+
+   Payment Card Industry Data Security Standard (PCI) is a standard that
+   defines the security and privacy requirements for payment card
+   processing.
+
+   Modal uses [89]Stripe to securely process transactions and trusts their
+   commitment to best-in-class security. We do not store personal credit
+   card information for any of our customers. Stripe is certified as "PCI
+   Service Provider Level 1", which is the highest level of certification
+   in the payments industry.
+
+Bug bounty program
+
+   Keeping user data secure is a top priority at Modal. We welcome
+   contributions from the security community to identify vulnerabilities
+   in our product and disclose them to us in a responsible manner. We
+   offer rewards ranging from $100 to $1000+ depending on the severity of
+   the issue discovered. To participate, please send a report of the
+   vulnerability to [90]security@modal.com.
+
+Data privacy
+
+   Modal will never access or use:
+     * your source code.
+     * the inputs or outputs to your Modal Functions.
+     * any data you store in Modal, such as in Images or Volumes.
+
+   Input and output data for a function are deleted from our system once
+   the output has been retrieved. If the output has not been retrieved
+   after a max TTL of 24 hours the input and output are deleted
+   automatically.
+
+   App logs and metadata are stored on Modal. Modal will not access this
+   data unless permission is granted by the user to help with
+   troubleshooting.
+
+Questions?
+
+   [91]Email us!
+   [92]Security and privacy at Modal [93]Application security (AppSec)
+   [94]Corporate security (CorpSec) [95]Network and infrastructure
+   security (InfraSec) [96]Vulnerability remediation [97]Severity
+   timeframes [98]Shared responsibility model [99]SOC 2 [100]HIPAA
+   [101]PCI [102]Bug bounty program [103]Data privacy [104]Questions?
+   Modal logo © 2024
+   [105]About [106]Status [107]Changelog [108]Documentation [109]Slack
+   Community [110]Pricing [111]Examples
+

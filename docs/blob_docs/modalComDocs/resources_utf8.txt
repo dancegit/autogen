@@ -1,0 +1,139 @@
+Page: modal.com_files/modal.com/docs/guide/resources.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Reserving CPU and memory
+
+   Modal jobs are reserved 128 MiB of memory and 0.125 CPU cores by
+   default. However, if there is free memory or CPU capacity on a worker,
+   containers are free to spike above these limits. You can also guarantee
+   higher limits by reserving more resources.
+
+Billing
+
+   For both CPU and memory, you are billed for the greater of
+   (reservation, usage).
+
+   Disk requests are billed by increasing the memory request at a 20:1
+   ratio. For example, requesting 500 GiB of disk will increase the memory
+   request to 25 GiB, if it is not already set higher.
+
+CPU cores
+
+   If you have code that must run on a larger number of cores, you can
+   request that using the cpu argument. This allows you to specify a
+   floating-point number of CPU cores:
+import modal
+
+app = modal.App()
+
+@app.function(cpu=8.0)
+def my_function():
+    # code here will have access to at least 8.0 cores
+    ...
+
+   (BUTTON) Copy
+
+Memory
+
+   If you have code that needs more guaranteed memory, you can request it
+   using the memory argument. This expects an integer number of megabytes:
+import modal
+
+app = modal.App()
+
+@app.function(memory=32768)
+def my_function():
+    # code here will have access to at least 32 GiB of RAM
+    ...
+
+   (BUTTON) Copy
+
+How much can I request?
+
+   For both CPU and memory, a maximum is enforced at function creation
+   time to ensure your application can be scheduled for execution.
+   Requests exceeding the maximum will be rejected with an
+   [81]InvalidError.
+
+   As the platform grows, we plan to support larger CPU and memory
+   reservations.
+
+Resource limits
+
+CPU limits
+
+   Modal containers have a soft CPU limit that is set at 4 physical cores
+   above the CPU request. Given that the default CPU request is 0.1 cores
+   the soft CPU limit is 4.1 cores. Above this limit the host will begin
+   to throttle the CPU usage of the container.
+
+Memory limits
+
+   Modal containers can have a hard memory limit which will `Out of
+   Memory' (OOM) kill containers which attempt to exceed the limit. This
+   functionality is useful when a container has a serious memory leak. You
+   can set the limit and have the container killed to avoid paying for the
+   leaked GBs of memory.
+mem_request = 1024
+mem_limit = 2048
+@app.function(
+    memory=(mem_request, mem_limit),
+)
+def f():
+    ...
+
+   (BUTTON) Copy
+
+   Specify this limit using the [82]memory parameter on Modal Functions.
+
+Disk limits
+
+   Running Modal containers have access to many GBs of SSD disk, but the
+   amount of writes is limited by:
+
+   Hitting either limit will cause the container's disk writes to be
+   rejected, which typically manifests as an OSError.
+
+   Increased disk sizes can be requested with the [83]ephemeral_disk
+   parameter. The maximum disk size is 3.0 TiB (3,145,728 MiB). Larger
+   disks are intended to be used for [84]dataset processing.
+   [85]Reserving CPU and memory [86]Billing [87]CPU cores [88]Memory
+   [89]How much can I request? [90]Resource limits [91]CPU limits
+   [92]Memory limits [93]Disk limits
+   Modal logo © 2024
+   [94]About [95]Status [96]Changelog [97]Documentation [98]Slack
+   Community [99]Pricing [100]Examples
+

@@ -1,0 +1,263 @@
+Page: modal.com_files/modal.com/docs/guide/memory-snapshot.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Memory Snapshot (beta)
+
+   You can improve cold-start performance for some Modal Functions using
+   the Memory Snapshot feature.
+
+   Snapshots happen after your function's import sequence. During import,
+   your app reads many files from the file system, which can potentially
+   be expensive. For instance [81]torch is hundreds of MiB.
+
+   Memory snapshots are created after a Function is done importing
+   packages but before it is called. We save that snapshot as a file.
+   Then, every time your Function is invoked, we restore memory from the
+   snapshot. The result is increased cold boot performance: Functions with
+   memory snapshots enabled typically start 1.5-3x faster.
+
+   You don't need to modify your Function to take advantage of
+   snapshotting in most cases (see below).
+
+   To use memory snapshots, we recommend using Modal client version
+
+   This is a beta feature. Let us know in [82]Modal Slack if you find any
+   issues.
+
+Enabling automatic snapshots
+
+   Memory Snapshot is a beta feature. It is available as a flag in the
+   Function decorator. You can enable it as follows:
+import modal
+
+app = modal.App("example-memory-snapshot")
+
+
+@app.function(enable_memory_snapshot=True)
+def my_func():
+    print("hello")
+
+   (BUTTON) Copy
+
+   Then deploy the app with modal deploy.
+
+   We recommend upgrading your client to version 0.64.80 or later.
+
+   Keep the following in mind when using Memory Snapshot:
+     * Modal may take several snapshots for a given version of your
+       Function (see [83]Snapshot compatibility section).
+     * Redeploying your Function may cause Modal to create new snapshots,
+       as existing snapshots might not be compatible with your updated
+       Function.
+     * Creating memory snapshots adds latency to a Function's startup
+       time, so expect your Function to be slower to start during the
+       first invocations. Subsequent runs should be faster.
+
+Controlling snapshot memory
+
+   You can also snapshot programs that use a lot of memory with a class
+   interface. This allows you to start programs that use large model
+   weights faster, among other things.
+
+   With memory snapshots enabled, you can load model weights into CPU
+   memory before creating the snapshot. On every subsequent cold boot,
+   your Function will resume from that point. Because we serialize the
+   memory state--including the model weights--in an efficient format, it
+   can start up in less time than it originally took to load the model.
+
+   This example loads BGE embeddings into CPU memory and creates a memory
+   snapshot. When your Modal Function cold boots, it will move those
+   weights onto a GPU in the function move_to_gpu().
+
+   You can this use feature in classes by setting
+   enable_memory_snapshot=True and then marking the methods that you want
+   to run before saving the snapshot with @enter(snap=True). Conversely,
+   decorate methods with @enter(snap=False) when you want them to run on
+   every cold boot after saving or resuming from the snapshot state.
+import modal
+
+image = (
+    modal.Image.debian_slim()
+        .pip_install("sentence-transformers")
+)
+app = modal.App("sentence-transformers", image=image)
+
+
+with image.imports():
+    from sentence_transformers import SentenceTransformer
+
+
+@app.cls(
+    gpu=modal.gpu.A10G(),
+    enable_memory_snapshot=True,
+)
+class Embedder:
+
+    model_id = "BAAI/bge-small-en-v1.5"
+
+    @modal.build()
+    def build(self):
+        model = SentenceTransformer(self.model_id)
+        model.save("/model.bge")
+
+    @modal.enter(snap=True)
+    def load(self):
+        # Create a memory snapshot with the model loaded in CPU memory.
+        self.model = SentenceTransformer("/model.bge", device="cpu")
+
+    @modal.enter(snap=False)
+    def setup(self):
+        # Move the model to a GPU before doing any work.
+        self.model.to("cuda")
+
+    @modal.method()
+    def run(self, sentences:list[str]):
+        embeddings = self.model.encode(sentences, normalize_embeddings=True)
+        print(embeddings)
+
+
+@app.local_entrypoint()
+def main():
+    sentences = ["what is the meaning of life?"]
+    Embedder().run.remote(sentences)
+
+
+if __name__ == "__main__":
+    cls = modal.Cls.lookup("sentence-transformers", "Embedder")
+
+    sentences = ["what is the meaning of life?"]
+    cls().run.remote(sentences)
+
+   (BUTTON) Copy
+
+   This reduces the time it takes for our App's Function to boot by about
+
+Snapshot compatibility
+
+   Modal will create memory snapshots for every new version of your
+   Function. Changing your Function or updating its dependencies will
+   trigger a new snapshotting operation when you run your Function anew.
+
+   Additionally, you may observe in application logs your Function being
+   memory snapshots multiple times during its first few invocations. This
+   happens because Modal will create a memory snapshot for every CPU type
+   and runtime version in our fleet. We typically need 3-5 snapshots to
+   cover our entire fleet. The cold boot benefits should greatly outweigh
+   the penalty of creating multiple snapshots.
+
+Known limitations
+
+   Memory Snapshot is still in beta. Please report any issues on our
+   [84]community Slack server.
+
+   Client versions prior to 0.64.80 contain bugs that may cause snapshot
+   restoration to fail.
+
+No GPUs available during the snapshotting phase
+
+   It's currently not possible to snapshot GPU memory. We avoid exposing
+   GPU devices to your Function during the snapshotting stage (e.g. when
+   @enter(snap=True)). NVIDIA drivers are available but no GPU devices
+   are. This can be a problem if you need the GPU -- for example, you may
+   need to compile a package. We suggest using the [85]@build decorator
+   and store outputs in disk as part of your image. You can then load
+   these into CPU memory and successfully snapshot your Function. Then,
+   when invoking your Function, you can move objects to GPU memory for
+   more details.
+
+   If your program calls functions that check if GPUs are available during
+   snapshots and then in restore, it will get different results in each
+   stage.
+import modal
+
+app = modal.App()
+
+
+@app.cls(enable_memory_snapshot=True)
+class GPUAvailability:
+
+    @modal.enter(snap=True)
+    def no_gpus_available_during_snapshots(self):
+        import torch
+        print(f"GPUs available: {torch.cuda.is_available()}")
+
+    @modal.enter(snap=False)
+    def gpus_available_during_restore(self):
+        import torch
+        print(f"GPUs available: {torch.cuda.is_available()}")
+
+   (BUTTON) Copy
+
+   In the example above, GPUs are not available when
+   no_gpus_available_during_snapshots() is called but are available when
+   your app is restored and gpus_available_during_restore() is called.
+
+Randomness and uniqueness
+
+   If your applications depend on uniqueness of state, you must evaluate
+   your Function code and verify that it is resilient to snapshotting
+   operations. For example, if a variable is randomly initialized and
+   snapshotted, that variable will be identical after every restore,
+   possibly breaking uniqueness expectations of the proceeding Function
+   code.
+
+"cuda not available", "no CUDA-capable device is detected" errors
+
+   The torch.cuda module has multiple functions which if called during
+   snapshotting will initialize CUDA as having zero GPU devices. Such
+   functions include torch.cuda.is_available and
+   torch.cuda.get_device_capability.
+
+   xformers is known to call torch.cuda.get_device_capability on import,
+   so if it is imported during snapshotting it can unhelpfully initialize
+   CUDA with zero GPUs. The [86]workaround for this is to be on version
+   >=0.0.28 and set the XFORMERS_ENABLE_TRITON environment variable to 1
+   in your modal.Image.
+image = modal.Image.debian_slim().env({"XFORMERS_ENABLE_TRITON": "1"})
+
+   (BUTTON) Copy
+
+   Setting this variable early-returns from the xformers function which
+   unhelpfully initializes CUDA.
+   [87]Memory Snapshot (beta) [88]Enabling automatic snapshots
+   [89]Controlling snapshot memory [90]Snapshot compatibility [91]Known
+   limitations [92]No GPUs available during the snapshotting phase
+   [93]Randomness and uniqueness [94]"cuda not available", "no
+   CUDA-capable device is detected" errors
+   Modal logo © 2024
+   [95]About [96]Status [97]Changelog [98]Documentation [99]Slack
+   Community [100]Pricing [101]Examples
+

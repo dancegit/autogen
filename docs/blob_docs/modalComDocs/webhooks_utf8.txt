@@ -1,0 +1,432 @@
+Page: modal.com_files/modal.com/docs/guide/webhooks.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Web endpoints
+
+   Modal gives you a few ways to expose functions as web endpoints. You
+   can [81]turn any Modal function into a web endpoint with a single line
+   of code, or you can [82]serve a full app using frameworks like FastAPI,
+   Django, or Flask.
+
+   Note that if you wish to invoke a Modal function from another Python
+   application, you can deploy and [83]invoke the function directly with
+   our client library.
+
+@web_endpoint
+
+   The easiest way to create a web endpoint from an existing function is
+   to use the [84]@modal.web_endpoint decorator.
+import modal
+
+image = modal.Image.debian_slim().pip_install("fastapi[standard]")
+app = modal.App(name="has-simple-web-endpoint", image=image)
+
+
+@app.function()
+@modal.web_endpoint()
+def f():
+    return "Hello world!"
+
+   (BUTTON) Copy
+
+   This decorator wraps the Modal function in a [85]FastAPI application.
+
+Developing with modal serve
+
+   You can run this code as an ephemeral app, by running the command
+modal serve server_script.py
+
+   (BUTTON) Copy
+
+   Where server_script.py is the file name of your code. This will create
+   an ephemeral app for the duration of your script (until you hit Ctrl-C
+   to stop it). It creates a temporary URL that you can use like any other
+   REST endpoint. This URL is on the public internet.
+
+   The modal serve command will live-update an app when any of its
+   supporting files change.
+
+   Live updating is particularly useful when working with apps containing
+   web endpoints, as any changes made to web endpoint handlers will show
+   up almost immediately, without requiring a manual restart of the app.
+
+Deploying with modal deploy
+
+   You can also deploy your app and create a persistent web endpoint in
+   the cloud by running modal deploy:
+
+Passing arguments to an endpoint
+
+   When using @web_endpoint, you can use [86]query parameters which will
+   be passed to your function as arguments. For instance
+import modal
+
+image = modal.Image.debian_slim().pip_install("fastapi[standard]")
+app = modal.App(image=image)
+
+
+@app.function()
+@modal.web_endpoint()
+def square(x: int):
+    return {"square": x**2}
+
+   (BUTTON) Copy
+
+   If you hit this with an urlencoded query string with the "x" param
+   present, it will send that to the function:
+$ curl https://modal-labs--web-endpoint-square-dev.modal.run?x=42
+{"square":1764}
+
+   (BUTTON) Copy
+
+   If you want to use a POST request, you can use the method argument to
+   @web_endpoint to set the HTTP verb. To accept any valid JSON object,
+   you can [87]use dict as your type annotation and FastAPI will handle
+   the rest.
+import modal
+
+image = modal.Image.debian_slim().pip_install("fastapi[standard]")
+app = modal.App(image=image)
+
+
+@app.function()
+@modal.web_endpoint(method="POST")
+def square(item: dict):
+    return {"square": item['x']**2}
+
+   (BUTTON) Copy
+
+   This now creates an endpoint that takes a JSON body:
+$ curl -X POST -H 'Content-Type: application/json' --data-binary '{"x": 42}' htt
+ps://modal-labs--web-endpoint-square-dev.modal.run
+{"square":1764}
+
+   (BUTTON) Copy
+
+   This is often the easiest way to get started, but note that FastAPI
+   recommends that you use [88]typed Pydantic models in order to get
+   automatic validation and documentation. FastAPI also lets you pass data
+   to web endpoints in other ways, for instance as [89]form data and
+   [90]file uploads.
+
+How do web endpoints run in the cloud?
+
+   Note that web endpoints, like everything else on Modal, only run when
+   they need to. When you hit the web endpoint the first time, it will
+   boot up the container, which might take a few seconds. Modal keeps the
+   container alive for a short period in case there are subsequent
+   requests. If there are a lot of requests, Modal might create more
+   containers running in parallel.
+
+   For the shortcut @modal.web_endpoint decorator, Modal wraps your
+   function in a [91]FastAPI application. This means that the Image your
+   Function uses must have FastAPI installed, and the Functions that you
+   write need to follow its request and response [92]semantics. Web
+   endpoint Functions can use all of FastAPI's powerful features, such as
+   Pydantic models for automatic validation, typed query and path
+   parameters, and response types.
+
+   Here's everything together, combining Modal's abilities to run
+   functions in user-defined containers with the expressivity of FastAPI:
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
+
+import modal
+
+image = modal.Image.debian_slim().pip_install("fastapi[standard]", "boto3")
+app = modal.App(image=image)
+
+
+class Item(BaseModel):
+    name: str
+    qty: int = 42
+
+
+@app.function()
+@modal.web_endpoint(method="POST")
+def f(item: Item):
+    import boto3
+    # do things with boto3...
+    return HTMLResponse(f"<html>Hello, {item.name}!</html>")
+
+   (BUTTON) Copy
+
+   This endpoint definition would be called like so:
+curl -d '{"name": "Erik", "qty": 10}' \
+    -H "Content-Type: application/json" \
+    -X POST https://ecorp--web-demo-f-dev.modal.run
+
+   (BUTTON) Copy
+
+   Or in Python with the [93]requests library:
+import requests
+
+data = {"name": "Erik", "qty": 10}
+requests.post("https://ecorp--web-demo-f-dev.modal.run", json=data, timeout=10.0
+)
+
+   (BUTTON) Copy
+
+Serving ASGI and WSGI apps
+
+   You can also serve any app written in an [94]ASGI or
+   [95]WSGI-compatible web framework on Modal.
+
+   ASGI provides support for async web frameworks. WSGI provides support
+   for synchronous web frameworks.
+
+ASGI
+
+   For ASGI apps, you can create a function decorated with
+   [96]@modal.asgi_app that returns a reference to your web app:
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+
+import modal
+
+web_app = FastAPI()
+app = modal.App()
+
+image = modal.Image.debian_slim().pip_install("boto3")
+
+
+@web_app.post("/foo")
+async def foo(request: Request):
+    body = await request.json()
+    return body
+
+
+@web_app.get("/bar")
+async def bar(arg="world"):
+    return HTMLResponse(f"<h1>Hello Fast {arg}!</h1>")
+
+
+@app.function(image=image)
+@modal.asgi_app()
+def fastapi_app():
+    return web_app
+
+   (BUTTON) Copy
+
+   Now, as before, when you deploy this script as a modal app, you get a
+   URL for your app that you can use:
+
+WSGI
+
+   You can serve WSGI apps using the [97]@modal.wsgi_app decorator:
+import modal
+
+app = modal.App()
+image = modal.Image.debian_slim().pip_install("flask")
+
+
+@app.function(image=image)
+@modal.wsgi_app()
+def flask_app():
+    from flask import Flask, request
+
+    web_app = Flask(__name__)
+
+    @web_app.get("/")
+    def home():
+        return "Hello Flask World!"
+
+    @web_app.post("/echo")
+    def echo():
+        return request.json
+
+    return web_app
+
+   (BUTTON) Copy
+
+   See [98]Flask's docs for more information on using Flask as a WSGI app.
+
+Non-ASGI web servers
+
+   Not all web frameworks offer an ASGI or WSGI interface. For example,
+   [99]aiohttp and [100]tornado use their own asynchronous network
+   binding, and some libraries like [101]text-generation-inference
+   actually expose a Rust-based HTTP server running as a subprocess.
+
+   For these cases, you can use the [102]@modal.web_server decorator to
+   "expose" a port on the container:
+import subprocess
+
+import modal
+
+app = modal.App()
+
+
+@app.function()
+@modal.web_server(8000)
+def my_file_server():
+    subprocess.Popen("python -m http.server -d / 8000", shell=True)
+
+   (BUTTON) Copy
+
+   Just like all web endpoints on Modal, this is only run on-demand. The
+   function is executed on container startup, creating a file server at
+   the root directory. When you hit the web endpoint URL, your request
+   will be routed to the file server listening on port 8000.
+
+   For @web_server endpoints, you need to make sure that the application
+   binds to the external network interface, not just localhost. This
+   usually means binding to 0.0.0.0 instead of 127.0.0.1.
+
+   See our examples of how to serve [103]Streamlit and [104]ComfyUI on
+   Modal.
+
+WebSockets
+
+   Functions annotated with @web_server, @asgi_app, or @wsgi_app also
+   support the WebSocket protocol. Consult your web framework for
+   appropriate documentation on how to use WebSockets with that library.
+
+   WebSockets on Modal maintain a single function call per connection,
+   which can be useful for keeping state around. Most of the time, you
+   will want to set your handler function to [105]allow concurrent inputs,
+   which allows multiple simultaneous WebSocket connections to be handled
+   by the same container.
+
+   We support the full WebSocket protocol as per [106]RFC 6455, but we do
+   not yet have support for [107]RFC 8441 (WebSockets over HTTP/2) or
+   [108]RFC 7692 (permessage-deflate extension). WebSocket messages can be
+   up to 2 MiB each.
+
+Performance and scaling
+
+   If you have no active containers when the web endpoint receives a
+   request, it will experience a "cold start". Consult the guide page on
+   [109]cold start performance for more information on when functions
+   incur cold start penalties and advice how to mitigate their impact.
+
+   If your Function has allow_current_inputs set, multiple requests to the
+   same endpoint may be handled by the same container. Beyond this limit,
+   additional containers will start up to scale your App horizontally.
+   When you reach the Function's limit on containers, requests will queue
+   for handling.
+
+   Each workspace on Modal has a rate limit on total operations. For a new
+   account, this is set to 200 function inputs or web endpoint requests
+   per second, with a burst multiplier of 5 seconds. If you reach the rate
+   limit, excess requests to web endpoints will return a [110]429 status
+   code, and you'll need to [111]get in touch with us about raising the
+   limit.
+
+Authentication
+
+   Modal doesn't have a first-class way to add authentication to web
+   endpoints yet. However, we support standard techniques for securing web
+   servers.
+
+Token-based authentication
+
+   This is easy to implement in whichever framework you're using. For
+   example, if you're using @modal.web_endpoint or @modal.asgi_app with
+   FastAPI, you can validate a Bearer token like this:
+from fastapi import Depends, HTTPException, status, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+import modal
+
+
+app = modal.App("auth-example")
+
+auth_scheme = HTTPBearer()
+
+
+@app.function(secrets=[modal.Secret.from_name("my-web-auth-token")])
+@modal.web_endpoint()
+async def f(request: Request, token: HTTPAuthorizationCredentials = Depends(auth
+_scheme)):
+    import os
+
+    print(os.environ["AUTH_TOKEN"])
+
+    if token.credentials != os.environ["AUTH_TOKEN"]:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect bearer token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Function body
+    return "success!"
+
+   (BUTTON) Copy
+
+   This assumes you have a [112]Modal secret named my-web-auth-token
+   created, with contents {AUTH_TOKEN: secret-random-token}. Now, your
+   endpoint will return a 401 status code except when you hit it with the
+   correct Authorization header set (note that you have to prefix the
+   token with Bearer ):
+curl --header "Authorization: Bearer secret-random-token" https://modal-labs--au
+th-example-f.modal.run
+
+   (BUTTON) Copy
+
+Client IP address
+
+   You can access the IP address of the client making the request. This
+   can be used for geolocation, whitelists, blacklists, and rate limits.
+from fastapi import Request
+
+import modal
+
+app = modal.App()
+
+
+@app.function()
+@modal.web_endpoint()
+def get_ip_address(request: Request):
+    return f"Your IP address is {request.client.host}"
+
+   (BUTTON) Copy
+   [113]Web endpoints [114]@web_endpoint [115]Developing with modal serve
+   [116]Deploying with modal deploy [117]Passing arguments to an endpoint
+   [118]How do web endpoints run in the cloud? [119]Serving ASGI and WSGI
+   apps [120]ASGI [121]WSGI [122]Non-ASGI web servers [123]WebSockets
+   [124]Performance and scaling [125]Authentication [126]Token-based
+   authentication [127]Client IP address
+   Fully featured web apps
+   [128]LLM Voice Chat (React)
+   [129]Stable Diffusion (Alpine)
+   [130]Music Generation (React)
+   [131]Whisper Podcast Transcriber (React)
+   Modal logo © 2024
+   [132]About [133]Status [134]Changelog [135]Documentation [136]Slack
+   Community [137]Pricing [138]Examples
+

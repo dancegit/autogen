@@ -1,0 +1,68 @@
+Page: modal.com_files/modal.com/docs/guide/modal-user-account-setup.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Modal user account setup
+
+   To run and deploy applications on Modal you'll need to sign up and
+   create a user account.
+
+   You can visit the [81]signup page to begin the process or execute
+   [82]modal setup on the command line.
+
+   Users can also be provisioned through [83]Okta SSO, which is an
+   enterprise feature that you can request. For the typical user you'll
+   sign-up using an existing GitHub account. If you're interested in
+   authenticating with other identity providers let us know at
+   [84]support@modal.com.
+
+What GitHub permissions does signing up require?
+
+     * user:email -- gives us the emails associated with the GitHub
+       account.
+     * read:org (invites only) -- needed for Modal workspace invites.
+       Note: this only allows us to see what organization memberships you
+       have ([85]GitHub docs). We won't be able to access any code
+       repositories or other details.
+
+How can I change my email?
+
+   You can change your email on the [86]settings page.
+   [87]Modal user account setup [88]What GitHub permissions does signing
+   up require? [89]How can I change my email?
+   Modal logo © 2024
+   [90]About [91]Status [92]Changelog [93]Documentation [94]Slack
+   Community [95]Pricing [96]Examples
+

@@ -1,0 +1,184 @@
+Page: aider.chat_files/aider.chat/2024/07/01/sonnet-not-lazy.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+   [84]sonnet is the opposite of lazy
+
+   July 01, 2024
+
+Sonnet is the opposite of lazy
+
+   Claude 3.5 Sonnet represents a step change in AI coding. It is
+   incredibly industrious, diligent and hard working. Unexpectedly, this
+   presented a challenge: Sonnet was often writing so much code that it
+   was hitting the 4k output token limit, truncating its coding in
+   mid-stream.
+
+   Aider now works around this 4k limit and allows Sonnet to produce as
+   much code as it wants. The result is surprisingly powerful. Sonnet's
+   score on [85]aider's refactoring benchmark jumped from 55.1% up to
+   only Opus.
+
+   Users who tested Sonnet with a preview of [86]aider's latest release
+   were thrilled:
+     * Works like a charm. It is a monster. It refactors files of any size
+       like it is nothing. The continue trick with Sonnet is truly the
+       holy grail. Aider beats [other tools] hands down. I'm going to
+       cancel both subscriptions. - [87]Emasoft
+     * Thanks heaps for this feature - it's a real game changer. I can be
+       more ambitious when asking Claude for larger features. -
+       [88]cngarrison
+     * Fantastic...! It's such an improvement not being constrained by
+       output token length issues. [I refactored] a single JavaScript file
+       into seven smaller files using a single Aider request. - [89]John
+       Galt
+
+Hitting the 4k token output limit
+
+   All LLMs have various token limits, the most familiar being their
+   context window size. But they also have a limit on how many tokens they
+   can output in response to a single request. Sonnet and the majority of
+   other models are limited to returning 4k tokens.
+
+   Sonnet's amazing work ethic caused it to regularly hit this 4k output
+   token limit for a few reasons:
+       complete new code in one response.
+       like changing a majority of lines while refactoring a large file.
+       SEARCH & REPLACE edits. Beyond token limits, this is very wasteful.
+
+Good problems
+
+   Problems (1) and (2) are "good problems" in the sense that Sonnet is
+   able to write more high quality code than any other model! We just
+   don't want it to be interrupted prematurely by the 4k output limit.
+
+   Aider now allows Sonnet to return code in multiple 4k token responses.
+   Aider seamlessly combines them so that Sonnet can return arbitrarily
+   long responses. This gets all the upsides of Sonnet's prolific coding
+   skills, without being constrained by the 4k output token limit.
+
+Wasting tokens
+
+   Problem (3) is more complicated, as Sonnet isn't just being stopped
+   early - it's actually wasting a lot of tokens, time and money.
+
+   Faced with a few small changes spread far apart in a source file,
+   Sonnet would often prefer to do one giant SEARCH/REPLACE operation of
+   almost the entire file. It would be far faster and less expensive to
+   instead do a few surgical edits.
+
+   Aider now prompts Sonnet to discourage these long-winded SEARCH/REPLACE
+   operations and promotes much more concise edits.
+
+Aider with Sonnet
+
+   [90]The latest release of aider has specialized support for Claude 3.5
+   Sonnet:
+     * Aider allows Sonnet to produce as much code as it wants, by
+       automatically and seamlessly spreading the response out over a
+       sequence of 4k token API responses.
+     * Aider carefully prompts Sonnet to be concise when proposing code
+       edits. This reduces Sonnet's tendency to waste time, tokens and
+       money returning large chunks of unchanging code.
+     * Aider now uses Claude 3.5 Sonnet by default if the
+       ANTHROPIC_API_KEY is set in the environment.
+
+   See [91]aider's install instructions for more details, but you can get
+   started quickly with aider and Sonnet like this:
+$ python -m pip install -U aider-chat
+
+$ export ANTHROPIC_API_KEY=<key> # Mac/Linux
+$ setx   ANTHROPIC_API_KEY <key> # Windows, restart shell after setx
+
+$ aider
+

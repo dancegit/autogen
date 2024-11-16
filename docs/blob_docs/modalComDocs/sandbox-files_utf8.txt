@@ -1,0 +1,98 @@
+Page: modal.com_files/modal.com/docs/guide/sandbox-files.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+File access
+
+   Modal [81]Volumes or [82]CloudBucketMounts can be attached to
+   sandboxes. If you want to give the caller access to files written by
+   the sandbox, you could create an ephemeral Volume that will be garbage
+   collected when the app finishes:
+with modal.Volume.ephemeral() as vol:
+    sb = modal.Sandbox.create(
+        volumes={"/cache": vol},
+        app=my_app,
+    )
+    p = sb.exec("bash", "-c", "echo foo > /cache/a.txt")
+    p.wait()
+    sb.terminate()
+    for data in vol.read_file("a.txt"):
+        print(data)
+
+   (BUTTON) Copy
+
+   Alternatively, if you want to persist files between Sandbox invocations
+   (useful if you're building a stateful code interpreter, for example),
+   you can use create a persisted Volume with a dynamically assigned
+   label:
+session_id = "example-session-id-123abc"
+vol = modal.Volume.from_name(f"vol-{session_id}", create_if_missing=True)
+sb = modal.Sandbox.create(
+    volumes={"/cache": vol},
+    app=my_app,
+)
+p = sb.exec("bash", "-c", "echo foo > /cache/a.txt")
+p.wait()
+sb.terminate()
+for data in vol.read_file("a.txt"):
+    print(data)
+
+   (BUTTON) Copy
+
+   If you want to pass data in and out of the Sandbox during execution,
+   you can use a [83]NetworkFileSystem mount. Avoid using
+   NetworkFileSystems for most use cases, as they are slower than Volumes.
+   Only use them if you need put data into the Sandbox or get data out
+   during execution rather than before or after execution.
+
+   We are in the process of deprecating NetworkFileSystems in favor of
+   Sandbox-specific filesystem APIs. If this sounds like it might be
+   useful for your use case, please [84]reach out and let us know!
+with modal.NetworkFileSystem.ephemeral() as nfs:
+    sb = modal.Sandbox.create(
+        network_file_systems={"/mnt/nfs": nfs},
+        app=my_app,
+    )
+    p = sb.exec("bash", "-c", "echo foo > /mnt/nfs/a.txt")
+    p.wait()
+    print(nfs.read_file("a.txt"))
+    sb.terminate()
+
+   (BUTTON) Copy
+   [85]File access
+   Modal logo © 2024
+   [86]About [87]Status [88]Changelog [89]Documentation [90]Slack
+   Community [91]Pricing [92]Examples
+

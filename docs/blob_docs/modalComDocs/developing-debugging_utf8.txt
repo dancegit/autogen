@@ -1,0 +1,218 @@
+Page: modal.com_files/modal.com/docs/guide/developing-debugging.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Developing and debugging
+
+   Modal makes it easy to run apps in the cloud, try code changes in the
+   cloud, and debug remotely executing code as if it were right there on
+   your laptop. To speed boost your inner dev loop, this guide provides a
+   rundown of tools and techniques for developing and debugging software
+   in Modal.
+
+Interactivity
+
+   You can launch a Modal App interactively and have it drop you right
+   into the middle of the action, at an interesting callsite or the site
+   of a runtime detonation.
+
+Interactive functions
+
+   It is possible to start the interactive Python debugger or start an
+   IPython REPL right in the middle of your Modal App.
+
+   To do so, you first need to run your App in "interactive" mode by using
+   the --interactive / -i flag. In interactive mode, you can establish a
+   connection to the calling terminal by calling interact() from within
+   your function.
+
+   For a simple example, you can accept user input with the built-in
+   Python input function:
+@app.function()
+def my_fn(x):
+    modal.interact()
+
+    print("Enter a number:", end=" ")
+    x = input()
+    print(f"Your number is {x}")
+
+   (BUTTON) Copy
+
+   Now when you run your app with the --interactive flag, you're able to
+   send inputs to your app, even though it's running in a remote
+   container!
+modal run -i guess_number.py
+Enter a number: 5
+Your number is 5
+
+   (BUTTON) Copy
+
+   For a more interesting example, you can start an IPython REPL
+   dynamically anywhere in your code:
+@app.function()
+def f():
+    model = expensive_function()
+    # play around with model
+    modal.interact()
+    import IPython
+    IPython.embed()
+
+   (BUTTON) Copy
+
+   The Python debugger can be initiated with the language built-in
+   breakpoint() function. For convenience, breakpoints call interact
+   automatically.
+@app.function()
+def f():
+    x = "10point3"
+    breakpoint()
+    answer = float(x)
+
+   (BUTTON) Copy
+
+Interactive shell
+
+   Modal lets you run interactive commands on your running containers from
+   the terminal.
+
+modal container exec
+
+   To run a command inside a running container, you first need to get the
+   container ID. You can view all running containers and their container
+   IDs with [81]modal container list.
+
+   After you obtain the container ID, you can run commands with modal
+   container exec [container-id] [command...]. For example, to run a bash
+   shell, you can run modal container exec [container-id] /bin/bash.
+
+   Note that your executed command will terminate immediately once your
+   container has finished running.
+
+   By default, commands will be run within a [82]pseudoterminal (PTY), but
+   this can be disabled with the --no-pty flag.
+
+modal shell
+
+   You can also launch an interactive shell in a new container with the
+   same environment as your function. This is handy for debugging issues
+   with your image, interactively refining build commands, and exploring
+   the contents of [83]Volumes, [84]NetworkFileSystems, and [85]Mounts.
+
+   The primary interface for accessing this feature is the [86]modal shell
+   CLI command, which accepts a function name in your App (or prompts you
+   to select one, if none is provided), and runs an interactive command on
+   the same image as the function, with the same [87]Secrets,
+   [88]NetworkFileSystems and [89]Mounts attached as the selected
+   function.
+
+   The default command is /bin/bash, but you can override this with any
+   other command of your choice using the --cmd flag.
+
+   Note that this command does not attach a shell to an existing instance
+   of the function, but instead creates a fresh instance of the underlying
+   image. We might support the former soon - please reach out to us if
+   that would be useful to you.
+
+Live updating
+
+Hot reloading with modal serve
+
+   Modal has the command modal serve <filename.py>, which creates a loop
+   that live updates an App when any of the supporting files change.
+
+   Live updating works with web endpoints, syncing your changes as you
+   make them, and it also works well with cron schedules and job queues.
+import modal
+
+app = modal.App(image=modal.Image.debian_slim().pip_install("fastapi"))
+
+
+@app.function()
+@modal.web_endpoint()
+def f():
+    return "I update on file edit!"
+
+
+@app.function(schedule=modal.Period(seconds=5))
+def run_me():
+    print("I also update on file edit!")
+
+   (BUTTON) Copy
+
+   If you edit this file, the modal serve command will detect the change
+   and update the code, without having to restart the command.
+
+Observability
+
+   Each running Modal App, including all ephemeral Apps, streams logs and
+   resource metrics back to you for viewing.
+
+   On start, an App will log a dashboard link that will take you its App
+   page.
+$ python3 main.py
+X Initialized. View app page at https://modal.com/apps/ap-XYZ1234.
+...
+
+   (BUTTON) Copy
+
+   From this page you can access the following:
+     * logs, both from your application and system-level logs from Modal
+     * compute resource metrics (CPU, RAM, GPU)
+     * function call history, including historical success/failure counts
+
+Debug logs
+
+   You can enable Modal's client debug logs by setting the MODAL_LOGLEVEL
+   environment variable to DEBUG. Running the following will show debug
+   logging from the Modal client running locally.
+MODAL_LOGLEVEL=DEBUG modal run hello.py
+
+   (BUTTON) Copy
+
+   To enable debug logs in the Modal client running in the remote
+   container, you can set MODAL_LOGLEVEL using a Modal [90]Secret.
+@app.function(secrets=[modal.Secret.from_dict({"MODAL_LOGLEVEL": "DEBUG"})])
+def f():
+    print("Hello, world!")
+
+   (BUTTON) Copy
+   [91]Developing and debugging [92]Interactivity [93]Interactive
+   functions [94]Interactive shell [95]modal container exec [96]modal
+   shell [97]Live updating [98]Hot reloading with modal serve
+   [99]Observability [100]Debug logs
+   Modal logo © 2024
+   [101]About [102]Status [103]Changelog [104]Documentation [105]Slack
+   Community [106]Pricing [107]Examples
+

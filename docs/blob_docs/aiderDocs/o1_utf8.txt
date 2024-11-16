@@ -1,0 +1,155 @@
+Page: aider.chat_files/aider.chat/2024/09/12/o1.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+   September 12, 2024
+
+OpenAI o1-preview is SOTA on the aider leaderboard
+
+o1-preview
+
+   OpenAI o1-preview scored 79.7% on aider's code editing benchmark, a
+   state of the art result. It achieved this result with the [84]"whole"
+   edit format, where the LLM returns a full copy of the source code file
+   with changes.
+
+   It is much more practical to use aider's [85]"diff" edit format, which
+   allows the LLM to return search/replace blocks to efficiently edit the
+   source code. This saves significant time and token costs.
+
+   Using the diff edit format the o1-preview model had a strong benchmark
+   score of 75.2%. This likely places o1-preview between Sonnet and GPT-4o
+   for practical use, but at significantly higher cost.
+
+o1-mini
+
+   OpenAI o1-mini is priced similarly to GPT-4o and Claude 3.5 Sonnet, but
+   scored below those models. It also works best with the whole edit
+   format.
+
+Future work
+
+   The o1-preview model had trouble conforming to aider's diff edit
+   format. The o1-mini model had trouble conforming to both the whole and
+   diff edit formats. Aider is extremely permissive and tries hard to
+   accept anything close to the correct formats.
+
+   It is surprising that such strong models had trouble with the syntactic
+   requirements of simple text output formats. It seems likely that aider
+   could optimize its prompts and edit formats to better harness the o1
+   models.
+
+Using aider with o1
+
+   OpenAI's new o1 models are supported in v0.57.0 of aider:
+aider --model o1-mini
+aider --model o1-preview
+
+     These are initial benchmark results for the o1 models, based on
+     aider v0.56.1-dev. See the [86]aider leaderboards for up-to-date
+     results based on the latest aider releases.
+
+   Model Percent completed correctly Percent using correct edit format
+   Command Edit format
+   o1-preview (whole) 79.7% 100.0% aider --model o1-preview whole
+   claude-3.5-sonnet (diff) 77.4% 99.2% aider --sonnet diff
+   o1-preview (diff) 75.2% 84.2% aider --model o1-preview diff
+   claude-3.5-sonnet (whole) 75.2% 100.0% aider --model
+   openrouter/anthropic/claude-3.5-sonnet --edit-format whole whole
+   gpt-4o-2024-08-06 (diff) 71.4% 98.5% aider --model
+   openai/gpt-4o-2024-08-06 diff
+   o1-mini (whole) 70.7% 90.0% aider --model o1-mini whole
+   o1-mini (diff) 62.4% 85.7% aider --model o1-mini --edit-format diff
+   diff
+   gpt-4o-mini (whole) 55.6% 100.0% aider --model gpt-4o-mini whole
+

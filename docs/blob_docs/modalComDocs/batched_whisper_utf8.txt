@@ -1,0 +1,259 @@
+Page: modal.com_files/modal.com/docs/examples/batched_whisper.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Fast Whisper inference using dynamic batching
+
+   In this example, we demonstrate how to run [63]dynamically batched
+   inference for OpenAI's speech recognition model, [64]Whisper, on Modal.
+   Batching multiple audio samples together or batching chunks of a single
+   audio sample can help to achieve a 2.8x increase in inference
+   throughput on an A10G!
+
+   We will be running the [65]Whisper Large V3 model. To run [66]any of
+   the other HuggingFace Whisper models, simply replace the MODEL_NAME and
+   MODEL_REVISION variables.
+
+Setup
+
+   Let's start by importing the Modal client and defining the model that
+   we want to serve.
+import os
+
+import modal
+
+MODEL_DIR = "/model"
+MODEL_NAME = "openai/whisper-large-v3"
+MODEL_REVISION = "afda370583db9c5359511ed5d989400a6199dfe1"
+
+   (BUTTON) Copy
+
+Define a container image
+
+   We'll start with Modal's baseline debian_slim image and install the
+   relevant libraries.
+image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .pip_install(
+        "torch==2.1.2",
+        "transformers==4.39.3",
+        "hf-transfer==0.1.6",
+        "huggingface_hub==0.22.2",
+        "librosa==0.10.2",
+        "soundfile==0.12.1",
+        "accelerate==0.33.0",
+        "datasets==2.20.0",
+    )
+    # Use the barebones `hf-transfer` package for maximum download speeds. No pr
+ogress bar, but expect 700MB/s.
+    .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
+)
+
+app = modal.App("example-whisper-batched-inference", image=image)
+
+   (BUTTON) Copy
+
+The model class
+
+   The inference function is best represented using Modal's [67]class
+   syntax.
+
+   We define a @modal.build method to download the model and a
+   @modal.enter method to load the model. build downloads the model from
+   HuggingFace just once when our app is first run or deployed and enter
+   loads the model into memory just once when our inference function is
+   first invoked.
+
+   We also define a transcribe method that uses the @modal.batched
+   decorator to enable dynamic batching. This allows us to invoke the
+   function with individual audio samples, and the function will
+   automatically batch them together before running inference. Batching is
+   critical for making good use of the GPU, since GPUs are designed for
+   running parallel operations at high throughput.
+
+   The max_batch_size parameter limits the maximum number of audio samples
+   combined into a single batch. We used a max_batch_size of 64, the
+   largest power-of-2 batch size that can be accommodated by the 24 A10G
+   GPU memory. This number will vary depending on the model and the GPU
+   you are using.
+
+   The wait_ms parameter sets the maximum time to wait for more inputs
+   before running the batched transcription. To tune this parameter, you
+   can set it to the target latency of your application minus the
+   execution time of an inference batch. This allows the latency of any
+   request to stay within your target latency.
+@app.cls(
+    gpu="a10g",  # Try using an A100 or H100 if you've got a large model or need
+ big batches!
+    concurrency_limit=10,  # default max GPUs for Modal's free tier
+)
+class Model:
+    @modal.build()
+    def download_model(self):
+        from huggingface_hub import snapshot_download
+        from transformers.utils import move_cache
+
+        os.makedirs(MODEL_DIR, exist_ok=True)
+
+        snapshot_download(
+            MODEL_NAME,
+            local_dir=MODEL_DIR,
+            ignore_patterns=["*.pt", "*.bin"],  # Using safetensors
+            revision=MODEL_REVISION,
+        )
+        move_cache()
+
+    @modal.enter()
+    def load_model(self):
+        import torch
+        from transformers import (
+            AutoModelForSpeechSeq2Seq,
+            AutoProcessor,
+            pipeline,
+        )
+
+        self.processor = AutoProcessor.from_pretrained(MODEL_NAME)
+        self.model = AutoModelForSpeechSeq2Seq.from_pretrained(
+            MODEL_NAME,
+            torch_dtype=torch.float16,
+            low_cpu_mem_usage=True,
+            use_safetensors=True,
+        ).to("cuda")
+
+        self.model.generation_config.language = "<|en|>"
+
+        # Create a pipeline for preprocessing and transcribing speech data
+        self.pipeline = pipeline(
+            "automatic-speech-recognition",
+            model=self.model,
+            tokenizer=self.processor.tokenizer,
+            feature_extractor=self.processor.feature_extractor,
+            torch_dtype=torch.float16,
+            device="cuda",
+        )
+
+    @modal.batched(max_batch_size=64, wait_ms=1000)
+    def transcribe(self, audio_samples):
+        import time
+
+        start = time.monotonic_ns()
+        print(f"Transcribing {len(audio_samples)} audio samples")
+        transcriptions = self.pipeline(
+            audio_samples, batch_size=len(audio_samples)
+        )
+        end = time.monotonic_ns()
+        print(
+            f"Transcribed {len(audio_samples)} samples in {round((end - start) /
+ 1e9, 2)}s"
+        )
+        return transcriptions
+
+   (BUTTON) Copy
+
+Transcribe a dataset
+
+   In this example, we use the [68]librispeech_asr_dummy dataset from
+   Hugging Face's Datasets library to test the model.
+
+   We use [69]map.aio to asynchronously map over the audio files. This
+   allows us to invoke the batched transcription method on each audio
+   sample in parallel.
+@app.function()
+async def transcribe_hf_dataset(dataset_name):
+    from datasets import load_dataset
+
+    print(" Loading dataset", dataset_name)
+    ds = load_dataset(dataset_name, "clean", split="validation")
+    print(" Dataset loaded")
+    batched_whisper = Model()
+    print("£ Sending data for transcripton")
+    async for transcription in batched_whisper.transcribe.map.aio(ds["audio"]):
+        yield transcription
+
+   (BUTTON) Copy
+
+Run the model
+
+   We define a [70]local_entrypoint to run the transcription. You can run
+   this locally with modal run batched_whisper.py.
+@app.local_entrypoint()
+async def main(dataset_name: str = None):
+    if dataset_name is None:
+        dataset_name = "hf-internal-testing/librispeech_asr_dummy"
+    for result in transcribe_hf_dataset.remote_gen(dataset_name):
+        print(result["text"])
+
+   (BUTTON) Copy
+   [71]Fast Whisper inference using dynamic batching [72]Setup [73]Define
+   a container image [74]The model class [75]Transcribe a dataset [76]Run
+   the model
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [77]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [78]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 06_gpu_and_ml/openai_whisper/batched_whisper.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [79]About [80]Status [81]Changelog [82]Documentation [83]Slack
+   Community [84]Pricing [85]Examples
+

@@ -1,0 +1,294 @@
+Page: modal.com_files/modal.com/docs/reference/modal.exception.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.exception
+
+modal.exception.AuthError
+
+class AuthError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Raised when a client has missing or invalid authentication.
+
+modal.exception.ClientClosed
+
+class ClientClosed(modal.exception.Error)
+
+   (BUTTON) Copy
+
+modal.exception.ConnectionError
+
+class ConnectionError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Raised when an issue occurs while connecting to the Modal servers.
+
+modal.exception.DeprecationError
+
+class DeprecationError(UserWarning)
+
+   (BUTTON) Copy
+
+   UserWarning category emitted when a deprecated Modal feature or API is
+   used.
+
+modal.exception.DeserializationError
+
+class DeserializationError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Raised to provide more context when an error is encountered during
+   deserialization.
+
+modal.exception.ExecutionError
+
+class ExecutionError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Raised when something unexpected happened during runtime.
+
+modal.exception.FunctionTimeoutError
+
+class FunctionTimeoutError(modal.exception.TimeoutError)
+
+   (BUTTON) Copy
+
+   Raised when a Function exceeds its execution duration limit and times
+   out.
+
+modal.exception.InputCancellation
+
+class InputCancellation(BaseException)
+
+   (BUTTON) Copy
+
+   Raised when the current input is cancelled by the task
+
+   Intentionally a BaseException instead of an Exception, so it won't get
+   caught by unspecified user exception clauses that might be used for
+   retries and other control flow.
+
+modal.exception.InteractiveTimeoutError
+
+class InteractiveTimeoutError(modal.exception.TimeoutError)
+
+   (BUTTON) Copy
+
+   Raised when interactive frontends time out while trying to connect to a
+   container.
+
+modal.exception.InvalidError
+
+class InvalidError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Raised when user does something invalid.
+
+modal.exception.ModuleNotMountable
+
+class ModuleNotMountable(Exception)
+
+   (BUTTON) Copy
+
+modal.exception.MountUploadTimeoutError
+
+class MountUploadTimeoutError(modal.exception.TimeoutError)
+
+   (BUTTON) Copy
+
+   Raised when a Mount upload times out.
+
+modal.exception.NotFoundError
+
+class NotFoundError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Raised when a requested resource was not found.
+
+modal.exception.OutputExpiredError
+
+class OutputExpiredError(modal.exception.TimeoutError)
+
+   (BUTTON) Copy
+
+   Raised when the Output exceeds expiration and times out.
+
+modal.exception.PendingDeprecationError
+
+class PendingDeprecationError(UserWarning)
+
+   (BUTTON) Copy
+
+   Soon to be deprecated feature. Only used intermittently because of
+   multi-repo concerns.
+
+modal.exception.RemoteError
+
+class RemoteError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Raised when an error occurs on the Modal server.
+
+modal.exception.RequestSizeError
+
+class RequestSizeError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Raised when an operation produces a gRPC request that is rejected by
+   the server for being too large.
+
+modal.exception.SandboxTerminatedError
+
+class SandboxTerminatedError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Raised when a Sandbox is terminated for an internal reason.
+
+modal.exception.SandboxTimeoutError
+
+class SandboxTimeoutError(modal.exception.TimeoutError)
+
+   (BUTTON) Copy
+
+   Raised when a Sandbox exceeds its execution duration limit and times
+   out.
+
+modal.exception.SerializationError
+
+class SerializationError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Raised to provide more context when an error is encountered during
+   serialization.
+
+modal.exception.TimeoutError
+
+class TimeoutError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Base class for Modal timeouts.
+
+modal.exception.VersionError
+
+class VersionError(modal.exception.Error)
+
+   (BUTTON) Copy
+
+   Raised when the current client version of Modal is unsupported.
+
+modal.exception.VolumeUploadTimeoutError
+
+class VolumeUploadTimeoutError(modal.exception.TimeoutError)
+
+   (BUTTON) Copy
+
+   Raised when a Volume upload times out.
+
+modal.exception.deprecation_error
+
+def deprecation_error(deprecated_on: Tuple[int, int, int], msg: str):
+
+   (BUTTON) Copy
+
+modal.exception.deprecation_warning
+
+def deprecation_warning(
+    deprecated_on: Tuple[int, int, int], msg: str, *, pending: bool = False, sho
+w_source: bool = True
+) -> None:
+
+   (BUTTON) Copy
+
+   Utility for getting the proper stack entry.
+
+   See the implementation of the built-in [71]warnings.warn.
+
+modal.exception.simulate_preemption
+
+def simulate_preemption(wait_seconds: int, jitter_seconds: int = 0):
+
+   (BUTTON) Copy
+
+   Utility for simulating a preemption interrupt after wait_seconds
+   seconds. The first interrupt is the SIGINT signal. After 30 seconds, a
+   second interrupt will trigger.
+
+   This second interrupt simulates SIGKILL, and should not be caught.
+   Optionally add between zero and jitter_seconds seconds of additional
+   waiting before first interrupt.
+
+   Usage:
+import time
+from modal.exception import simulate_preemption
+
+simulate_preemption(3)
+
+try:
+    time.sleep(4)
+except KeyboardInterrupt:
+    print("got preempted") # Handle interrupt
+    raise
+
+   (BUTTON) Copy
+
+   See [72]https://modal.com/docs/guide/preemption for more details on
+   preemption handling.
+   [73]modal.exception [74]modal.exception.AuthError
+   [75]modal.exception.ClientClosed [76]modal.exception.ConnectionError
+   [77]modal.exception.DeprecationError
+   [78]modal.exception.DeserializationError
+   [79]modal.exception.ExecutionError
+   [80]modal.exception.FunctionTimeoutError
+   [81]modal.exception.InputCancellation
+   [82]modal.exception.InteractiveTimeoutError
+   [83]modal.exception.InvalidError [84]modal.exception.ModuleNotMountable
+   [85]modal.exception.MountUploadTimeoutError
+   [86]modal.exception.NotFoundError
+   [87]modal.exception.OutputExpiredError
+   [88]modal.exception.PendingDeprecationError
+   [89]modal.exception.RemoteError [90]modal.exception.RequestSizeError
+   [91]modal.exception.SandboxTerminatedError
+   [92]modal.exception.SandboxTimeoutError
+   [93]modal.exception.SerializationError [94]modal.exception.TimeoutError
+   [95]modal.exception.VersionError
+   [96]modal.exception.VolumeUploadTimeoutError
+   [97]modal.exception.deprecation_error
+   [98]modal.exception.deprecation_warning
+   [99]modal.exception.simulate_preemption
+   Modal logo © 2024
+   [100]About [101]Status [102]Changelog [103]Documentation [104]Slack
+   Community [105]Pricing [106]Examples
+

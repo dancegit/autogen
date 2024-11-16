@@ -1,0 +1,214 @@
+Page: aider.chat_files/aider.chat/2024/05/22/linting.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+   May 22, 2024
+
+   [84]Linting code
+
+Linting code for LLMs with tree-sitter
+
+   Aider now lints your code after every LLM edit, and offers to
+   automatically fix any linting errors. You can also use aider's
+   lint-and-fix functionality on your source files any time you like, to
+   speedily resolve issues with code written by humans.
+
+   Aider shows linting errors to the LLM in a novel format, using
+   tree-sitter to help display relevant code context for each error. This
+   increases the ability of the LLM to understand the problem and make the
+   correct changes to resolve it.
+
+   Aider ships with basic linters built with tree-sitter that support
+   [85]most popular programming languages. These built in linters will
+   detect syntax errors and other fatal problems with the code.
+
+   You can also configure aider to use your preferred linters. This allows
+   aider to check for a larger class of problems, keep the code style
+   aligned with the rest of your team, etc.
+
+Linting and fixing your code
+
+   Aider now lints each source file after it applies the edits suggested
+   by an LLM. If problems are found, aider will ask if you'd like it to
+   attempt to fix the errors. If so, aider will send the LLM a report of
+   the lint errors and request changes to fix them. This process may
+   iterate a few times as the LLM works to fully resolve all the issues.
+
+   You can also lint and fix files any time, on demand from within the
+   aider chat or via the command line:
+     * The in-chat /lint command will lint and fix all the files which
+       have been added to the chat by default. Or you can name any files
+       in your git repo as arguments.
+     * From the command line, you can run aider --lint to lint and fix all
+       the dirty files in the repo. Or you can specify specific filenames
+       on the command line.
+
+An LLM-friendly lint report
+
+   Most linting tools produce terse and cryptic output, which is one
+   reason many engineers appreciate IDEs that highlight linting errors.
+   LLM's don't have the luxury of using an IDE, so aider sends the linting
+   errors in an LLM friendly format.
+
+   Here's an example of raw output of the flake8 python linter:
+app.py:23:36: F821 undefined name 'num'
+app.py:41:16: F541 f-string is missing placeholders
+
+   This sort of output depends on the user to reference line numbers to
+   find and fix each reported error. LLMs are quite bad at working with
+   source code line numbers, often making off-by-one errors and other
+   mistakes even when provided with a fully numbered code listing.
+
+   Aider augments the raw linter by displaying and highlighting the lines
+   that have errors within their containing functions, methods, classes.
+   To do this, aider uses tree-sitter to obtain the code's AST and
+   analyzes it in light of the linting errors. LLMs are more effective at
+   editing code that's provided with context like this.
+app.py:23:36: F821 undefined name 'num'
+app.py:41:16: F541 f-string is missing placeholders
+
+app.py:
+...:3...
+  6|class LongNum:
+  7|    def __init__(self, num):
+  8|        """
+  9|        Initialize the number.
+ 10|        """
+...:3...
+ 19|    def __str__(self):
+ 20|        """
+ 21|        Render the number as a string.
+ 22|        """
+ 23FB        return str(num)
+ 24|
+ 25|
+ 26|@app.route('/subtract/<int:x>/<int:y>')
+...:3...
+ 38|@app.route('/divide/<int:x>/<int:y>')
+ 39|def divide(x, y):
+ 40|    if y == 0:
+ 41FB        return f"Error: Cannot divide by zero"
+ 42|    else:
+ 43|        result = x / y
+ 44|        return str(result)
+ 45|
+...:3...
+
+Basic linters for most popular languages
+
+   Aider comes batteries-included with built in linters for [86]most
+   popular programming languages. This provides wide support for linting
+   without requiring users to manually install a linter and configure it
+   to work with aider.
+
+   Aider's built in language-agnostic linter uses tree-sitter to parse the
+   AST of each file. When tree-sitter encounters a syntax error or other
+   fatal issue parsing a source file, it inserts an AST node with type
+   ERROR. Aider simply uses these ERROR nodes to identify all the lines
+   with syntax or other types of fatal error, and displays them in the LLM
+   friendly format described above.
+
+Configuring your preferred linters
+
+   You can optionally configure aider to use your preferred linters with
+   the --lint-cmd switch.
+# To lint javascript with jslint
+aider --lint-cmd javascript:jslint
+
+# To lint python with flake8 using some specific args:
+aider --lint-cmd "python:flake8 --select=E9,F821,F823..."
+
+   You can provide multiple --lint-cmd switches to set linters for various
+   languages. You can also durably set linters in your .aider.conf.yml
+   file.
+

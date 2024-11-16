@@ -1,0 +1,405 @@
+Page: modal.com_files/modal.com/docs/guide/volumes.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Volumes
+
+   The [81]modal.Volume is a mutable volume built for high-performance
+   file serving. Like the [82]modal.NetworkFileSystem, these volumes can
+   be simultaneously attached to multiple Modal functions, supporting
+   concurrent reading and writing. But unlike the modal.NetworkFileSystem,
+   the modal.Volume has been designed for fast reads and does not
+   automatically synchronize writes between mounted volumes.
+
+   The modal.Volume works best with write-once, read-many I/O workloads.
+
+   Volumes work best when they contain less then 50,000 files and
+   directories. The latency to attach or modify a volume scales linearly
+   with the number of files in the volume, and past a few tens of
+   thousands of files the linear component starts to dominate the fixed
+   overhead.
+
+   There is currently a hard limit of 500,000 inodes (files, directories
+   and symbolic links) per volume. If you reach this limit, any further
+   attempts to create new files or directories will error with ENOSPC (No
+   space left on device).
+
+Creating a volume
+
+   The easiest way to create a Volume and use it as a part of your app is
+   to use the modal volume create CLI command. This will create the volume
+   and output some sample code:
+% modal volume create my-test-volume
+Created volume 'my-test-volume' in environment 'main'.
+
+   (BUTTON) Copy
+
+Using the volume from code
+
+   To attach a volume to a function, use Volume.from_name:
+import modal
+
+app = modal.App()
+vol = modal.Volume.from_name("my-volume")
+
+
+@app.function(volumes={"/data": vol})
+def run():
+    with open("/data/xyz.txt", "w") as f:
+        f.write("hello")
+    vol.commit()  # Needed to make sure all changes are persisted
+
+   (BUTTON) Copy
+
+Creating volumes lazily
+
+   You can also create volumes lazily from code using:
+import modal
+
+vol = modal.Volume.from_name("my-volume", create_if_missing=True)
+
+   (BUTTON) Copy
+
+   This will create the volume if it doesn't exist.
+
+Using the volume from the command line
+
+   You can also interact with volumes using the command line interface.
+   You can run modal volume to get a full list of its subcommands:
+% modal volume
+
+ Usage: modal volume [OPTIONS] COMMAND [ARGS]...
+
+ Read and edit modal.Volume volumes.
+ Note: users of modal.NetworkFileSystem should use the modal nfs command instead
+.
+
+­- Options ---------------------------------------------------------------------
+------------------------®
+| --help          Show this message and exit.
+                        |
+°-------------------------------------------------------------------------------
+------------------------¯
+­- Commands --------------------------------------------------------------------
+------------------------®
+| cp      Copy source file to destination file or multiple source files to desti
+nation directory.       |
+| create  Create a named, persistent modal.Volume.
+                        |
+| delete  Delete a named, persistent modal.Volume.
+                        |
+| get     Download files from a modal.Volume.
+                        |
+| list    List the details of all modal.Volume volumes in an environment.
+                        |
+| ls      List files and directories in a modal.Volume volume.
+                        |
+| put     Upload a file or directory to a volume.
+                        |
+| rm      Delete a file or directory from a volume.
+                        |
+°-------------------------------------------------------------------------------
+------------------------¯
+
+   (BUTTON) Copy
+
+Volume commits and reloads
+
+   Unlike a networked filesystem, you need to explicitly reload the Volume
+   to see changes made since it was first mounted. This reload is handled
+   by invoking the [83].reload() method on a Volume object. Similarly, any
+   volume changes made within a container need to be committed for those
+   the changes to become visible outside the current container. This is
+   handled by invoking the [84].commit() method on a Volume object, or by
+   enabling [85]background commits.
+
+   At container creation time the latest state of an attached Volume is
+   mounted. If the Volume is then subsequently modified by a commit
+   operation in another running container, that Volume modification won't
+   become available until the original container does a [86].reload().
+
+   Consider this example which demonstrates the effect of a reload:
+import pathlib
+import modal
+
+app = modal.App()
+
+volume = modal.Volume.from_name("my-volume")
+
+p = pathlib.Path("/root/foo/bar.txt")
+
+
+@app.function(volumes={"/root/foo": volume})
+def f():
+    p.write_text("hello")
+    print(f"Created {p=}")
+    volume.commit()  # Persist changes
+    print(f"Committed {p=}")
+
+
+@app.function(volumes={"/root/foo": volume})
+def g(reload: bool = False):
+    if reload:
+        volume.reload()  # Fetch latest changes
+    if p.exists():
+        print(f"{p=} contains '{p.read_text()}'")
+    else:
+        print(f"{p=} does not exist!")
+
+
+@app.local_entrypoint()
+def main():
+    g.remote()  # 1. container for `g` starts
+    f.remote()  # 2. container for `f` starts, commits file
+    g.remote(reload=False)  # 3. reuses container for `g`, no reload
+    g.remote(reload=True)   # 4. reuses container, but reloads to see file.
+
+   (BUTTON) Copy
+
+   The output for this example is this:
+p=PosixPath('/root/foo/bar.txt') does not exist!
+Created p=PosixPath('/root/foo/bar.txt')
+Committed p=PosixPath('/root/foo/bar.txt')
+p=PosixPath('/root/foo/bar.txt') does not exist!
+p=PosixPath('/root/foo/bar.txt') contains hello
+
+   (BUTTON) Copy
+
+   This code runs two containers, one for f and one for g. Only the last
+   function invocation reads the file created and committed by f because
+   it was configured to reload.
+
+Background commits
+
+   Volumes have support for background committing that is in beta. This
+   functionality periodically commits the state of your Volume so that
+   your application code does not need to invoke .commit().
+
+   Background commits are now enabled by default and do not have to be
+   explicitly requested.
+
+   During the execution of the train function shown above, every few
+   seconds the attached Volume will be snapshotted and its new changes
+   committed. A final snapshot and commit is also automatically performed
+   on container shutdown.
+
+   Being able to persist changes to Volumes without changing your
+   application code is especially useful when training or fine-tuning
+   models.
+
+Model serving
+
+   A single ML model can be served by simply baking it into a modal.Image
+   at build time using [87]run_function. But if you have dozens of models
+   to serve, or otherwise need to decouple image builds from model storage
+   and serving, use a modal.Volume.
+
+   Volumes can be used to save a large number of ML models and later serve
+   any one of them at runtime with much better performance than can be
+   achieved with a [88]modal.NetworkFileSystem.
+
+   This snippet below shows the basic structure of the solution.
+import modal
+
+app = modal.App()
+volume = modal.Volume.from_name("model-store")
+model_store_path = "/vol/models"
+
+
+@app.function(volumes={model_store_path: volume}, gpu="any")
+def run_training():
+    model = train(...)
+    save(model_store_path, model)
+    volume.commit()  # Persist changes
+
+
+@app.function(volumes={model_store_path: volume})
+def inference(model_id: str, request):
+    try:
+        model = load_model(model_store_path, model_id)
+    except NotFound:
+        volume.reload()  # Fetch latest changes
+        model = load_model(model_store_path, model_id)
+    return model.run(request)
+
+   (BUTTON) Copy
+
+Model checkpointing
+
+   Checkpoints are snapshots of an ML model and can be configured by the
+   callback functions of ML frameworks. You can use saved checkpoints to
+   restart a training job from the last saved checkpoint. This is
+   particularly helpful in managing [89]preemption.
+
+Huggingface transformers
+
+   To periodically checkpoint into a modal.Volume, you must:
+     * Enable [90]background commits
+     * Set the Trainer's [91]output_dir to write into the volume's mount
+       location.
+
+import pathlib
+
+volume = modal.Volume.from_name("my-volume")
+VOL_MOUNT_PATH = pathlib.Path("/vol")
+
+@app.function(
+    gpu="A10g",
+    timeout=7_200,
+    volumes={VOL_MOUNT_PATH: volume},
+)
+def finetune():
+    from transformers import Seq2SeqTrainer
+    ...
+
+    training_args = Seq2SeqTrainingArguments(
+        output_dir=str(VOL_MOUNT_PATH / "model"),
+        # ... more args here
+    )
+
+    trainer = Seq2SeqTrainer(
+        model=model,
+        args=training_args,
+        train_dataset=tokenized_xsum_train,
+        eval_dataset=tokenized_xsum_test,
+    )
+
+   (BUTTON) Copy
+
+Filesystem consistency
+
+Concurrent modification
+
+   Concurrent modification from multiple containers is supported, but
+   concurrent modifications of the same files should be avoided. Last
+   write wins in case of concurrent modification of the same file -- any
+   data the last writer didn't have when committing changes will be lost!
+
+   The number of commits you can run concurrently is limited. If you run
+   too many concurrent commits each commit will take longer due to
+   contention. If you are committing small changes, avoid doing more than
+   5 concurrent commits (the number of concurrent commits you can make is
+   proportional to the size of the changes being committed).
+
+   As a result, volumes are typically not a good fit for use cases where
+   you need to make concurrent modifications to the same file (nor is
+   distributed file locking supported).
+
+   While a commit or reload is in progress the volume will appear empty to
+   the container that initiated the commit. That means you cannot read
+   from or write to a volume in a container where a commit or reload is
+   ongoing (note that this only applies to the container where the commit
+   or reload was issued, other containers remain unaffected).
+
+   For example, this is not going to work:
+volume = modal.Volume.from_name("my-volume")
+
+
+@app.function(image=modal.Image.debian_slim().pip_install("aiofiles"), volumes={
+"/vol": volume})
+async def concurrent_write_and_commit():
+    async with aiofiles.open("/vol/big.file", "w") as f:
+        await f.write("hello" * 1024 * 1024 * 500)
+
+    async def f():
+        await asyncio.sleep(0.1)  # Wait for the commit to start
+        # This is going to fail with:
+        # PermissionError: [Errno 1] Operation not permitted: '/vol/other.file'
+        # since the commit is in progress when we attempt the write.
+        async with aiofiles.open("/vol/other.file", "w") as f:
+            await f.write("hello")
+
+    await asyncio.gather(volume.commit.aio(), f())
+
+   (BUTTON) Copy
+
+Busy volume errors
+
+   You can only reload a volume when there no open files on the volume. If
+   you have open files on the volume the [92].reload() operation will fail
+   with "volume busy". The following is a simple example of how a "volume
+   busy" error can occur:
+volume = modal.Volume.from_name("my-volume")
+
+
+@app.function(volumes={"/vol": volume})
+def reload_with_open_files():
+    f = open("/vol/data.txt", "r")
+    volume.reload()  # Cannot reload when files in the volume are open.
+
+   (BUTTON) Copy
+
+Can't find file on volume errors
+
+   When accessing files in your volume, don't forget to pre-pend where
+   your Volume is mounted in the container.
+
+   In the example below, where the volume has been mounted at /data,
+   "hello" is being written to /data/xyz.txt.
+import modal
+
+app = modal.App()
+vol = modal.Volume.from_name("my-volume")
+
+
+@app.function(volumes={"/data": vol})
+def run():
+    with open("/data/xyz.txt", "w") as f:
+        f.write("hello")
+    vol.commit()
+
+   (BUTTON) Copy
+
+   If you instead write to "/xyz.txt", when you dump the contents of the
+   volume, you will not see the xyz.txt file.
+
+Further examples
+
+     * [93]Pet Art Dreambooth with Hugging Face and Gradio uses a volume
+       for model storage
+
+   [94]Volumes [95]Creating a volume [96]Using the volume from code
+   [97]Creating volumes lazily [98]Using the volume from the command line
+   [99]Volume commits and reloads [100]Background commits [101]Model
+   serving [102]Model checkpointing [103]Huggingface transformers
+   [104]Filesystem consistency [105]Concurrent modification [106]Busy
+   volume errors [107]Can't find file on volume errors [108]Further
+   examples
+   See it in action
+   [109]Fine-tuning and serving custom LLaMA models
+   Modal logo © 2024
+   [110]About [111]Status [112]Changelog [113]Documentation [114]Slack
+   Community [115]Pricing [116]Examples
+

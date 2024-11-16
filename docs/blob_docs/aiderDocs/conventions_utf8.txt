@@ -1,0 +1,185 @@
+Page: aider.chat_files/aider.chat/docs/usage/conventions.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+
+Specifying coding conventions
+
+   Sometimes you want GPT to be aware of certain coding guidelines, like
+   whether to provide type hints, which libraries or packages to prefer,
+   etc.
+
+   The easiest way to do that with aider is to simply create a small
+   markdown file and include it in the chat.
+
+   For example, say we want our python code to:
+- Prefer httpx over requests for making http requests.
+- Use types everywhere possible.
+
+   We would simply create a file like CONVENTIONS.md with those lines and
+   then we can add it to the aider chat, along with the file(s) that we
+   want to edit.
+
+   It's best to load the conventions file with /read CONVENTIONS.md or
+   aider --read CONVENTIONS.md. This way it is marked as read-only, and
+   cached if prompt caching is enabled.
+
+Always load conventions
+
+   You can also configure aider to always load your conventions file in
+   the [85].aider.conf.yml config file:
+# alone
+read: CONVENTIONS.md
+
+# multiple files
+read: [CONVENTIONS.md, anotherfile.txt]
+
+Example
+
+   See below for an example of how the conventions can affect the code
+   that aider writes.
+
+     $ aider -read CONVENTIONS.md useragent.py
+
+     Aider v0.24.2-dev
+     Added CONVENTIONS.md to the chat.
+     Added useragent.py to the chat.
+
+write a function that uses httpbin to check the user agent on the request.
+return the ua.
+
+   To fulfill your request, I will:
+       httpbin.org/user-agent and returns the user agent string.
+
+   Here is the diff for the useragent.py file:
+--- useragent.py
++++ useragent.py
+@@ ... @@
++import httpx
++
++def check_user_agent() -> str:
++    response = httpx.get('https://httpbin.org/user-agent')
++    return response.json()['user-agent']
+
+   This function uses httpx to make a GET request to
+   httpbin.org/user-agent, which returns a JSON response containing the
+   user agent of the HTTP client. The function then extracts the user
+   agent string from the JSON response and returns it.
+
+     Applied edit to useragent.py
+
+   GPT correctly used httpx and provided type hints. See below for the
+   transcript of this same coding task conducted without using
+   CONVENTIONS.md. In this case, GPT used requests and skipped types,
+   which is perhaps more typical in small python scripts.
+
+     $ aider useragent.py
+
+     Aider v0.24.2-dev
+     Added useragent.py to the chat.
+
+write a function that uses httpbin to check the user agent on the request.
+return the ua.
+
+--- /dev/null
++++ useragent.py
+@@ ... @@
++import requests
++
++def check_user_agent():
++    response = requests.get('https://httpbin.org/user-agent')
++    user_agent = response.json().get('user-agent')
++    return user_agent
+
+     Applied edit to useragent.py
+

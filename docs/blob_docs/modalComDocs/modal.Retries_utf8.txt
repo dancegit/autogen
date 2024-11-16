@@ -1,0 +1,95 @@
+Page: modal.com_files/modal.com/docs/reference/modal.Retries.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.Retries
+
+class Retries(object)
+
+   (BUTTON) Copy
+
+   Adds a retry policy to a Modal function.
+
+   Usage
+import modal
+app = modal.App()
+
+# Basic configuration.
+# This sets a policy of max 4 retries with 1-second delay between failures.
+@app.function(retries=4)
+def f():
+    pass
+
+
+# Fixed-interval retries with 3-second delay between failures.
+@app.function(
+    retries=modal.Retries(
+        max_retries=2,
+        backoff_coefficient=1.0,
+        initial_delay=3.0,
+    )
+)
+def g():
+    pass
+
+
+# Exponential backoff, with retry delay doubling after each failure.
+@app.function(
+    retries=modal.Retries(
+        max_retries=4,
+        backoff_coefficient=2.0,
+        initial_delay=1.0,
+    )
+)
+def h():
+    pass
+
+   (BUTTON) Copy
+def __init__(
+    self,
+    *,
+    # The maximum number of retries that can be made in the presence of failures
+.
+    max_retries: int,
+    # Coefficent controlling how much the retry delay increases each retry attem
+pt.
+    # A backoff coefficient of 1.0 creates fixed-delay where the delay period al
+ways equals the initial delay.
+    backoff_coefficient: float = 2.0,
+    # Number of seconds that must elapse before the first retry occurs.
+    initial_delay: float = 1.0,
+    # Maximum length of retry delay in seconds, preventing the delay from growin
+g infinitely.
+    max_delay: float = 60.0,
+):
+
+   (BUTTON) Copy
+
+   Construct a new retries policy, supporting exponential and
+   fixed-interval delays via a backoff coefficient.
+   [71]modal.Retries
+   Modal logo © 2024
+   [72]About [73]Status [74]Changelog [75]Documentation [76]Slack
+   Community [77]Pricing [78]Examples
+

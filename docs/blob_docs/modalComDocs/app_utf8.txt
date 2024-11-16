@@ -1,0 +1,201 @@
+Page: modal.com_files/modal.com/docs/reference/cli/app.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal app
+
+   Manage deployed and running apps.
+
+   Usage:
+modal app [OPTIONS] COMMAND [ARGS]...
+
+   (BUTTON) Copy
+
+   Options:
+     * --help: Show this message and exit.
+
+   Commands:
+     * list: List Modal apps that are currently deployed/running or
+       recently stopped.
+     * logs: Show App logs, streaming while active.
+     * rollback: Redeploy a previous version of an App.
+     * stop: Stop an app.
+     * history: Show App deployment history, for a currently deployed app
+
+modal app list
+
+   List Modal apps that are currently deployed/running or recently
+   stopped.
+
+   Usage:
+modal app list [OPTIONS]
+
+   (BUTTON) Copy
+
+   Options:
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --json / --no-json: [default: no-json]
+     * --help: Show this message and exit.
+
+modal app logs
+
+   Show App logs, streaming while active.
+
+   Examples:
+
+   Get the logs based on an app ID:
+modal app logs ap-123456
+
+   (BUTTON) Copy
+
+   Get the logs for a currently deployed App based on its name:
+modal app logs my-app
+
+   (BUTTON) Copy
+
+   Usage:
+modal app logs [OPTIONS] [APP_IDENTIFIER]
+
+   (BUTTON) Copy
+
+   Arguments:
+     * [APP_IDENTIFIER]: App name or ID
+
+   Options:
+     * -n, --name TEXT: Deprecated: Pass App name as a positional argument
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --help: Show this message and exit.
+
+modal app rollback
+
+   Redeploy a previous version of an App.
+
+   Note that the App must currently be in a "deployed" state. Rollbacks
+   will appear as a new deployment in the App history, although the App
+   state will be reset to the state at the time of the previous
+   deployment.
+
+   Examples:
+
+   Rollback an App to its previous version:
+modal app rollback my-app
+
+   (BUTTON) Copy
+
+   Rollback an App to a specific version:
+modal app rollback my-app v3
+
+   (BUTTON) Copy
+
+   Rollback an App using its App ID instead of its name:
+modal app rollback ap-abcdefghABCDEFGH123456
+
+   (BUTTON) Copy
+
+   Usage:
+modal app rollback [OPTIONS] [APP_IDENTIFIER] [VERSION]
+
+   (BUTTON) Copy
+
+   Arguments:
+     * [APP_IDENTIFIER]: App name or ID
+     * [VERSION]: Target version for rollback.
+
+   Options:
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --help: Show this message and exit.
+
+modal app stop
+
+   Stop an app.
+
+   Usage:
+modal app stop [OPTIONS] [APP_IDENTIFIER]
+
+   (BUTTON) Copy
+
+   Arguments:
+     * [APP_IDENTIFIER]: App name or ID
+
+   Options:
+     * -n, --name TEXT: Deprecated: Pass App name as a positional argument
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --help: Show this message and exit.
+
+modal app history
+
+   Show App deployment history, for a currently deployed app
+
+   Examples:
+
+   Get the history based on an app ID:
+modal app history ap-123456
+
+   (BUTTON) Copy
+
+   Get the history for a currently deployed App based on its name:
+modal app history my-app
+
+   (BUTTON) Copy
+
+   Usage:
+modal app history [OPTIONS] [APP_IDENTIFIER]
+
+   (BUTTON) Copy
+
+   Arguments:
+     * [APP_IDENTIFIER]: App name or ID
+
+   Options:
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * -n, --name TEXT: Deprecated: Pass App name as a positional argument
+     * --json / --no-json: [default: no-json]
+     * --help: Show this message and exit.
+
+   [71]modal app [72]modal app list [73]modal app logs [74]modal app
+   rollback [75]modal app stop [76]modal app history
+   Modal logo © 2024
+   [77]About [78]Status [79]Changelog [80]Documentation [81]Slack
+   Community [82]Pricing [83]Examples
+

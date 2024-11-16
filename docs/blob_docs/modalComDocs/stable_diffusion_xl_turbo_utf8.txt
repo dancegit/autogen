@@ -1,0 +1,212 @@
+Page: modal.com_files/modal.com/docs/examples/stable_diffusion_xl_turbo.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Stable Diffusion XL Turbo Image-to-image
+
+   This example is similar to the [63]Stable Diffusion XL example, but
+   it's a distilled model trained for real-time synthesis and is
+   image-to-image. Learn more about it [64]here.
+
+   Input prompt: dog wizard, gandalf, lord of the rings, detailed,
+   fantasy, cute, adorable, Pixar, Disney, 8k
+                      Input                    Output
+   [stable_diffusion_turbo_input.2b6419fd.png]
+   [stable_diffusion_turbo_output.df0ed00c.png]
+
+Basic setup
+
+from io import BytesIO
+from pathlib import Path
+
+import modal
+
+   (BUTTON) Copy
+
+Define a container image
+
+image = modal.Image.debian_slim().pip_install(
+    "Pillow~=10.1.0",
+    "diffusers~=0.24.0",
+    "huggingface-hub~=0.25.2",
+    "transformers~=4.35.2",  # This is needed for `import torch`
+    "accelerate~=0.25.0",  # Allows `device_map="auto"``, which allows computati
+on of optimized device_map
+    "safetensors~=0.4.1",  # Enables safetensor format as opposed to using unsaf
+e pickle format
+)
+
+app = modal.App("stable-diffusion-xl-turbo", image=image)
+
+with image.imports():
+    import torch
+    from diffusers import AutoPipelineForImage2Image
+    from diffusers.utils import load_image
+    from huggingface_hub import snapshot_download
+    from PIL import Image
+
+   (BUTTON) Copy
+
+Load model and run inference
+
+   The container lifecycle [65]@enter decorator loads the model at
+   startup. Then, we evaluate it in the inference function.
+
+   To avoid excessive cold-starts, we set the idle timeout to 240 seconds,
+   meaning once a GPU has loaded the model it will stay online for 4
+   minutes before spinning down. This can be adjusted for cost/experience
+   trade-offs.
+@app.cls(gpu=modal.gpu.A10G(), container_idle_timeout=240)
+class Model:
+    @modal.build()
+    def download_models(self):
+        # Ignore files that we don't need to speed up download time.
+        ignore = [
+            "*.bin",
+            "*.onnx_data",
+            "*/diffusion_pytorch_model.safetensors",
+        ]
+
+        snapshot_download("stabilityai/sdxl-turbo", ignore_patterns=ignore)
+
+    @modal.enter()
+    def enter(self):
+        self.pipe = AutoPipelineForImage2Image.from_pretrained(
+            "stabilityai/sdxl-turbo",
+            torch_dtype=torch.float16,
+            variant="fp16",
+            device_map="auto",
+        )
+
+    @modal.method()
+    def inference(self, image_bytes, prompt):
+        init_image = load_image(Image.open(BytesIO(image_bytes))).resize(
+            (512, 512)
+        )
+        num_inference_steps = 4
+        strength = 0.9
+        # "When using SDXL-Turbo for image-to-image generation, make sure that n
+um_inference_steps * strength is larger or equal to 1"
+        # See: https://huggingface.co/stabilityai/sdxl-turbo
+        assert num_inference_steps * strength >= 1
+
+        image = self.pipe(
+            prompt,
+            image=init_image,
+            num_inference_steps=num_inference_steps,
+            strength=strength,
+            guidance_scale=0.0,
+        ).images[0]
+
+        byte_stream = BytesIO()
+        image.save(byte_stream, format="PNG")
+        image_bytes = byte_stream.getvalue()
+
+        return image_bytes
+
+
+DEFAULT_IMAGE_PATH = Path(__file__).parent / "demo_images/dog.png"
+
+
+@app.local_entrypoint()
+def main(
+    image_path=DEFAULT_IMAGE_PATH,
+    prompt="dog wizard, gandalf, lord of the rings, detailed, fantasy, cute, ado
+rable, Pixar, Disney, 8k",
+):
+    with open(image_path, "rb") as image_file:
+        input_image_bytes = image_file.read()
+        output_image_bytes = Model().inference.remote(input_image_bytes, prompt)
+
+    dir = Path("/tmp/stable-diffusion-xl-turbo")
+    if not dir.exists():
+        dir.mkdir(exist_ok=True, parents=True)
+
+    output_path = dir / "output.png"
+    print(f"Saving it to {output_path}")
+    with open(output_path, "wb") as f:
+        f.write(output_image_bytes)
+
+   (BUTTON) Copy
+
+Running the model
+
+   We can run the model with different parameters using the following
+   command,
+modal run stable_diffusion_xl_turbo.py --prompt="harry potter, glasses, wizard"
+--image-path="dog.png"
+
+   (BUTTON) Copy
+   [66]Stable Diffusion XL Turbo Image-to-image [67]Basic setup [68]Define
+   a container image [69]Load model and run inference [70]Running the
+   model
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [71]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [72]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 06_gpu_and_ml/stable_diffusion/stable_diffusion_xl_turbo.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [73]About [74]Status [75]Changelog [76]Documentation [77]Slack
+   Community [78]Pricing [79]Examples
+

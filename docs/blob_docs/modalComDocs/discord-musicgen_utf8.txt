@@ -1,0 +1,276 @@
+Page: modal.com_files/modal.com/docs/examples/discord-musicgen.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+BoomBot: Create your own music samples on Discord
+
+   (quick links: [62]try it out on Discord; [63]watch demo with audio;
+   [64]view source code)
+
+   [65]MusicGen is the latest milestone language model in conditional
+   music generation, with great results. We wanted a space to easily play
+   around with the model and share our creations, so we created a
+   [66]Discord community featuring BoomBot, an on-demand music sample
+   generator.
+
+   You can call BoomBot in the Discord server by simply typing /generate,
+   then prompting it with a text description of the music you'd like to
+   create, and even a file of the melody you'd like to condition on, along
+   with other specifiable parameters.
+
+   boombot-demo
+
+   Everything, from the backend API to our React frontend, is deployed
+   serverlessly using Modal, and the code is available [67]here.
+
+Code overview
+
+   BoomBot runs the MusicGen model remotely in a GPU-accelerated container
+   -- when a user interacts with the Discord bot using the slash command
+   /generate, Discord sends a webhook call to Modal, which then generates
+   a music sample using the text description and other user inputs from
+   the command. We also deploy a React single page application as static
+   files into a Modal web endpoint for our web app.
+
+   We go into detail into each of these steps below, and provide commands
+   for running each of them individually. To follow along, [68]clone the
+   repo and [69]set up a Discord token for yourself.
+
+Language model
+
+   We use [70]Audiocraft, a PyTorch library that provides the code and
+   models for MusicGen, and load both the 3.3B large and 1.5B melody
+   models to use depending on the user input (large for just text, melody
+   for text and melody). We can install all our dependencies and "bake"
+   both models into our image to avoid downloading our models during
+   inference and take advantage of Modal's incredibly fast cold-start
+   times:
+def download_models() -> None:
+    from audiocraft.models import MusicGen
+
+    MusicGen.get_pretrained("large")
+    MusicGen.get_pretrained("melody")
+
+
+image = (
+    modal.Image.debian_slim()
+    .apt_install("git", "ffmpeg")
+    .pip_install(
+        "pynacl", # for Discord authentication
+        "torch",
+        "soundfile",
+        "pydub",
+        "git+https://github.com/facebookresearch/audiocraft.git",
+    )
+    .run_function(download_models, gpu="any")
+)
+app.image = image
+
+   (BUTTON) Copy
+
+   We then write our model code within Modal's [71]@app.cls decorator,
+   with the [72]generate function processing the user input and generating
+   audio as bytes that we can save to a file later.
+
+   It's useful to test out our model directly before we build out our
+   backend API, so we define a [73]local_entrypoint. We can then run our
+   model from the CLI using inputs of our choice:
+modal run main.py --prompt "soothing jazz" --duration 20 --format "mp3" --melody
+ "https://cdn.discordapp.com/ephemeral-attachments/1124040605304094870/112437159
+6484804880/bach.mp3"
+
+   (BUTTON) Copy
+
+Discord bot
+
+   Now that we've loaded our model and wrote our function, we'd like to
+   trigger it from Discord. We can do this using [74]slash commands -- a
+   feature that lets you register a text command on Discord that triggers
+   a custom webhook when a user interacts with it. We handle all our
+   Discord events in a [75]FastAPI app in [76]bot.py. Luckily, we can
+   deploy this app easily and serverlessly using Modal's [77]@asgi_app
+   decorator.
+
+Create a Discord app
+
+   To connect our model to a Discord bot, we're first going to create an
+   application on the Discord Developer Portal.
+       account.
+       clicking New Application in the top right next to your profile
+       picture.
+       and [79]create a custom Modal secret for it. On Modal's secret
+       creation page, paste the public key as the secret value with the
+       key DISCORD_PUBLIC_KEY, then name this secret
+       boombot-discord-secret.
+
+   Then go back to your application on the [80]Discord Developer Portal,
+   as we need to do a few more things to finish setting up our bot.
+
+Register a Slash Command
+
+   Next, we're going to register a command for our Discord app via an HTTP
+   endpoint.
+
+   Run the following command in your terminal, replacing the appropriate
+   variable inputs. BOT_TOKEN can be found by resetting your token in the
+   application's Bot section, and CLIENT_ID is the Application ID
+   available in General Information.
+BOT_TOKEN='replace_with_bot_token'
+CLIENT_ID='replace_with_application_id'
+curl -X POST \
+-H 'Content-Type: application/json' \
+-H "Authorization: Bot $BOT_TOKEN" \
+-d '{
+  "name":"generate",
+  "description":"generate music",
+  "options":[
+    {
+      "name":"prompt",
+      "description":"Describe the music you want to generate",
+      "type":3,
+      "required":true
+    },
+    {
+      "name":"duration",
+      "description":"Duration of clip, in seconds (max 60)",
+      "type":4,
+      "required":false,
+      "min_value":2,
+      "max_value":60
+    },
+    {
+      "name":"melody",
+      "description":"File of melody you'\''d like to condition (takes first 30 s
+ecs if longer)",
+      "type":11,
+      "required":false
+    },
+    {
+      "name":"format",
+      "description":"Desired format of output (default .wav)",
+      "type":3,
+      "required":false,
+      "choices":[
+        {
+          "name": ".wav",
+          "value": "wav"
+        },
+        {
+          "name": ".mp3",
+          "value": "mp3"
+        }
+      ]
+    }
+  ]
+}' "https://discord.com/api/v10/applications/$CLIENT_ID/commands"
+
+   (BUTTON) Copy
+
+   This will register a Slash Command for your bot named generate, and has
+   a few parameters like prompt, duration, and format. More information
+   about the command structure can be found in the Discord docs [81]here.
+
+Deploy a Modal web endpoint
+
+   We then create a [82]POST /generate endpoint in [83]bot.py using
+   [84]FastAPI and Modal's [85]@asgi_app decorator to handle interactions
+   with our Discord app (so that every time a user does a slash command,
+   we can respond to it).
+
+   Note that since Discord requires an interaction response within 3
+   seconds, we use [86]spawn to kick off Audiocraft.generate as a
+   background task while returning a defer message to Discord within the
+   time limit. We then update our response with the results once the model
+   has finished running.
+
+   You can deploy this app by running the following command from your root
+   directory:
+modal deploy src.bot
+
+   (BUTTON) Copy
+
+   Copy the Modal URL that is printed in the output and go back to your
+   application's General Information section on the [87]Discord Developer
+   Portal. Paste the URL, making sure to append the path of your POST
+   endpoint, in the Interactions Endpoint URL field, then click Save
+   Changes. If your endpoint is valid, it will properly save and you can
+   start receiving interactions via this web endpoint.
+
+Finish setting up Discord bot
+
+   To start using the Slash Command you just set up, you need to invite
+   the bot to a Discord server. To do so, go to your application's OAuth2
+   section on the [88]Discord Developer Portal. Select
+   applications.commands as the scope of your bot and copy the invite URL
+   that is generated at the bottom of the page.
+
+   Paste this URL in your browser, then select your desired server (create
+   a new server if needed) and click Authorize. Now you can open your
+   Discord server and type /{name of your slash command} - your bot should
+   be connected and ready for you to use!
+
+React frontend
+
+   We also added a simple [89]React frontend to our [90]FastAPI app to
+   serve as a landing page for our Discord server.
+
+   We added the frontend to our existing app in [91]bot.py by simply using
+   Mount to mount our local directory at /assets in our container, then
+   instructing FastAPI to serve this [92]static file directory at our root
+   path.
+
+   For a more in-depth tutorial on deploying your web app on Modal, refer
+   to our [93]Document OCR web app example.
+
+Run this app on Modal
+
+   All the source code for this example can be [94]found on Github.
+
+   If you're interested in learning more about Modal, check out our
+   [95]docs and other [96]examples.
+   [97]BoomBot: Create your own music samples on Discord [98]Code overview
+   [99]Language model [100]Discord bot [101]Create a Discord app
+   [102]Register a Slash Command [103]Deploy a Modal web endpoint
+   [104]Finish setting up Discord bot [105]React frontend [106]Run this
+   app on Modal
+   Modal logo © 2024
+   [107]About [108]Status [109]Changelog [110]Documentation [111]Slack
+   Community [112]Pricing [113]Examples
+

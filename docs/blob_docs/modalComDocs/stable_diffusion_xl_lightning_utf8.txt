@@ -1,0 +1,241 @@
+Page: modal.com_files/modal.com/docs/examples/stable_diffusion_xl_lightning.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Run SDXL Lightning on Modal
+
+   This example runs [63]SDXL-Lightning by ByteDance, a fast text-to-image
+   model that generates high quality images in just a few steps.
+from pathlib import Path
+
+import modal
+
+app = modal.App("stable-diffusion-xl-lightning")
+
+image = modal.Image.debian_slim(python_version="3.11").pip_install(
+    "diffusers==0.26.3",
+    "huggingface-hub==0.25.2",
+    "transformers~=4.37.2",
+    "accelerate==0.27.2",
+    "fastapi[standard]==0.115.4",
+    "pydantic==2.9.2",
+    "starlette==0.41.2",
+)
+
+base = "stabilityai/stable-diffusion-xl-base-1.0"
+repo = "ByteDance/SDXL-Lightning"
+ckpt = "sdxl_lightning_4step_unet.safetensors"
+
+
+with image.imports():
+    import io
+
+    import torch
+    from diffusers import (
+        EulerDiscreteScheduler,
+        StableDiffusionXLPipeline,
+        UNet2DConditionModel,
+    )
+    from fastapi import Response
+    from huggingface_hub import hf_hub_download
+    from safetensors.torch import load_file
+
+
+@app.cls(image=image, gpu="a100")
+class Model:
+    @modal.build()
+    @modal.enter()
+    def load_weights(self):
+        unet = UNet2DConditionModel.from_config(base, subfolder="unet").to(
+            "cuda", torch.float16
+        )
+        unet.load_state_dict(
+            load_file(hf_hub_download(repo, ckpt), device="cuda")
+        )
+        self.pipe = StableDiffusionXLPipeline.from_pretrained(
+            base, unet=unet, torch_dtype=torch.float16, variant="fp16"
+        ).to("cuda")
+
+        self.pipe.scheduler = EulerDiscreteScheduler.from_config(
+            self.pipe.scheduler.config, timestep_spacing="trailing"
+        )
+
+    def _inference(self, prompt, n_steps=4):
+        negative_prompt = "disfigured, ugly, deformed"
+        image = self.pipe(
+            prompt=prompt,
+            guidance_scale=0,
+            negative_prompt=negative_prompt,
+            num_inference_steps=n_steps,
+        ).images[0]
+
+        byte_stream = io.BytesIO()
+        image.save(byte_stream, format="JPEG")
+
+        return byte_stream
+
+    @modal.method()
+    def inference(self, prompt, n_steps=4):
+        return self._inference(
+            prompt,
+            n_steps=n_steps,
+        ).getvalue()
+
+    @modal.web_endpoint(docs=True)
+    def web_inference(self, prompt, n_steps=4):
+        return Response(
+            content=self._inference(
+                prompt,
+                n_steps=n_steps,
+            ).getvalue(),
+            media_type="image/jpeg",
+        )
+
+   (BUTTON) Copy
+
+   And this is our entrypoint; where the CLI is invoked. Run this example
+   with: modal run stable_diffusion_xl_lightning.py --prompt "An astronaut
+   riding a green horse"
+@app.local_entrypoint()
+def main(
+    prompt: str = "in the style of Dali, a surrealist painting of a weasel in a
+tuxedo riding a bicycle in the rain",
+):
+    image_bytes = Model().inference.remote(prompt)
+
+    dir = Path("/tmp/stable-diffusion-xl-lightning")
+    if not dir.exists():
+        dir.mkdir(exist_ok=True, parents=True)
+
+    output_path = dir / "output.png"
+    print(f"Saving it to {output_path}")
+    with open(output_path, "wb") as f:
+        f.write(image_bytes)
+
+   (BUTTON) Copy
+
+A user interface
+
+   Here we ship a simple web application that exposes a front-end (written
+   in Alpine.js) for our backend deployment.
+
+   The Model class will serve multiple users from a its own shared pool of
+   warm GPU containers automatically.
+
+   We can deploy this with modal deploy stable_diffusion_xl_lightning.py.
+
+   Because the web_endpoint decorator on our web_inference function has
+   the docs flag set to True, we also get interactive documentation for
+   our endpoint at /docs.
+frontend_path = Path(__file__).parent / "frontend"
+
+web_image = modal.Image.debian_slim().pip_install("jinja2")
+
+
+@app.function(
+    image=web_image,
+    mounts=[modal.Mount.from_local_dir(frontend_path, remote_path="/assets")],
+    allow_concurrent_inputs=20,
+)
+@modal.asgi_app()
+def ui():
+    import fastapi.staticfiles
+    from fastapi import FastAPI, Request
+    from fastapi.templating import Jinja2Templates
+
+    web_app = FastAPI()
+    templates = Jinja2Templates(directory="/assets")
+
+    @web_app.get("/")
+    async def read_root(request: Request):
+        return templates.TemplateResponse(
+            "index.html",
+            {
+                "request": request,
+                "inference_url": Model.web_inference.web_url,
+                "model_name": "Stable Diffusion XL Lightning",
+                "default_prompt": "A cinematic shot of a baby raccoon wearing an
+ intricate Italian priest robe.",
+            },
+        )
+
+    web_app.mount(
+        "/static",
+        fastapi.staticfiles.StaticFiles(directory="/assets"),
+        name="static",
+    )
+
+    return web_app
+
+   (BUTTON) Copy
+   [64]Run SDXL Lightning on Modal [65]A user interface
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [66]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [67]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 06_gpu_and_ml/stable_diffusion/stable_diffusion_xl_lightning.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [68]About [69]Status [70]Changelog [71]Documentation [72]Slack
+   Community [73]Pricing [74]Examples
+

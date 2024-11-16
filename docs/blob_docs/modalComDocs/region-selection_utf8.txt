@@ -1,0 +1,181 @@
+Page: modal.com_files/modal.com/docs/guide/region-selection.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Region selection
+
+   Modal allows you to specify which cloud region you would like to run a
+   Function in. This may be useful if:
+     * you are required (for regulatory reasons or by your customers) to
+       process data within certain regions.
+     * you want to reduce egress fees that result from reading data from a
+       dependency like S3.
+     * you have a latency-sensitive app where app endpoints need to run
+       near an external DB.
+
+   Note that regardless of what region your Function runs in, all Function
+   inputs and outputs go through Modal's control plane in us-east-1.
+
+   Our [81]Enterprise plan offers full access to this feature while our
+   [82]Team plan provides a more [83]limited version. Please contact
+   [84]sales@modal.com if you need full access.
+
+Specifying a region
+
+   To run your Modal Function in a specific region, pass a region=
+   argument to the function decorator.
+import os
+import modal
+
+app = modal.App("...")
+
+@app.function(region="us-east") # also supports a list of options, for example r
+egion=["us-central", "us-east"]
+def f():
+    print(f"running in {os.environ['MODAL_REGION']}") # us-east-1, us-east-2, us
+-ashburn-1, etc.
+
+   (BUTTON) Copy
+
+   You can specify a region in addition to the underlying cloud,
+   @app.function(cloud="aws", region="us-east") would run your Function
+   only in "us-east-1" or "us-east-2" for instance.
+
+Region options
+
+   Modal offers varying levels of granularity for regions. Use broader
+   regions when possible, as this increases the pool of available
+   resources your Function can be assigned to, which improves cold-start
+   time and availability.
+
+United States ("us")
+
+   Use region="us" to select any region in the United States.
+     Broad            Specific             Description
+ ==============================================================
+  "us-east"           "us-east-1"          AWS Virginia
+                      "us-east-2"          AWS Ohio
+                      "us-east1"           GCP South Carolina
+                      "us-east4"           GCP Virginia
+                      "us-ashburn-1"       OCI Virginia
+ --------------------------------------------------------------
+  "us-central"        "us-central1"        GCP Iowa
+                      "us-chicago-1"       OCI Chicago
+                      "us-phoenix-1"       OCI Phoenix
+ --------------------------------------------------------------
+  "us-west"           "us-west-1"          AWS California
+                      "us-west-2"          AWS Oregon
+                      "us-west1"           GCP Oregon
+                      "us-sanjose-1"       OCI San Jose
+
+   (BUTTON) Copy
+
+Europe ("eu")
+
+   Use region="eu" to select any region in Europe.
+     Broad            Specific             Description
+ ==============================================================
+  "eu-west"           "eu-central-1"       AWS Frankfurt
+                      "eu-west-1"          AWS Ireland
+                      "eu-west-2"          AWS London
+                      "eu-west-3"          AWS Paris
+                      "europe-west4"       GCP Netherlands
+                      "eu-frankfurt-1"     OCI Frankfurt
+                      "eu-paris-1"         OCI Paris
+                      "uk-london-1"        OCI London
+ --------------------------------------------------------------
+  "eu-north"          "eu-north-1"         AWS Stockholm
+
+   (BUTTON) Copy
+
+Asia-Pacific ("ap")
+
+   Use region="ap" to select any region in Asia-Pacific.
+     Broad            Specific             Description
+ ==============================================================
+  "ap-northeast"      "asia-northeast3"    GCP Seoul
+                      "ap-northeast-1"     AWS Tokyo
+                      "ap-northeast-3"     AWS Osaka
+ --------------------------------------------------------------
+  "ap-southeast"      "asia-southeast1"    GCP Singapore
+ --------------------------------------------------------------
+  "ap-south"          "ap-south-1"         AWS Mumbai
+
+   (BUTTON) Copy
+
+Other regions
+
+     Broad            Specific             Description
+ ==============================================================
+  "ca"                "ca-central-1"       AWS Montreal
+                      "ca-toronto-1"       OCI Toronto
+ --------------------------------------------------------------
+  "jp"                "ap-northeast-1"     AWS Tokyo
+                      "ap-northeast-3"     AWS Osaka
+ --------------------------------------------------------------
+  "me"                "me-west1"           GCP Tel Aviv
+ --------------------------------------------------------------
+  "sa"                "sa-east-1"          AWS São Paulo
+
+   (BUTTON) Copy
+
+Region selection under the Team plan
+
+   Under the Team plan, you can specify any of the following broad regions
+   for CPU-only Functions with concurrency limits: ["us", "us-east",
+   "us-west", "eu"].
+import os
+import modal
+
+app = modal.App("...")
+
+@app.function(region="eu", concurrency_limit=5) # also supports a list of option
+s, for example region=["eu", "us-west"]
+def f():
+    print(f"running in {os.environ['MODAL_REGION']}") # eu-west-1, eu-west-2, et
+c.
+
+   (BUTTON) Copy
+
+   If you need more fine-grained region selection, higher concurrency
+   limits, or to use region selection for GPU Functions, please contact
+   [85]support@modal.com.
+   [86]Region selection [87]Specifying a region [88]Region options
+   [89]United States ("us") [90]Europe ("eu") [91]Asia-Pacific ("ap")
+   [92]Other regions [93]Region selection under the Team plan
+   Modal logo © 2024
+   [94]About [95]Status [96]Changelog [97]Documentation [98]Slack
+   Community [99]Pricing [100]Examples
+

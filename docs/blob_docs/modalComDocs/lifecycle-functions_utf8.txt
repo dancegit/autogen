@@ -1,0 +1,225 @@
+Page: modal.com_files/modal.com/docs/guide/lifecycle-functions.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Container lifecycle hooks
+
+   Since Modal [81]reuses the same container for multiple inputs,
+   sometimes you might want to run some code exactly once when the
+   container starts or exits.
+
+   To accomplish this, you need to use Modal's class syntax and the
+   [82]@app.cls decorator. Specifically, you'll need to:
+       previously had for @app.function(...).
+       @method or the appropriate decorator for a [83]web endpoint.
+          + @enter for one-time initialization (remote)
+          + @exit for one-time cleanup (remote)
+          + @build to run the function during image build and snapshot the
+            results
+
+@enter
+
+   The container entry handler is called when a new container is started.
+   This is useful for doing one-time initialization, such as loading model
+   weights or importing packages that are only present in that image.
+
+   To use, make your function a member of a class, and apply the @enter()
+   decorator to one or more class methods:
+import modal
+
+app = modal.App()
+
+@app.cls(cpu=8)
+class Model:
+    @modal.enter()
+    def run_this_on_container_startup(self):
+        import pickle
+        self.model = pickle.load(open("model.pickle"))
+
+    @modal.method()
+    def predict(self, x):
+        return self.model.predict(x)
+
+
+@app.local_entrypoint()
+def main():
+    Model().predict.remote(x=123)
+
+   (BUTTON) Copy
+
+   When working with an [84]asynchronous Modal app, you may use an async
+   method instead:
+import modal
+
+app = modal.App()
+
+@app.cls(memory=1024)
+class Processor:
+    @modal.enter()
+    async def my_enter_method(self):
+        self.cache = await load_cache()
+
+    @modal.method()
+    async def run(self, x):
+        return await do_some_async_stuff(x, self.cache)
+
+
+@app.local_entrypoint()
+async def main():
+    await Processor().run.remote(x=123)
+
+   (BUTTON) Copy
+
+   Note: The @enter() decorator replaces the earlier __enter__ syntax,
+   which has been deprecated.
+
+@exit
+
+   The container exit handler is called when a container is about to exit.
+   It is useful for doing one-time cleanup, such as closing a database
+   connection or saving intermediate results. To use, make your function a
+   member of a class, and apply the @exit() decorator:
+import modal
+
+app = modal.App()
+
+@app.cls()
+class ETLPipeline:
+    @modal.enter()
+    def open_connection(self):
+        import psycopg2
+        self.connection = psycopg2.connect(os.environ["DATABASE_URI"])
+
+    @modal.method()
+    def run(self):
+        # Run some queries
+        pass
+
+    @modal.exit()
+    def close_connection(self):
+        self.connection.close()
+
+
+@app.local_entrypoint()
+def main():
+    ETLPipeline().run.remote()
+
+   (BUTTON) Copy
+
+   Note that the exit handler is given a grace period of 30 seconds to
+   exit, and it will be killed if it takes longer than that to complete.
+
+   Note: The @exit() decorator replaces the earlier __exit__ syntax, which
+   has been deprecated. Like __exit__, the method decorated by @exit
+   previously needed to accept arguments containing exception information,
+   but this is no longer supported.
+
+@build
+
+   The @build() decorator lets us define code that runs as a part of
+   building the container image. This might be useful for downloading
+   model weights and storing it as a part of the image:
+import modal
+
+app = modal.App()
+
+@app.cls()
+class Model:
+    @modal.build()
+    def download_model(self):
+        download_model_to_disk()
+
+    @modal.enter()
+    def load_model(self):
+        load_model_from_disk()
+
+    @modal.method()
+    def predict(self, x):
+        ...
+
+   (BUTTON) Copy
+
+   The @build and @enter decorators can be stacked. This can be useful
+   with tools like tranformers which lets you download model weights over
+   the network but caches the weights locally. By making the
+   initialization method run during image build, we make sure the model
+   weights are cached in the image, which makes containers start faster.
+import modal
+
+app = modal.App()
+
+@app.cls()
+class Model:
+    @modal.build()
+    @modal.enter()
+    def load_model(self):
+        load_model_from_network(local_cache_dir="/")
+
+    @modal.method()
+    def predict(self, x):
+        ...
+
+   (BUTTON) Copy
+
+Lifecycle hooks for web endpoints
+
+   Modal @functions that are [85]web endpoints can be converted to the
+   class syntax as well. Instead of @modal.method, simply use whichever of
+   the web endpoint decorators (@modal.web_endpoint, @modal.asgi_app or
+   @modal.wsgi_app) you were using before.
+from fastapi import Request
+
+import modal
+
+image = modal.Image.debian_slim().pip_install("fastapi")
+app = modal.App("web-endpoint-cls", image=image)
+
+@app.cls()
+class Model:
+    @modal.enter()
+    def run_this_on_container_startup(self):
+        self.model = pickle.load(open("model.pickle"))
+
+    @modal.web_endpoint()
+    def predict(self, request: Request):
+        ...
+
+   (BUTTON) Copy
+   [86]Container lifecycle hooks [87]@enter [88]@exit [89]@build
+   [90]Lifecycle hooks for web endpoints
+   Modal logo © 2024
+   [91]About [92]Status [93]Changelog [94]Documentation [95]Slack
+   Community [96]Pricing [97]Examples
+

@@ -1,0 +1,117 @@
+Page: modal.com_files/modal.com/docs/reference/cli/container.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal container
+
+   Manage and connect to running containers.
+
+   Usage:
+modal container [OPTIONS] COMMAND [ARGS]...
+
+   (BUTTON) Copy
+
+   Options:
+     * --help: Show this message and exit.
+
+   Commands:
+     * list: List all containers that are currently running.
+     * logs: Show logs for a specific container, streaming while active.
+     * exec: Execute a command in a container.
+     * stop: Stop a currently-running container and reassign its
+       in-progress inputs.
+
+modal container list
+
+   List all containers that are currently running.
+
+   Usage:
+modal container list [OPTIONS]
+
+   (BUTTON) Copy
+
+   Options:
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --json / --no-json: [default: no-json]
+     * --help: Show this message and exit.
+
+modal container logs
+
+   Show logs for a specific container, streaming while active.
+
+   Usage:
+modal container logs [OPTIONS] CONTAINER_ID
+
+   (BUTTON) Copy
+
+   Arguments:
+     * CONTAINER_ID: Container ID [required]
+
+   Options:
+     * --help: Show this message and exit.
+
+modal container exec
+
+   Execute a command in a container.
+
+   Usage:
+modal container exec [OPTIONS] CONTAINER_ID COMMAND...
+
+   (BUTTON) Copy
+
+   Arguments:
+     * CONTAINER_ID: Container ID [required]
+     * COMMAND...: A command to run inside the container. [required]
+
+   Options:
+     * --pty / --no-pty: Run the command using a PTY. [default: pty]
+     * --help: Show this message and exit.
+
+modal container stop
+
+   Stop a currently-running container and reassign its in-progress inputs.
+
+   This will send the container a SIGINT signal that Modal will handle.
+
+   Usage:
+modal container stop [OPTIONS] CONTAINER_ID
+
+   (BUTTON) Copy
+
+   Arguments:
+     * CONTAINER_ID: Container ID [required]
+
+   Options:
+     * --help: Show this message and exit.
+
+   [71]modal container [72]modal container list [73]modal container logs
+   [74]modal container exec [75]modal container stop
+   Modal logo © 2024
+   [76]About [77]Status [78]Changelog [79]Documentation [80]Slack
+   Community [81]Pricing [82]Examples
+

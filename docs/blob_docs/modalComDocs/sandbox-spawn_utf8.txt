@@ -1,0 +1,191 @@
+Page: modal.com_files/modal.com/docs/guide/sandbox-spawn.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Running commands in Sandboxes
+
+   Once you have created a Sandbox, you can run commands inside it using
+   the [81]Sandbox.exec method.
+sb = modal.Sandbox.create(app=my_app)
+
+process = sb.exec("echo", "hello")
+print(process.stdout.read())
+
+process = sb.exec("python", "-c", "print(1 + 1)")
+print(process.stdout.read())
+
+process = sb.exec(
+    "bash",
+    "-c",
+    "for i in $(seq 1 10); do echo foo $i; sleep 0.1; done",
+)
+for line in process.stdout:
+    print(line, end="")
+
+sb.terminate()
+
+   (BUTTON) Copy
+
+   Sandbox.exec returns a [82]ContainerProcess object, which allows access
+   to the process's stdout, stderr, and stdin.
+
+Input
+
+   The Sandbox and ContainerProcess stdin handles are [83]StreamWriter
+   objects. This object supports flushing writes with both synchronous and
+   asynchronous APIs:
+import asyncio
+
+sb = modal.Sandbox.create(app=my_app)
+
+p = sb.exec("bash", "-c", "while read line; do echo $line; done")
+p.stdin.write(b"foo bar\n")
+p.stdin.write_eof()
+p.stdin.drain()
+p.wait()
+sb.terminate()
+
+async def run_async():
+    sb = await modal.Sandbox.create.aio(app=my_app)
+    p = await sb.exec.aio("bash", "-c", "while read line; do echo $line; done")
+    p.stdin.write(b"foo bar\n")
+    p.stdin.write_eof()
+    await p.stdin.drain.aio()
+    await p.wait.aio()
+    await sb.terminate.aio()
+
+asyncio.run(run_async())
+
+   (BUTTON) Copy
+
+Output
+
+   The Sandbox and ContainerProcess stdout and stderr handles are
+   [84]StreamReader objects. These objects support reading from the stream
+   in both synchronous and asynchronous manners.
+
+   To read from a stream after the underlying process has finished, you
+   can use the read method, which blocks until the process finishes and
+   returns the entire output stream.
+sb = modal.Sandbox.create(app=my_app)
+p = sb.exec("echo", "hello")
+print(p.stdout.read())
+sb.terminate()
+
+   (BUTTON) Copy
+
+   To stream output, take advantage of the fact that stdout and stderr are
+   iterable:
+import asyncio
+
+sb = modal.Sandbox.create(app=my_app)
+
+p = sb.exec("bash", "-c", "for i in $(seq 1 10); do echo foo $i; sleep 0.1; done
+")
+
+for line in p.stdout:
+    # Lines preserve the trailing newline character, so use end="" to avoid doub
+le newlines.
+    print(line, end="")
+p.wait()
+sb.terminate()
+
+async def run_async():
+    sb = await modal.Sandbox.create.aio(app=my_app)
+    p = await sb.exec.aio("bash", "-c", "for i in $(seq 1 10); do echo foo $i; s
+leep 0.1; done")
+    async for line in p.stdout:
+        # Avoid double newlines by using end="".
+        print(line, end="")
+    await p.wait.aio()
+    await sb.terminate.aio()
+
+asyncio.run(run_async())
+
+   (BUTTON) Copy
+
+Stream types
+
+   By default, all streams are buffered in memory, waiting to be consumed
+   by the client. You can control this behavior with the stdout and stderr
+   parameters. These parameters are conceptually similar to the stdout and
+   stderr parameters of the [85]subprocess module.
+from modal.stream_type import StreamType
+
+sb = modal.Sandbox.create(app=my_app)
+
+# Default behavior: buffered in memory.
+p = sb.exec(
+    "bash",
+    "-c",
+    "echo foo; echo bar >&2",
+    stdout=StreamType.PIPE,
+    stderr=StreamType.PIPE,
+)
+print(p.stdout.read())
+print(p.stderr.read())
+
+# Print the stream to STDOUT as it comes in.
+p = sb.exec(
+    "bash",
+    "-c",
+    "echo foo; echo bar >&2",
+    stdout=StreamType.STDOUT,
+    stderr=StreamType.STDOUT,
+)
+p.wait()
+
+# Discard all output.
+p = sb.exec(
+    "bash",
+    "-c",
+    "echo foo; echo bar >&2",
+    stdout=StreamType.DEVNULL,
+    stderr=StreamType.DEVNULL,
+)
+p.wait()
+
+sb.terminate()
+
+   (BUTTON) Copy
+   [86]Running commands in Sandboxes [87]Input [88]Output [89]Stream types
+   See it in action
+   [90]Building a coding agent with Sandboxes
+   [91]Building a code interpreter
+   [92]Safe code execution
+   Modal logo © 2024
+   [93]About [94]Status [95]Changelog [96]Documentation [97]Slack
+   Community [98]Pricing [99]Examples
+

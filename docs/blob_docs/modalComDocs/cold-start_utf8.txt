@@ -1,0 +1,287 @@
+Page: modal.com_files/modal.com/docs/guide/cold-start.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Cold start performance
+
+   Modal Functions are run in [81]containers.
+
+   If a container is already ready to run your Function, it will be
+   reused.
+
+   If not, Modal spins up a new container. This is known as a cold start,
+   and it is often associated with higher latency.
+
+   There are two sources of increased latency during cold starts:
+       become ready or "warm".
+       may be extra work that only needs to be done on the first
+       invocation ("amortized work").
+
+   This guide presents techniques and Modal features for reducing the
+   impact of both queueing and amortized work on observed latencies.
+
+   If you are invoking Functions with no warm containers or if you
+   otherwise see inputs spending too much time in the "pending" state, you
+   should [82]target queueing time for optimization.
+
+   If you see some Function invocations taking much longer than others,
+   and those invocations are the first handled by a new container, you
+   should [83]target amortized work for optimization.
+
+Reduce time spent queueing for warm containers
+
+   New containers are booted when there are not enough other warm
+   containers to to handle the current number of inputs.
+
+   For example, the first time you send an input to a Function, there are
+   zero warm containers and there is one input, so a single container must
+   be booted up. The total latency for the input will include the time it
+   takes to boot a container.
+
+   If you send another input right after the first one finishes, there
+   will be one warm container and one pending input, and no new container
+   will be booted.
+
+   Generalizing, there are two factors that affect the time inputs spend
+   queueing: the time it takes for a container to boot and become warm and
+   the chance a warm container is available to handle an input.
+
+Warm up containers faster
+
+   The time taken for a container to become warm and ready for inputs can
+   range from seconds to minutes.
+
+   Modal's custom container stack has been heavily optimized to reduce
+   this time. Containers boot in about one second.
+
+   But before a container is considered warm and ready to handle inputs,
+   we need to execute any logic in your code's global scope (such as
+   imports) or in any [84]modal.enter methods. So if your boots are slow,
+   these are the first places to work on optimization.
+
+   For example, you might be downloading a large model from a model server
+   during the boot process. You can instead [85]download the model during
+   the build phase, which only runs when the container image changes, at
+   most once per deployment.
+
+   For models in the tens of gigabytes, this can reduce boot times from
+   minutes to seconds.
+
+Run more warm containers
+
+   It is not always possible to speed up boots sufficiently. For example,
+   seconds of added latency to load a model may not be acceptable in an
+   interactive setting.
+
+   In this case, the only option is to have more warm containers running.
+   This increases the chance that an input will be handled by a warm
+   container, for example one that finishes an input while another
+   container is booting.
+
+   Modal currently exposes two parameters to control how many containers
+   will be warm: container_idle_timeout and keep_warm.
+
+Keep containers warm for longer with container_idle_timeout
+
+   By default, Modal containers spin down after 60 seconds of inactivity.
+   You can configure this time by setting the container_idle_timeout value
+   on the [86]@function decorator. The timeout is measured in seconds and
+   can be set to any value between two seconds and twenty minutes.
+import modal
+
+app = modal.App()
+
+@app.function(container_idle_timeout=300)
+def my_idle_greeting():
+    return {"hello": "world"}
+
+   (BUTTON) Copy
+
+Maintain a warm pool with keep_warm
+
+   Keeping already warm containers around longer doesn't help if there are
+   no warm containers to begin with, as when Functions scale from zero.
+
+   To keep some containers warm and running at all times, set the
+   keep_warm value on the [87]@function decorator. This sets the minimum
+   number of containers that will always be ready to run your Function.
+   Modal will still scale up (and spin down) more containers if the demand
+   for your Function exceeds the keep_warm value, as usual.
+import modal
+
+app = modal.App(image=modal.Image.debian_slim().pip_install("fastapi"))
+
+@app.function(keep_warm=3)
+@modal.web_endpoint()
+def my_warm_greeting():
+    return {"hello": "world"}
+
+   (BUTTON) Copy
+
+Adjust warm pools dynamically
+
+   You can also set the warm pool size for a deployed function dynamically
+   with [88]Function.keep_warm. This can be used with a Modal
+   [89]scheduled function to update the number of warm containers based on
+   the time of day, for example:
+import modal
+
+app = modal.App()
+
+@app.function()
+def square(x):
+    return x**2
+
+@app.function(schedule=modal.Cron("0 * * * *"))  # run at the start of the hour
+def update_keep_warm():
+    from datetime import datetime, timezone
+
+    peak_hours_start, peak_hours_end = 6, 18
+    if peak_hours_start <= datetime.now(timezone.utc).hour < peak_hours_end:
+        square.keep_warm(3)
+    else:
+        square.keep_warm(0)
+
+   (BUTTON) Copy
+
+Reduce time spent on amortized work
+
+   Some work is done only the first time that a function is invoked, but
+   used on every subsequent invocation. This is [90]amortized work.
+
+   For example, you may be using a large pre-trained model whose weights
+   need to be loaded from disk to memory the first time it is used.
+
+   This results in longer latencies for the first invocation of a warm
+   container, which shows up in the application as occasional slow calls
+   (high tail latency).
+
+Move amortized work to build or warm up
+
+   As with work at warm up time, some work done on the first invocation
+   can be moved out to build time or to warm up time.
+
+   Any work that can be saved to disk, like [91]downloading model weights,
+   should be done during the build phase.
+
+   If you can move the logic for the amortized work out of the function
+   body and into a [92]container enter method, you can move work into the
+   warm up period. Containers will not be considered warm until all enter
+   methods have completed, so no inputs will have elevated latency inside
+   the body of the function.
+
+   For more on how to use enter with machine learning model weights, see
+   [93]this guide.
+
+   Note that enter doesn't get rid of the latency -- it just moves the
+   latency to the warm up period, where it can be handled by [94]running
+   more warm containers.
+
+Target amortized work for optimization
+
+   Sometimes, there is nothing to be done but to speed this work up.
+
+   Here, we share specific patterns that show up in optimizing amortized
+   work in Modal functions.
+
+Load multiple large files concurrently
+
+   Often Modal applications need to read large files into memory (eg.
+   model weights) before they can process inputs. Where feasible these
+   large file reads should happen concurrently and not sequentially.
+   Concurrent IO takes full advantage of our platform's high disk and
+   network bandwidth to reduce latency.
+
+   One common example of slow sequential IO is loading multiple
+   independent Huggingface transformers models in series.
+from transformers import CLIPProcessor, CLIPModel, BlipProcessor, BlipForConditi
+onalGeneration
+model_a = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+processor_a = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+model_b = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large"
+)
+processor_b = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-imag
+e-captioning-large")
+
+   (BUTTON) Copy
+
+   The above snippet does four .from_pretrained loads sequentially. None
+   of the components depend on another being already loaded in memory, so
+   they can be loaded concurrently instead.
+
+   They could instead be loaded concurrently using a function like this:
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from transformers import CLIPProcessor, CLIPModel, BlipProcessor, BlipForConditi
+onalGeneration
+
+def load_models_concurrently(load_functions_map: dict) -> dict:
+    model_id_to_model = {}
+    with ThreadPoolExecutor(max_workers=len(load_functions_map)) as executor:
+        future_to_model_id = {
+            executor.submit(load_fn): model_id
+            for model_id, load_fn in load_functions_map.items()
+        }
+        for future in as_completed(future_to_model_id.keys()):
+            model_id_to_model[future_to_model_id[future]] = future.result()
+    return model_id_to_model
+
+components = load_models_concurrently({
+    "clip_model": lambda: CLIPModel.from_pretrained("openai/clip-vit-base-patch3
+2"),
+    "clip_processor": lambda: CLIPProcessor.from_pretrained("openai/clip-vit-bas
+e-patch32"),
+    "blip_model": lambda: BlipProcessor.from_pretrained("Salesforce/blip-image-c
+aptioning-large"),
+    "blip_processor": lambda: BlipForConditionalGeneration.from_pretrained("Sale
+sforce/blip-image-captioning-large")
+})
+
+   (BUTTON) Copy
+
+   If performing concurrent IO on large file reads does not speed up your
+   cold starts, it's possible that some part of your function's code is
+   holding the Python [95]GIL and reducing the efficacy of the
+   multi-threaded executor.
+   [96]Cold start performance [97]Reduce time spent queueing for warm
+   containers [98]Warm up containers faster [99]Run more warm containers
+   [100]Keep containers warm for longer with container_idle_timeout
+   [101]Maintain a warm pool with keep_warm [102]Adjust warm pools
+   dynamically [103]Reduce time spent on amortized work [104]Move
+   amortized work to build or warm up [105]Target amortized work for
+   optimization [106]Load multiple large files concurrently
+   Modal logo © 2024
+   [107]About [108]Status [109]Changelog [110]Documentation [111]Slack
+   Community [112]Pricing [113]Examples
+

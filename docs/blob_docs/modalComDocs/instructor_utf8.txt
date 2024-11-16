@@ -1,0 +1,151 @@
+Page: modal.com_files/modal.com/docs/examples/instructor.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Create Instructor Embeddings on Modal
+
+   This example runs the [63]Instructor embedding model and runs a simple
+   sentence similarity computation.
+import modal
+
+MODEL_DIR = "/model"
+
+
+image = (
+    modal.Image.debian_slim(python_version="3.10")
+    .apt_install("git")
+    .run_commands(
+        "git clone https://github.com/HKUNLP/instructor-embedding",
+        # Package doesn't define it's requirements properly?
+        "cd instructor-embedding && pip install -r requirements.txt",
+    )
+    .pip_install("InstructorEmbedding")
+)
+
+app = modal.App("instructor", image=image)
+
+with image.imports():
+    from InstructorEmbedding import INSTRUCTOR
+
+
+@app.cls(gpu="any")
+class InstructorModel:
+    @modal.build()
+    def download_model(self):
+        model = INSTRUCTOR("hkunlp/instructor-large")
+        model.save(MODEL_DIR)
+
+    @modal.enter()
+    def enter(self):
+        self.model = INSTRUCTOR(MODEL_DIR, device="cuda")
+
+    @modal.method()
+    def compare(self, sentences_a, sentences_b):
+        from sklearn.metrics.pairwise import cosine_similarity
+
+        embeddings_a = self.model.encode(sentences_a)
+        embeddings_b = self.model.encode(sentences_b)
+        similarities = cosine_similarity(embeddings_a, embeddings_b)
+        return similarities.tolist()
+
+
+@app.local_entrypoint()
+def run():
+    sentences_a = [
+        [
+            "Represent the Science sentence: ",
+            "Parton energy loss in QCD matter",
+        ],
+        [
+            "Represent the Financial statement: ",
+            "The Federal Reserve on Wednesday raised its benchmark interest rate
+.",
+        ],
+    ]
+    sentences_b = [
+        [
+            "Represent the Science sentence: ",
+            "The Chiral Phase Transition in Dissipative Dynamics",
+        ],
+        [
+            "Represent the Financial statement: ",
+            "The funds rose less than 0.5 per cent on Friday",
+        ],
+    ]
+
+    model = InstructorModel()
+    similarities = model.compare.remote(sentences_a, sentences_b)
+    print(similarities)
+
+   (BUTTON) Copy
+   [64]Create Instructor Embeddings on Modal
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [65]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [66]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 06_gpu_and_ml/embeddings/instructor.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [67]About [68]Status [69]Changelog [70]Documentation [71]Slack
+   Community [72]Pricing [73]Examples
+

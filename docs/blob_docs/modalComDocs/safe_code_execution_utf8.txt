@@ -1,0 +1,195 @@
+Page: modal.com_files/modal.com/docs/examples/safe_code_execution.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Run arbitrary code in a sandboxed environment
+
+   This example demonstrates how to run arbitrary code in multiple
+   languages in a Modal [63]Sandbox.
+
+Setting up a multi-language environment
+
+   Sandboxes allow us to run any kind of code in a safe environment. We'll
+   use an image with a few different language runtimes to demonstrate
+   this.
+import modal
+
+image = modal.Image.debian_slim(python_version="3.11").apt_install(
+    "nodejs", "ruby", "php"
+)
+app = modal.App.lookup("safe-code-execution", create_if_missing=True)
+
+   (BUTTON) Copy
+
+   We'll now create a Sandbox with this image. We'll also enable output so
+   we can see the image build logs. Note that we don't pass any commands
+   to the Sandbox, so it will stay alive, waiting for us to send it
+   commands.
+with modal.enable_output():
+    sandbox = modal.Sandbox.create(app=app, image=image)
+
+print(f"Sandbox ID: {sandbox.object_id}")
+
+   (BUTTON) Copy
+
+Running bash, Python, Node.js, Ruby, and PHP in a Sandbox
+
+   We can now use [64]Sandbox.exec to run a few different commands in the
+   Sandbox.
+bash_ps = sandbox.exec("echo", "hello from bash")
+python_ps = sandbox.exec("python", "-c", "print('hello from python')")
+nodejs_ps = sandbox.exec("node", "-e", 'console.log("hello from nodejs")')
+ruby_ps = sandbox.exec("ruby", "-e", "puts 'hello from ruby'")
+php_ps = sandbox.exec("php", "-r", "echo 'hello from php';")
+
+print(bash_ps.stdout.read(), end="")
+print(python_ps.stdout.read(), end="")
+print(nodejs_ps.stdout.read(), end="")
+print(ruby_ps.stdout.read(), end="")
+print(php_ps.stdout.read(), end="")
+print()
+
+   (BUTTON) Copy
+
+   The output should look something like
+hello from bash
+hello from python
+hello from nodejs
+hello from ruby
+hello from php
+
+   (BUTTON) Copy
+
+   We can use multiple languages in tandem to build complex applications.
+   Let's demonstrate this by piping data between Python and Node.js using
+   bash. Here we generate some random numbers with Python and sum them
+   with Node.js.
+combined_process = sandbox.exec(
+    "bash",
+    "-c",
+    """python -c 'import random; print(\" \".join(str(random.randint(1, 100)) fo
+r _ in range(10)))' |
+    node -e 'const readline = require(\"readline\");
+    const rl = readline.createInterface({input: process.stdin});
+    rl.on(\"line\", (line) => {
+      const sum = line.split(\" \").map(Number).reduce((a, b) => a + b, 0);
+      console.log(`The sum of the random numbers is: ${sum}`);
+      rl.close();
+    });'""",
+)
+
+result = combined_process.stdout.read().strip()
+print(result)
+
+   (BUTTON) Copy
+
+   For long-running processes, you can use stdout as an iterator to stream
+   the output.
+slow_printer = sandbox.exec(
+    "ruby",
+    "-e",
+    """
+      puts "Line #{i + 1}: #{Time.now}"
+      STDOUT.flush
+      sleep(0.5)
+    end
+    """,
+)
+
+for line in slow_printer.stdout:
+    print(line, end="")
+
+   (BUTTON) Copy
+
+   This should print something like
+Line 1: 2024-10-21 15:30:53 +0000
+Line 2: 2024-10-21 15:30:54 +0000
+...
+Line 10: 2024-10-21 15:30:58 +0000
+
+   (BUTTON) Copy
+
+   Since Sandboxes are safely separated from the rest of our system, we
+   can run very dangerous code in them!
+sandbox.exec("rm", "-rfv", "/", "--no-preserve-root")
+
+   (BUTTON) Copy
+
+   This command has deleted the entire filesystem, so we can't run any
+   more commands. Let's terminate the Sandbox to clean up after ourselves.
+sandbox.terminate()
+
+   (BUTTON) Copy
+   [65]Run arbitrary code in a sandboxed environment [66]Setting up a
+   multi-language environment [67]Running bash, Python, Node.js, Ruby, and
+   PHP in a Sandbox
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [68]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [69]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+python 13_sandboxes/safe_code_execution.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [70]About [71]Status [72]Changelog [73]Documentation [74]Slack
+   Community [75]Pricing [76]Examples
+

@@ -1,0 +1,195 @@
+Page: modal.com_files/modal.com/docs/examples/doc_ocr_webapp.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Document OCR web app
+
+   This tutorial shows you how to use Modal to deploy a fully serverless
+   [63]React + [64]FastAPI application. We're going to build a simple
+   "Receipt Parser" web app that submits OCR transcription tasks to a
+   separate Modal app defined in the [65]Job Queue tutorial, polls until
+   the task is completed, and displays the results. Try it out for
+   yourself [66]here.
+
+   receipt parser frontend
+
+Basic setup
+
+   Let's get the imports out of the way and define a [67]App.
+from pathlib import Path
+
+import fastapi
+import fastapi.staticfiles
+import modal
+
+app = modal.App("example-doc-ocr-webapp")
+
+   (BUTTON) Copy
+
+   Modal works with any [68]ASGI or [69]WSGI web framework. Here, we
+   choose to use [70]FastAPI.
+web_app = fastapi.FastAPI()
+
+   (BUTTON) Copy
+
+Define endpoints
+
+   We need two endpoints: one to accept an image and submit it to the
+   Modal job queue, and another to poll for the results of the job.
+
+   In parse, we're going to submit tasks to the function defined in the
+   [71]Job Queue tutorial, so we import it first using
+   [72]Function.lookup.
+
+   We call [73].spawn() on the function handle we imported above to kick
+   off our function without blocking on the results. spawn returns a
+   unique ID for the function call, which we then use to poll for its
+   result.
+@web_app.post("/parse")
+async def parse(request: fastapi.Request):
+    parse_receipt = modal.Function.lookup(
+        "example-doc-ocr-jobs", "parse_receipt"
+    )
+
+    form = await request.form()
+    receipt = await form["receipt"].read()  # type: ignore
+    call = parse_receipt.spawn(receipt)
+    return {"call_id": call.object_id}
+
+   (BUTTON) Copy
+
+   /result uses the provided call_id to instantiate a modal.FunctionCall
+   object, and attempt to get its result. If the call hasn't finished yet,
+   we return a 202 status code, which indicates that the server is still
+   working on the job.
+@web_app.get("/result/{call_id}")
+async def poll_results(call_id: str):
+    function_call = modal.functions.FunctionCall.from_id(call_id)
+    try:
+        result = function_call.get(timeout=0)
+    except TimeoutError:
+        return fastapi.responses.JSONResponse(content="", status_code=202)
+
+    return result
+
+   (BUTTON) Copy
+
+   Finally, we mount the static files for our front-end. We've made [74]a
+   simple React app that hits the two endpoints defined above. To package
+   these files with our app, first we get the local assets path, and then
+   create a modal [75]Mount that mounts this directory at /assets inside
+   our container. Then, we instruct FastAPI to [76]serve this static file
+   directory at our root path.
+assets_path = Path(__file__).parent / "doc_ocr_frontend"
+
+
+@app.function(
+    image=modal.Image.debian_slim().pip_install("fastapi[standard]==0.115.4"),
+    mounts=[modal.Mount.from_local_dir(assets_path, remote_path="/assets")],
+)
+@modal.asgi_app()
+def wrapper():
+    web_app.mount(
+        "/", fastapi.staticfiles.StaticFiles(directory="/assets", html=True)
+    )
+
+    return web_app
+
+   (BUTTON) Copy
+
+Running
+
+   While developing, you can run this as an ephemeral app by executing the
+   command
+modal serve doc_ocr_webapp.py
+
+   (BUTTON) Copy
+
+   Modal watches all the mounted files and updates the app if anything
+   changes. See [77]these docs for more details.
+
+Deploy
+
+   To deploy your application, run
+modal deploy doc_ocr_webapp.py
+
+   (BUTTON) Copy
+
+   That's all!
+
+   If successful, this will print a URL for your app that you can navigate
+   to in your browser .
+
+   receipt parser processed
+   [78]Document OCR web app [79]Basic setup [80]Define endpoints
+   [81]Running [82]Deploy
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [83]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [84]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal serve 09_job_queues/doc_ocr_webapp.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [85]About [86]Status [87]Changelog [88]Documentation [89]Slack
+   Community [90]Pricing [91]Examples
+

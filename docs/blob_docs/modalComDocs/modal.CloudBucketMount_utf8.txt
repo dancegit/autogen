@@ -1,0 +1,127 @@
+Page: modal.com_files/modal.com/docs/reference/modal.CloudBucketMount.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.CloudBucketMount
+
+class CloudBucketMount(object)
+
+   (BUTTON) Copy
+
+   Mounts a cloud bucket to your container. Currently supports AWS S3
+   buckets.
+
+   S3 buckets are mounted using [71]AWS S3 Mountpoint. S3 mounts are
+   optimized for reading large files sequentially. It does not support
+   every file operation; consult [72]the AWS S3 Mountpoint documentation
+   for more information.
+
+   AWS S3 Usage
+import subprocess
+
+app = modal.App()
+secret = modal.Secret.from_name(
+    "aws-secret",
+    required_keys=["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+    # Note: providing AWS_REGION can help when automatic detection of the bucket
+ region fails.
+)
+
+@app.function(
+    volumes={
+        "/my-mount": modal.CloudBucketMount(
+            bucket_name="s3-bucket-name",
+            secret=secret,
+            read_only=True
+        )
+    }
+)
+def f():
+    subprocess.run(["ls", "/my-mount"], check=True)
+
+   (BUTTON) Copy
+
+   Cloudflare R2 Usage
+
+   Cloudflare R2 is [73]S3-compatible so its setup looks very similar to
+   S3. But additionally the bucket_endpoint_url argument must be passed.
+import subprocess
+
+app = modal.App()
+secret = modal.Secret.from_name(
+    "r2-secret",
+    required_keys=["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+)
+
+@app.function(
+    volumes={
+        "/my-mount": modal.CloudBucketMount(
+            bucket_name="my-r2-bucket",
+            bucket_endpoint_url="https://<ACCOUNT ID>.r2.cloudflarestorage.com",
+            secret=secret,
+            read_only=True
+        )
+    }
+)
+def f():
+    subprocess.run(["ls", "/my-mount"], check=True)
+
+   (BUTTON) Copy
+
+   Google GCS Usage
+
+   Google Cloud Storage (GCS) is [74]S3-compatible. GCS Buckets also
+   require a secret with Google-specific key names (see below) populated
+   with a [75]HMAC key.
+import subprocess
+
+app = modal.App()
+gcp_hmac_secret = modal.Secret.from_name(
+    "gcp-secret",
+    required_keys=["GOOGLE_ACCESS_KEY_ID", "GOOGLE_ACCESS_KEY_SECRET"]
+)
+
+@app.function(
+    volumes={
+        "/my-mount": modal.CloudBucketMount(
+            bucket_name="my-gcs-bucket",
+            bucket_endpoint_url="https://storage.googleapis.com",
+            secret=gcp_hmac_secret,
+        )
+    }
+)
+def f():
+    subprocess.run(["ls", "/my-mount"], check=True)
+
+   (BUTTON) Copy
+def __init__(self, bucket_name: str, bucket_endpoint_url: Optional[str] = None,
+key_prefix: Optional[str] = None, secret: Optional[modal.secret._Secret] = None,
+ read_only: bool = False, requester_pays: bool = False) -> None
+
+   (BUTTON) Copy
+   [76]modal.CloudBucketMount
+   Modal logo © 2024
+   [77]About [78]Status [79]Changelog [80]Documentation [81]Slack
+   Community [82]Pricing [83]Examples
+

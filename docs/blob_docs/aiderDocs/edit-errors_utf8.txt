@@ -1,0 +1,165 @@
+Page: aider.chat_files/aider.chat/docs/troubleshooting/edit-errors.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+
+File editing problems
+
+   Sometimes the LLM will reply with some code changes that don't get
+   applied to your local files. In these cases, aider might say something
+   like "Failed to apply edit to filename" or other error messages.
+
+   This usually happens because the LLM is disobeying the system prompts
+   and trying to make edits in a format that aider doesn't expect. Aider
+   makes every effort to get the LLM to conform, and works hard to deal
+   with LLM edits that are "almost" correctly formatted.
+
+   But sometimes the LLM just won't cooperate. In these cases, here are
+   some things you might try.
+
+Don't add too many files
+
+   Many LLMs now have very large context windows, but filling them with
+   irrelevant code or conversation can confuse the model.
+     * Don't add too many files to the chat, just add the files you think
+       need to be edited. Aider also sends the LLM a [85]map of your
+       entire git repo, so other relevant code will be included
+       automatically.
+     * Use /drop to remove files from the chat session which aren't needed
+       for the task at hand. This will reduce distractions and may help
+       the LLM produce properly formatted edits.
+     * Use /clear to remove the conversation history, again to help the
+       LLM focus.
+     * Use /tokens to see how many tokens you are using for each message.
+
+Use a more capable model
+
+   If possible try using GPT-4o, Claude 3.5 Sonnet or Claude 3 Opus, as
+   they are the strongest and most capable models.
+
+   Weaker models are more prone to disobeying the system prompt
+   instructions. Most local models are just barely capable of working with
+   aider, so editing errors are probably unavoidable.
+
+   Local models which have been quantized are even more likely to have
+   problems because they are not capable enough to follow aider's system
+   prompts.
+
+Try the whole edit format
+
+   Run aider with --edit-format whole if were using a different edit
+   format. You can see which edit format it is using in the announce
+   lines:
+Aider v0.50.2-dev
+Models: claude-3-5-sonnet-20240620 with (oo) diff edit format
+
+More help
+
+   If you need more help, please check our [86]GitHub issues and file a
+   new issue if your problem isn't discussed. Or drop into our [87]Discord
+   to chat with us.
+
+   When reporting problems, it is very helpful if you can provide:
+     * Aider version
+     * LLM model you are using
+
+   Including the "announcement" lines that aider prints at startup is an
+   easy way to share this helpful info.
+Aider v0.37.1-dev
+Models: gpt-4o with diff edit format, weak model gpt-3.5-turbo
+Git repo: .git with 243 files
+Repo-map: using 1024 tokens
+
+   Use /help <question> to [88]ask for help about using aider, customizing
+   settings, troubleshooting, using LLMs, etc.
+

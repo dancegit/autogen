@@ -1,0 +1,258 @@
+Page: aider.chat_files/aider.chat/examples/no-color.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+
+Honor the NO_COLOR environment variable
+
+   The user pastes the specification of the NO_COLOR environment variable
+   protocol from [85]no-color.org into the aider chat.
+
+   Aider figures out which files need to be edited, and asks permission to
+   make changes. It then disables all the color and pretty-printing
+   functions if NO_COLOR is set, so the tool conforms to the
+   specification.
+
+   The user then asks for a test case, which aider adds as well.
+
+     $ aider
+     Using git repo: .git
+     Use /help to see in-chat commands.
+
+Command-line software which adds ANSI color to its output by default should
+check for a NO_COLOR environment variable that, when present and not an empty
+string (regardless of its value), prevents the addition of ANSI color.
+
+   To implement this feature, we need to modify the aider/io.py file.
+   Please make it read-write so I can provide the necessary changes.
+
+     aider/io.py
+     Add these files to the chat? y
+
+   Great! Now, I will make the necessary changes to check for the NO_COLOR
+   environment variable and disable ANSI color when it is present and not
+   an empty string.
+aider/io.py
+<<<<<<< ORIGINAL
+import os
+=======
+import os
+import os.path
+>>>>>>> UPDATED
+
+aider/io.py
+<<<<<<< ORIGINAL
+    def __init__(
+        self,
+        pretty=True,
+        yes=False,
+        input_history_file=None,
+        chat_history_file=None,
+        input=None,
+        output=None,
+        user_input_color="blue",
+        tool_output_color=None,
+        tool_error_color="red",
+    ):
+        self.user_input_color = user_input_color
+        self.tool_output_color = tool_output_color
+        self.tool_error_color = tool_error_color
+        self.input = input
+        self.output = output
+        self.pretty = pretty
+        self.yes = yes
+        self.input_history_file = input_history_file
+        if chat_history_file is not None:
+            self.chat_history_file = Path(chat_history_file)
+        else:
+            self.chat_history_file = None
+
+        if pretty:
+            self.console = Console()
+        else:
+            self.console = Console(force_terminal=True, no_color=True)
+=======
+    def __init__(
+        self,
+        pretty=True,
+        yes=False,
+        input_history_file=None,
+        chat_history_file=None,
+        input=None,
+        output=None,
+        user_input_color="blue",
+        tool_output_color=None,
+        tool_error_color="red",
+    ):
+        no_color = os.environ.get("NO_COLOR")
+        if no_color is not None and no_color != "":
+            pretty = False
+
+        self.user_input_color = user_input_color if pretty else None
+        self.tool_output_color = tool_output_color if pretty else None
+        self.tool_error_color = tool_error_color if pretty else None
+        self.input = input
+        self.output = output
+        self.pretty = pretty
+        self.yes = yes
+        self.input_history_file = input_history_file
+        if chat_history_file is not None:
+            self.chat_history_file = Path(chat_history_file)
+        else:
+            self.chat_history_file = None
+
+        self.console = Console(force_terminal=not pretty, no_color=not pretty)
+>>>>>>> UPDATED
+
+   These changes will make the software check for the NO_COLOR environment
+   variable and disable ANSI color when it is present and not an empty
+   string.
+
+     Applied edit to aider/io.py
+     Applied edit to aider/io.py
+     Commit 3218242 aider: Added check for NO_COLOR environment variable
+     to disable ANSI color.
+
+add a test
+
+   To add a test for the NO_COLOR environment variable, we will create a
+   new test function in the tests/test_io.py file. Since this file does
+   not exist, we will create it first.
+tests/test_io.py
+<<<<<<< ORIGINAL
+=======
+import os
+import unittest
+from unittest.mock import patch
+from aider.io import InputOutput
+
+class TestInputOutput(unittest.TestCase):
+    def test_no_color_environment_variable(self):
+        with patch.dict(os.environ, {"NO_COLOR": "1"}):
+            io = InputOutput()
+            self.assertFalse(io.pretty)
+
+if __name__ == "__main__":
+    unittest.main()
+>>>>>>> UPDATED
+
+   This test function checks if the pretty attribute of the InputOutput
+   class is set to False when the NO_COLOR environment variable is set.
+
+     Allow creation of new file tests/test_io.py? y
+     Add tests/test_io.py to git? y
+     Applied edit to tests/test_io.py
+     Commit 52a9df5 aider: Added a test function to check if the pretty
+     attribute of the InputOutput class is set to False when the NO_COLOR
+     environment variable is set.
+
+/run pytest
+
+     ============================= test session starts
+     ==============================
+     platform darwin - Python 3.11.3, pytest-7.3.1, pluggy-1.0.0
+     rootdir: /Users/gauthier/Projects/aider
+     collected 25 items
+
+     tests/test_coder.py ...... [ 24%]
+     tests/test_commands.py . [ 28%]
+     tests/test_io.py . [ 32%]
+     tests/test_main.py .... [ 48%]
+     tests/test_repomap.py ... [ 60%]
+     tests/test_utils.py .......... [100%]
+
+     ============================== 25 passed in 1.41s
+     ==============================
+
+     Add the output to the chat? y
+

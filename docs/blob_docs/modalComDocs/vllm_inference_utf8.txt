@@ -1,0 +1,347 @@
+Page: modal.com_files/modal.com/docs/examples/vllm_inference.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Run an OpenAI-Compatible vLLM Server
+
+   LLMs do more than just model language: they chat, they produce JSON and
+   XML, they run code, and more. This has complicated their interface far
+   beyond "text-in, text-out". OpenAI's API has emerged as a standard for
+   that interface, and it is supported by open source LLM serving
+   frameworks like [63]vLLM.
+
+   In this example, we show how to run a vLLM server in OpenAI-compatible
+   mode on Modal. You can find a video walkthrough of this example on our
+   YouTube channel [64]here.
+
+   Note that the vLLM server is a FastAPI app, which can be configured and
+   extended just like any other. Here, we use it to add simple
+   authentication middleware, following the [65]implementation in the vLLM
+   repository.
+
+   Our examples repository also includes scripts for running clients and
+   load-testing for OpenAI-compatible APIs [66]here.
+
+   You can find a video walkthrough of this example and the related
+   scripts on the Modal YouTube channel [67]here.
+
+Set up the container image
+
+   Our first order of business is to define the environment our server
+   will run in: the [68]container Image. vLLM can be installed with pip.
+import modal
+
+vllm_image = modal.Image.debian_slim(python_version="3.12").pip_install(
+    "vllm==0.6.3post1", "fastapi[standard]==0.115.4"
+)
+
+   (BUTTON) Copy
+
+Download the model weights
+
+   We'll be running a pretrained foundation model -- Meta's LLaMA 3.1 8B
+   in the Instruct variant that's trained to chat and follow instructions,
+   quantized to 4-bit by [69]Neural Magic and uploaded to Hugging Face.
+
+   You can read more about the w4a16 "Machete" weight layout and kernels
+   [70]here.
+MODELS_DIR = "/llamas"
+MODEL_NAME = "neuralmagic/Meta-Llama-3.1-8B-Instruct-quantized.w4a16"
+MODEL_REVISION = "a7c09948d9a632c2c840722f519672cd94af885d"
+
+   (BUTTON) Copy
+
+   We need to make the weights of that model available to our Modal
+   Functions.
+
+   So to follow along with this example, you'll need to download those
+   weights onto a Modal Volume by running another script from the
+   [71]examples repository.
+try:
+    volume = modal.Volume.lookup("llamas", create_if_missing=False)
+except modal.exception.NotFoundError:
+    raise Exception("Download models first with modal run download_llama.py")
+
+   (BUTTON) Copy
+
+Build a vLLM engine and serve it
+
+   vLLM's OpenAI-compatible server is exposed as a [72]FastAPI router.
+
+   FastAPI is a Python web framework that implements the [73]ASGI
+   standard, much like [74]Flask is a Python web framework that implements
+   the [75]WSGI standard.
+
+   Modal offers [76]first-class support for ASGI (and WSGI) apps. We just
+   need to decorate a function that returns the app with @modal.asgi_app()
+   (or @modal.wsgi_app()) and then add it to the Modal app with the
+   app.function decorator.
+
+   The function below first imports the FastAPI router from the vLLM
+   library, then adds authentication compatible with OpenAI client
+   libraries. You might also add more routes here.
+
+   Then, the function creates an AsyncLLMEngine, the core of the vLLM
+   server. It's responsible for loading the model, running inference, and
+   serving responses.
+
+   After attaching that engine to the FastAPI app via the api_server
+   module of the vLLM library, we return the FastAPI app so it can be
+   served on Modal.
+app = modal.App("example-vllm-openai-compatible")
+
+N_GPU = 1  # tip: for best results, first upgrade to more powerful GPUs, and onl
+y then increase GPU count
+TOKEN = "super-secret-token"  # auth token. for production use, replace with a m
+odal.Secret
+
+MINUTES = 60  # seconds
+HOURS = 60 * MINUTES
+
+
+@app.function(
+    image=vllm_image,
+    gpu=modal.gpu.H100(count=N_GPU),
+    container_idle_timeout=5 * MINUTES,
+    timeout=24 * HOURS,
+    allow_concurrent_inputs=1000,
+    volumes={MODELS_DIR: volume},
+)
+@modal.asgi_app()
+def serve():
+    import fastapi
+    import vllm.entrypoints.openai.api_server as api_server
+    from vllm.engine.arg_utils import AsyncEngineArgs
+    from vllm.engine.async_llm_engine import AsyncLLMEngine
+    from vllm.entrypoints.logger import RequestLogger
+    from vllm.entrypoints.openai.serving_chat import OpenAIServingChat
+    from vllm.entrypoints.openai.serving_completion import (
+        OpenAIServingCompletion,
+    )
+    from vllm.entrypoints.openai.serving_engine import BaseModelPath
+    from vllm.usage.usage_lib import UsageContext
+
+    volume.reload()  # ensure we have the latest version of the weights
+
+    # create a fastAPI app that uses vLLM's OpenAI-compatible router
+    web_app = fastapi.FastAPI(
+        title=f"OpenAI-compatible {MODEL_NAME} server",
+        description="Run an OpenAI-compatible LLM server with vLLM on modal.com
+",
+        version="0.0.1",
+        docs_url="/docs",
+    )
+
+    # security: CORS middleware for external requests
+    http_bearer = fastapi.security.HTTPBearer(
+        scheme_name="Bearer Token",
+        description="See code for authentication details.",
+    )
+    web_app.add_middleware(
+        fastapi.middleware.cors.CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # security: inject dependency on authed routes
+    async def is_authenticated(api_key: str = fastapi.Security(http_bearer)):
+        if api_key.credentials != TOKEN:
+            raise fastapi.HTTPException(
+                status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials",
+            )
+        return {"username": "authenticated_user"}
+
+    router = fastapi.APIRouter(dependencies=[fastapi.Depends(is_authenticated)])
+
+    # wrap vllm's router in auth router
+    router.include_router(api_server.router)
+    # add authed vllm to our fastAPI app
+    web_app.include_router(router)
+
+    engine_args = AsyncEngineArgs(
+        model=MODELS_DIR + "/" + MODEL_NAME,
+        tensor_parallel_size=N_GPU,
+        gpu_memory_utilization=0.90,
+        max_model_len=8096,
+        enforce_eager=False,  # capture the graph for faster inference, but slow
+er cold starts (30s > 20s)
+    )
+
+    engine = AsyncLLMEngine.from_engine_args(
+        engine_args, usage_context=UsageContext.OPENAI_API_SERVER
+    )
+
+    model_config = get_model_config(engine)
+
+    request_logger = RequestLogger(max_log_len=2048)
+
+    base_model_paths = [
+        BaseModelPath(name=MODEL_NAME.split("/")[1], model_path=MODEL_NAME)
+    ]
+
+    api_server.chat = lambda s: OpenAIServingChat(
+        engine,
+        model_config=model_config,
+        base_model_paths=base_model_paths,
+        chat_template=None,
+        response_role="assistant",
+        lora_modules=[],
+        prompt_adapters=[],
+        request_logger=request_logger,
+    )
+    api_server.completion = lambda s: OpenAIServingCompletion(
+        engine,
+        model_config=model_config,
+        base_model_paths=base_model_paths,
+        lora_modules=[],
+        prompt_adapters=[],
+        request_logger=request_logger,
+    )
+
+    return web_app
+
+   (BUTTON) Copy
+
+Deploy the server
+
+   To deploy the API on Modal, just run
+modal deploy vllm_inference.py
+
+   (BUTTON) Copy
+
+   This will create a new app on Modal, build the container image for it,
+   and deploy.
+
+Interact with the server
+
+   Once it is deployed, you'll see a URL appear in the command line,
+   something like
+   https://your-workspace-name--example-vllm-openai-compatible-serve.modal
+   .run.
+
+   You can find [77]interactive Swagger UI docs at the /docs route of that
+   URL, i.e.
+   https://your-workspace-name--example-vllm-openai-compatible-serve.modal
+   .run/docs. These docs describe each route and indicate the expected
+   input and output and translate requests into curl commands. They also
+   demonstrate authentication.
+
+   For simple routes like /health, which checks whether the server is
+   responding, you can even send a request directly from the docs.
+
+   To interact with the API programmatically, you can use the Python
+   openai library.
+
+   See the client.py script in the examples repository [78]here to take it
+   for a spin:
+# pip install openai==1.13.3
+python openai_compatible/client.py
+
+   (BUTTON) Copy
+
+   We also include a basic example of a load-testing setup using locust in
+   the load_test.py script [79]here:
+modal run openai_compatible/load_test.py
+
+   (BUTTON) Copy
+
+Addenda
+
+   The rest of the code in this example is utility code.
+def get_model_config(engine):
+    import asyncio
+
+    try:  # adapted from vLLM source -- https://github.com/vllm-project/vllm/blo
+b/507ef787d85dec24490069ffceacbd6b161f4f72/vllm/entrypoints/openai/api_server.py
+#L235C1-L247C1
+        event_loop = asyncio.get_running_loop()
+    except RuntimeError:
+        event_loop = None
+
+    if event_loop is not None and event_loop.is_running():
+        # If the current is instanced by Ray Serve,
+        # there is already a running event loop
+        model_config = event_loop.run_until_complete(engine.get_model_config())
+    else:
+        # When using single vLLM without engine_use_ray
+        model_config = asyncio.run(engine.get_model_config())
+
+    return model_config
+
+   (BUTTON) Copy
+   [80]Run an OpenAI-Compatible vLLM Server [81]Set up the container image
+   [82]Download the model weights [83]Build a vLLM engine and serve it
+   [84]Deploy the server [85]Interact with the server [86]Addenda
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [87]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [88]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal serve 06_gpu_and_ml/llm-serving/vllm_inference.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [89]About [90]Status [91]Changelog [92]Documentation [93]Slack
+   Community [94]Pricing [95]Examples
+

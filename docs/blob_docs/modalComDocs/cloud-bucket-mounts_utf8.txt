@@ -1,0 +1,231 @@
+Page: modal.com_files/modal.com/docs/guide/cloud-bucket-mounts.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Cloud bucket mounts
+
+   The [81]modal.CloudBucketMount is a mutable volume that allows for both
+   reading and writing files from a cloud bucket. It supports AWS S3,
+   Cloudflare R2, and Google Cloud Storage buckets.
+
+   Cloud bucket mounts are built on top of AWS' [82]mountpoint technology
+   and inherits its limitations. Notably, mode changes are disabled, so
+   commands like chmod and [83]shutil.copymode() will fail.
+
+Mounting Cloudflare R2 buckets
+
+   CloudBucketMount enables Cloudflare R2 buckets to be mounted as file
+   system volumes. Because Cloudflare R2 is [84]S3-Compatible the setup is
+   very similar between R2 and S3. See [85]modal.CloudBucketMount for
+   usage instructions.
+
+   When creating the R2 API token for use with the mount, you need to have
+   the ability to read, write, and list objects in the specific buckets
+   you will mount. You do not need admin permissions, and you should not
+   use "Client IP Address Filtering".
+
+Mounting Google Cloud Storage buckets
+
+   CloudBucketMount enables Google Cloud Storage (GCS) buckets to be
+   mounted as file system volumes. See [86]modal.CloudBucketMount for GCS
+   setup instructions.
+
+Mounting S3 buckets
+
+   CloudBucketMount enables S3 buckets to be mounted as file system
+   volumes. To interact with a bucket, you must have the appropriate IAM
+   permissions configured (refer to the section on [87]IAM Permissions).
+import modal
+import subprocess
+
+app = modal.App()
+
+s3_bucket_name = "s3-bucket-name"  # Bucket name not ARN.
+s3_access_credentials = modal.Secret.from_dict({
+    "AWS_ACCESS_KEY_ID": "...",
+    "AWS_SECRET_ACCESS_KEY": "...",
+    "AWS_REGION": "..."
+})
+
+@app.function(
+    volumes={
+        "/my-mount": modal.CloudBucketMount(s3_bucket_name, secret=s3_access_cre
+dentials)
+    }
+)
+def f():
+    subprocess.run(["ls", "/my-mount"])
+
+   (BUTTON) Copy
+
+Specifying S3 bucket region
+
+   Amazon S3 buckets are associated with a single AWS Region.
+   [88]Mountpoint attempts to automatically detect the region for your S3
+   bucket at startup time and directs all S3 requests to that region.
+   However, in certain scenarios, like if your container is running on an
+   AWS worker in a certain region, while your bucket is in a different
+   region, this automatic detection may fail.
+
+   To avoid this issue, you can specify the region of your S3 bucket by
+   adding an AWS_REGION key to your Modal secrets, as in the code example
+   above.
+
+Using AWS temporary security credentials
+
+   CloudBucketMounts also support AWS temporary security credentials by
+   passing the additional environment variable AWS_SESSION_TOKEN.
+   Temporary credentials will expire and will not get renewed
+   automatically. You will need to update the corresponding Modal Secret
+   in order to prevent failures.
+
+   You can get temporary credentials with the [89]AWS CLI with:
+$ aws configure export-credentials --format env
+export AWS_ACCESS_KEY_ID=XXX
+export AWS_SECRET_ACCESS_KEY=XXX
+export AWS_SESSION_TOKEN=XXX...
+
+   (BUTTON) Copy
+
+   All these values are required.
+
+Mounting a path within a bucket
+
+   To mount only the files under a specific subdirectory, you can specify
+   a path prefix using key_prefix. Since this prefix specifies a
+   directory, it must end in a /. The entire bucket is mounted when no
+   prefix is supplied.
+import modal
+import subprocess
+
+app = modal.App()
+
+s3_bucket_name = "s3-bucket-name"
+prefix = 'path/to/dir/'
+
+s3_access_credentials = modal.Secret.from_dict({
+    "AWS_ACCESS_KEY_ID": "...",
+    "AWS_SECRET_ACCESS_KEY": "...",
+})
+
+@app.function(
+    volumes={
+        "/my-mount": modal.CloudBucketMount(
+            bucket_name=s3_bucket_name,
+            key_prefix=prefix,
+            secret=s3_access_credentials
+        )
+    }
+)
+def f():
+    subprocess.run(["ls", "/my-mount"])
+
+   (BUTTON) Copy
+
+   This will only mount the files in the bucket s3-bucket-name that are
+   prefixed by path/to/dir/.
+
+Read-only mode
+
+   To mount a bucket in read-only mode, set read_only=True as an argument.
+import modal
+import subprocess
+
+app = modal.App()
+
+s3_bucket_name = "s3-bucket-name"  # Bucket name not ARN.
+s3_access_credentials = modal.Secret.from_dict({
+    "AWS_ACCESS_KEY_ID": "...",
+    "AWS_SECRET_ACCESS_KEY": "...",
+})
+
+@app.function(
+    volumes={
+        "/my-mount": modal.CloudBucketMount(s3_bucket_name, secret=s3_access_cre
+dentials, read_only=True)
+    }
+)
+def f():
+    subprocess.run(["ls", "/my-mount"])
+
+   (BUTTON) Copy
+
+   While S3 mounts supports both write and read operations, they are
+   optimized for reading large files sequentially. Certain file
+   operations, such as renaming files, are not supported. For a
+   comprehensive list of supported operations, consult the [90]Mountpoint
+   documentation.
+
+IAM permissions
+
+   To utilize CloudBucketMount for reading and writing files from S3
+   buckets, your IAM policy must include permissions for s3:PutObject,
+   s3:AbortMultipartUpload, and s3:DeleteObject. These permissions are not
+   required for mounts configured with read_only=True.
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ModalListBucketAccess",
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": ["arn:aws:s3:::<MY-S3-BUCKET>"]
+    },
+    {
+      "Sid": "ModalBucketAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:AbortMultipartUpload",
+        "s3:DeleteObject"
+      ],
+      "Resource": ["arn:aws:s3:::<MY-S3-BUCKET>/*"]
+    }
+  ]
+}
+
+   (BUTTON) Copy
+   [91]Cloud bucket mounts [92]Mounting Cloudflare R2 buckets [93]Mounting
+   Google Cloud Storage buckets [94]Mounting S3 buckets [95]Specifying S3
+   bucket region [96]Using AWS temporary security credentials [97]Mounting
+   a path within a bucket [98]Read-only mode [99]IAM permissions
+   See it in action
+   [100]Mount S3 buckets in Modal apps
+   [101]Create a LoRA Playground with Modal, Gradio, and S3
+   Modal logo © 2024
+   [102]About [103]Status [104]Changelog [105]Documentation [106]Slack
+   Community [107]Pricing [108]Examples
+

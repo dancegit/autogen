@@ -1,0 +1,374 @@
+Page: modal.com_files/modal.com/docs/examples/flan_t5_finetune.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Finetuning Flan-T5
+
+   Example by [63]@anishpdalal
+
+   [64]Flan-T5 is a highly versatile model that's been instruction-tuned
+   to perform well on a variety of text-based tasks such as question
+   answering and summarization. There are smaller model variants available
+   which makes Flan-T5 a great base model to use for finetuning on a
+   specific instruction dataset with just a single GPU. In this example,
+   we'll finetune Flan-T5 on the [65]Extreme Sum ("XSum") dataset to
+   summarize news articles.
+
+Defining dependencies
+
+   The example uses the dataset package from HuggingFace to load the xsum
+   dataset. It also uses the transformers and accelerate packages with a
+   PyTorch backend to finetune and serve the model. Finally, we also
+   install tensorboard and serve it via a web app. All packages are
+   installed into a Debian Slim base image using the pip_install function.
+from pathlib import Path
+
+import modal
+
+VOL_MOUNT_PATH = Path("/vol")
+
+   (BUTTON) Copy
+
+   Other Flan-T5 models can be found [66]here
+BASE_MODEL = "google/flan-t5-base"
+
+image = modal.Image.debian_slim().pip_install(
+    "accelerate",
+    "transformers",
+    "torch",
+    "datasets",
+    "tensorboard",
+)
+
+app = modal.App(name="example-news-summarizer", image=image)
+output_vol = modal.Volume.from_name("finetune-volume", create_if_missing=True)
+
+   (BUTTON) Copy
+
+Handling preemption
+
+   As this finetuning job is long-running it's possible that it
+   experiences a preemption. The training code is robust to pre-emption
+   events by periodically saving checkpoints and restoring from checkpoint
+   on restart. But it's also helpful to observe in logs when a preemption
+   restart has occurred, so we track restarts with a modal.Dict.
+
+   See the [67]guide on preemptions for more details on preemption
+   handling.
+restart_tracker_dict = modal.Dict.from_name(
+    "finetune-restart-tracker", create_if_missing=True
+)
+
+
+def track_restarts(restart_tracker: modal.Dict) -> int:
+    if not restart_tracker.contains("count"):
+        preemption_count = 0
+        print(f"Starting first time. {preemption_count=}")
+        restart_tracker["count"] = preemption_count
+    else:
+        preemption_count = restart_tracker.get("count") + 1
+        print(f"Restarting after pre-emption. {preemption_count=}")
+        restart_tracker["count"] = preemption_count
+    return preemption_count
+
+   (BUTTON) Copy
+
+Finetuning Flan-T5 on XSum dataset
+
+   Each row in the dataset has a document (input news article) and summary
+   column.
+@app.function(
+    gpu="A10g",
+    timeout=7200,
+    volumes={VOL_MOUNT_PATH: output_vol},
+)
+def finetune(num_train_epochs: int = 1, size_percentage: int = 10):
+    from datasets import load_dataset
+    from transformers import (
+        AutoModelForSeq2SeqLM,
+        AutoTokenizer,
+        DataCollatorForSeq2Seq,
+        Seq2SeqTrainer,
+        Seq2SeqTrainingArguments,
+    )
+
+    restarts = track_restarts(restart_tracker_dict)
+
+    # Use size percentage to retrieve subset of the dataset to iterate faster
+    if size_percentage:
+        xsum_train = load_dataset("xsum", split=f"train[:{size_percentage}%]")
+        xsum_test = load_dataset("xsum", split=f"test[:{size_percentage}%]")
+
+    # Load the whole dataset
+    else:
+        xsum = load_dataset("xsum")
+        xsum_train = xsum["train"]
+        xsum_test = xsum["test"]
+
+    # Load the tokenizer and model
+    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+    model = AutoModelForSeq2SeqLM.from_pretrained(BASE_MODEL)
+
+    # Replace all padding tokens with a large negative number so that the loss f
+unction ignores them in
+    # its calculation
+    padding_token_id = -100
+
+    batch_size = 8
+
+    def preprocess(batch):
+        # prepend summarize: prefix to document to convert the example to a summ
+arization instruction
+        inputs = ["summarize: " + doc for doc in batch["document"]]
+
+        model_inputs = tokenizer(
+            inputs, max_length=512, truncation=True, padding="max_length"
+        )
+
+        labels = tokenizer(
+            text_target=batch["summary"],
+            max_length=128,
+            truncation=True,
+            padding="max_length",
+        )
+
+        labels["input_ids"] = [
+            [
+                l if l != tokenizer.pad_token_id else padding_token_id
+                for l in label
+            ]
+            for label in labels["input_ids"]
+        ]
+
+        model_inputs["labels"] = labels["input_ids"]
+        return model_inputs
+
+    tokenized_xsum_train = xsum_train.map(
+        preprocess, batched=True, remove_columns=["document", "summary", "id"]
+    )
+
+    tokenized_xsum_test = xsum_test.map(
+        preprocess, batched=True, remove_columns=["document", "summary", "id"]
+    )
+
+    data_collator = DataCollatorForSeq2Seq(
+        tokenizer,
+        model=model,
+        label_pad_token_id=padding_token_id,
+        pad_to_multiple_of=batch_size,
+    )
+
+    training_args = Seq2SeqTrainingArguments(
+        # Save checkpoints to the mounted volume
+        output_dir=str(VOL_MOUNT_PATH / "model"),
+        per_device_train_batch_size=batch_size,
+        per_device_eval_batch_size=batch_size,
+        predict_with_generate=True,
+        learning_rate=3e-5,
+        num_train_epochs=num_train_epochs,
+        logging_strategy="steps",
+        logging_steps=100,
+        evaluation_strategy="steps",
+        save_strategy="steps",
+        save_steps=100,
+        save_total_limit=2,
+        load_best_model_at_end=True,
+    )
+
+    trainer = Seq2SeqTrainer(
+        model=model,
+        args=training_args,
+        data_collator=data_collator,
+        train_dataset=tokenized_xsum_train,
+        eval_dataset=tokenized_xsum_test,
+    )
+
+    try:
+        resume = restarts > 0
+        if resume:
+            print("resuming from checkpoint")
+        trainer.train(resume_from_checkpoint=resume)
+    except KeyboardInterrupt:  # handle possible preemption
+        print("received interrupt; saving state and model")
+        trainer.save_state()
+        trainer.save_model()
+        raise
+
+    # Save the trained model and tokenizer to the mounted volume
+    model.save_pretrained(str(VOL_MOUNT_PATH / "model"))
+    tokenizer.save_pretrained(str(VOL_MOUNT_PATH / "tokenizer"))
+    output_vol.commit()
+    print(" done")
+
+   (BUTTON) Copy
+
+Monitoring Finetuning with Tensorboard
+
+   Tensorboard is an application for visualizing training loss. In this
+   example we serve it as a Modal WSGI app.
+@app.function(volumes={VOL_MOUNT_PATH: output_vol})
+@modal.wsgi_app()
+def monitor():
+    import tensorboard
+
+    board = tensorboard.program.TensorBoard()
+    board.configure(logdir=f"{VOL_MOUNT_PATH}/logs")
+    (data_provider, deprecated_multiplexer) = board._make_data_provider()
+    wsgi_app = tensorboard.backend.application.TensorBoardWSGIApp(
+        board.flags,
+        board.plugin_loaders,
+        data_provider,
+        board.assets_zip_provider,
+        deprecated_multiplexer,
+    )
+    return wsgi_app
+
+   (BUTTON) Copy
+
+Model Inference
+
+@app.cls(volumes={VOL_MOUNT_PATH: output_vol})
+class Summarizer:
+    @modal.enter()
+    def load_model(self):
+        from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
+
+        # Load saved tokenizer and finetuned from training run
+        tokenizer = AutoTokenizer.from_pretrained(
+            BASE_MODEL, cache_dir=VOL_MOUNT_PATH / "tokenizer/"
+        )
+        model = AutoModelForSeq2SeqLM.from_pretrained(
+            BASE_MODEL, cache_dir=VOL_MOUNT_PATH / "model/"
+        )
+
+        self.summarizer = pipeline(
+            "summarization", tokenizer=tokenizer, model=model
+        )
+
+    @modal.method()
+    def generate(self, input: str) -> str:
+        return self.summarizer(input)[0]["summary_text"]
+
+
+@app.local_entrypoint()
+def main():
+    input = """
+    The 14-time major champion, playing in his first full PGA Tour event for alm
+ost 18 months,
+    carded a level-par second round of 72, but missed the cut by four shots afte
+r his first-round 76.
+    World number one Jason Day and US Open champion Dustin Johnson also missed t
+he cut at Torrey Pines in San Diego.
+    Overnight leader Rose carded a one-under 71 to put him on eight under. Canad
+a's
+    Adam Hadwin and USA's Brandt Snedeker are tied in second on seven under, whi
+le US PGA champion
+    Jimmy Walker missed the cut as he finished on three over. Woods is playing i
+n just his
+    second tournament since 15 months out with a back injury. "It's frustrating
+not being
+    able to have a chance to win the tournament," said the 41-year-old, who won
+his last major,
+    the US Open, at the same course in 2008. "Overall today was a lot better tha
+n yesterday.
+    I hit it better, I putted well again. I hit a lot of beautiful putts that di
+dn't go in, but
+    I hit it much better today, which was nice." Scotland's Martin Laird and Eng
+land's Paul Casey
+    are both on two under, while Ireland's Shane Lowry is on level par.
+    """
+    model = Summarizer()
+    response = model.generate.remote(input)
+    print(response)
+
+   (BUTTON) Copy
+
+Run via the CLI
+
+   Invoke model finetuning use the provided command below
+modal run --detach flan_t5_finetune.py::finetune --num-train-epochs=1 --size-per
+centage=10
+View the tensorboard logs at https://<username>--example-news-summarizer-monitor
+-dev.modal.run
+
+   (BUTTON) Copy
+
+   Invoke finetuned model inference via local entrypoint
+modal run flan_t5_finetune.py
+World number one Tiger Woods missed the cut at the US Open as he failed to quali
+fy for the final round of the event in Los Angeles.
+
+   (BUTTON) Copy
+   [68]Finetuning Flan-T5 [69]Defining dependencies [70]Handling
+   preemption [71]Finetuning Flan-T5 on XSum dataset [72]Monitoring
+   Finetuning with Tensorboard [73]Model Inference [74]Run via the CLI
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [75]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [76]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 06_gpu_and_ml/flan_t5/flan_t5_finetune.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [77]About [78]Status [79]Changelog [80]Documentation [81]Slack
+   Community [82]Pricing [83]Examples
+

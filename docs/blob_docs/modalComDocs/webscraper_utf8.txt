@@ -1,0 +1,155 @@
+Page: modal.com_files/modal.com/docs/examples/webscraper.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Web Scraping on Modal
+
+   This example shows how you can scrape links from a website and post
+   them to a Slack channel using Modal.
+import os
+
+import modal
+
+app = modal.App("example-linkscraper")
+
+
+playwright_image = modal.Image.debian_slim(
+    python_version="3.10"
+).run_commands(  # Doesn't work with 3.11 yet
+    "apt-get update",
+    "apt-get install -y software-properties-common",
+    "apt-add-repository non-free",
+    "apt-add-repository contrib",
+    "pip install playwright==1.42.0",
+    "playwright install-deps chromium",
+    "playwright install chromium",
+)
+
+
+@app.function(image=playwright_image)
+async def get_links(url: str) -> set[str]:
+    from playwright.async_api import async_playwright
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+        await page.goto(url)
+        links = await page.eval_on_selector_all(
+            "a[href]", "elements => elements.map(element => element.href)"
+        )
+        await browser.close()
+
+    return set(links)
+
+
+slack_sdk_image = modal.Image.debian_slim(python_version="3.10").pip_install(
+    "slack-sdk==3.27.1"
+)
+
+
+@app.function(
+    image=slack_sdk_image,
+    secrets=[modal.Secret.from_name("scraper-slack-secret")],
+)
+def bot_token_msg(channel, message):
+    import slack_sdk
+    from slack_sdk.http_retry.builtin_handlers import RateLimitErrorRetryHandler
+
+    client = slack_sdk.WebClient(token=os.environ["SLACK_BOT_TOKEN"])
+    rate_limit_handler = RateLimitErrorRetryHandler(max_retry_count=3)
+    client.retry_handlers.append(rate_limit_handler)
+
+    print(f"Posting {message} to #{channel}")
+    client.chat_postMessage(channel=channel, text=message)
+
+
+@app.function()
+def scrape():
+    links_of_interest = ["http://modal.com"]
+
+    for links in get_links.map(links_of_interest):
+        for link in links:
+            bot_token_msg.remote("scraped-links", link)
+
+
+@app.function(schedule=modal.Period(days=1))
+def daily_scrape():
+    scrape.remote()
+
+
+@app.local_entrypoint()
+def run():
+    scrape.remote()
+
+   (BUTTON) Copy
+   [63]Web Scraping on Modal
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [64]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [65]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 10_integrations/webscraper.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [66]About [67]Status [68]Changelog [69]Documentation [70]Slack
+   Community [71]Pricing [72]Examples
+

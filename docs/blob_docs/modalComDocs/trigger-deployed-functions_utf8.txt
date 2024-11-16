@@ -1,0 +1,242 @@
+Page: modal.com_files/modal.com/docs/guide/trigger-deployed-functions.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Invoking deployed functions
+
+   Modal lets you take a function created by a [81]deployment and call it
+   from other contexts.
+
+   There are two ways of invoking deployed functions. If the invoking
+   client is running Python, then the same [82]Modal client library used
+   to write Modal code can be used. HTTPS is used if the invoking client
+   is not running Python and therefore cannot import the Modal client
+   library.
+
+Invoking with Python
+
+   Some use cases for Python invocation include:
+     * An existing Python web server (eg. Django, Flask) wants to invoke
+       Modal functions.
+     * You have split your product or system into multiple Modal
+       applications that deploy independently and call each other.
+
+Function lookup and invocation basics
+
+   Let's say you have a script my_shared_app.py and this script defines a
+   Modal app with a function that computes the square of a number:
+import modal
+
+app = modal.App("my-shared-app")
+
+
+@app.function()
+def square(x: int):
+    return x ** 2
+
+   (BUTTON) Copy
+
+   You can deploy this app to create a persistent deployment:
+% modal deploy shared_app.py
+X Initialized.
+X Created objects.
++-- ¨ Created square.
++-- ¨ Mounted /Users/erikbern/modal/shared_app.py.
+X App deployed!
+
+View Deployment: https://modal.com/apps/erikbern/my-shared-app
+
+   (BUTTON) Copy
+
+   Let's try to run this function from a different context. For instance,
+   let's fire up the Python interactive interpreter:
+% python
+Python 3.9.5 (default, May  4 2021, 03:29:30)
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import modal
+>>> f = modal.Function.lookup("my-shared-app", "square")
+>>> f.remote(42)
+1764
+>>>
+
+   (BUTTON) Copy
+
+   This works exactly the same as a regular modal Function object. For
+   example, you can .map() over functions invoked this way too:
+>>> f = modal.Function.lookup("my-shared-app", "square")
+>>> f.map([1, 2, 3, 4, 5])
+
+   (BUTTON) Copy
+
+Authentication
+
+   The Modal Python SDK will read the token from ~/.modal.toml which
+   typically is created using modal token new.
+
+   Another method of providing the credentials is to set the environment
+   variables MODAL_TOKEN_ID and MODAL_TOKEN_SECRET. If you want to call a
+   Modal function from a context such as a web server, you can expose
+   these environment variables to the process.
+
+Lookup of lifecycle functions
+
+   [83]Lifecycle functions are defined on classes, which you can look up
+   in a different way. Consider this code:
+import modal
+
+app = modal.App("my-shared-app")
+
+
+@app.cls()
+class MyLifecycleClass:
+    @modal.enter()
+    def enter(self):
+        self.var = "hello world"
+
+    @modal.method()
+    def foo(self):
+        return self.var
+
+   (BUTTON) Copy
+
+   Let's say you deploy this app. You can then call the function by doing
+   this:
+>>> cls = modal.Cls.lookup("my-shared-app", "MyLifecycleClass")
+>>> obj = cls()  # You can pass any constructor arguments here
+>>> obj.foo.remote()
+'hello world'
+
+   (BUTTON) Copy
+
+Asynchronous invocation
+
+   In certain contexts, a Modal client will need to trigger Modal
+   functions without waiting on the result. This is done by spawning
+   functions and receiving a [84]FunctionCall as a handle to the triggered
+   execution.
+
+   The following is an example of a Flask web server (running outside
+   Modal) which accepts model training jobs to be executed within Modal.
+   Instead of the HTTP POST request waiting on a training job to complete,
+   which would be infeasible, the relevant Modal function is spawned and
+   the [85]FunctionCall object is stored for later polling of execution
+   status.
+from uuid import uuid4
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+pending_jobs = {}
+
+...
+
+@app.route("/jobs", methods = ["POST"])
+def create_job():
+    predict_fn = modal.Function.lookup("example", "train_model")
+    job_id = str(uuid4())
+    function_call = predict_fn.spawn(
+        job_id=job_id,
+        params=request.json,
+    )
+    pending_jobs[job_id] = function_call
+    return {
+        "job_id": job_id,
+        "status": "pending",
+    }
+
+   (BUTTON) Copy
+
+Importing a Modal function between Modal apps
+
+   You can also import one function defined in an app from another app:
+import modal
+
+app = modal.App("another-app")
+
+square = modal.Function.from_name("my-shared-app", "square")
+
+
+@app.function()
+def cube(x):
+    return x * square.remote(x)
+
+
+@app.local_entrypoint()
+def main():
+    assert cube.remote(42) == 74088
+
+   (BUTTON) Copy
+
+Comparison with HTTPS
+
+   Compared with HTTPS invocation, Python invocation has the following
+   benefits:
+     * Avoids the need to create web endpoint functions.
+     * Avoids handling serialization of request and response data between
+       Modal and your client.
+     * Uses the Modal client library's built-in authentication.
+          + Web endpoints are public to the entire internet, whereas
+            function lookup only exposes your code to you (and your org).
+     * You can work with shared Modal functions as if they are normal
+       Python functions, which might be more convenient.
+
+Invoking with HTTPS
+
+   Any non-Python application client can interact with deployed Modal
+   applications via [86]web endpoint functions.
+
+   Anything able to make HTTPS requests can trigger a Modal web endpoint
+   function. Note that all deployed web endpoint functions have [87]a
+   stable HTTPS URL.
+
+   Some use cases for HTTPS invocation include:
+     * Calling Modal functions from a web browser client running
+       Javascript
+     * Calling Modal functions from non-Python backend services (Java, Go,
+       Ruby, NodeJS, etc)
+     * Calling Modal functions using UNIX tools (curl, wget)
+
+   However, if the client of your Modal deployment is running Python, it's
+   better to use the [88]Modal client library to invoke your Modal code.
+
+   For more detail on setting up functions for invocation over HTTP see
+   the [89]web endpoints guide.
+   [90]Invoking deployed functions [91]Invoking with Python [92]Function
+   lookup and invocation basics [93]Authentication [94]Lookup of lifecycle
+   functions [95]Asynchronous invocation [96]Importing a Modal function
+   between Modal apps [97]Comparison with HTTPS [98]Invoking with HTTPS
+   Modal logo © 2024
+   [99]About [100]Status [101]Changelog [102]Documentation [103]Slack
+   Community [104]Pricing [105]Examples
+

@@ -1,0 +1,241 @@
+Page: modal.com_files/modal.com/docs/examples/mongodb-search.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+Using MongoDB Atlas Vector and GeoJSON Search with Modal
+
+   This [62]example repo demonstrates how to use Modal and MongoDB
+   together to build a full-stack application.
+
+   The application is a hybrid search engine, like the retrieval engines
+   that power RAG chatbots, but for satellite images of the state of
+   California. Images can be searched based on their geospatial and
+   temporal metadata or based on their semantic content as captured by a
+   pre-trained embedding model.
+
+   We use the [63]Clay foundation model for embeddings and we source the
+   images from the European Space Agency's [64]Sentinel satellites.
+
+   You can take our deployment of the application for a spin [65]here.
+
+Overview
+
+   At the center of the application is a MongoDB Atlas instance that
+   stores metadata for a collection of satellite images.
+
+   Modal orchestrates the compute around that database: retrieving data
+   from elsewhere and storing it in the database, computing vector
+   embeddings for the data in the database, and serving both a frontend
+   and a client.
+
+   The dataflow looks something like this:
+       complete a full pass over the entire Earth, including California.
+       The images are made available via a [67]public STAC API.
+       images of California and store the metadata in a MongoDB Atlas
+       database instance.
+       database don't have an associated embedding. These images are then
+       sent to a serverless embedding service running on Modal. We send
+       the resulting embeddings to the database.
+       developers to manipulate the data. This client is also used by two
+       web endpoints for vector and geospatial search queries powered by
+       Atlas Search.
+       an Alpine JS frontend for executing those queries and rendering
+       their results.
+
+   This entire application -- from API queries and frontend UI to GPU
+   inference and hybrid search -- is delivered using nothing but Modal and
+   MongoDB Atlas. Setting it up for yourself requires only credentials on
+   these platforms and a few commands, detailed below.
+
+Deploying the Backend
+
+Setup: Modal and MongoDB Atlas
+
+   You'll need a Python environment on your local machine. Any recent
+   version of Python should do. Most of the dependencies will be installed
+   in environments on Modal, so you don't need to worry quite so much.
+
+   Follow the instructions [68]here to set up your Modal account. The
+   $30/month of compute included in Modal's free tier is more than enough
+   to deploy and host this example.
+
+   You'll also need an account on MongoDB Atlas. You can find instructions
+   [69]here. We prefer the UI, rather than the CLI, for setup. The free
+   tier is more than sufficient to run this example.
+
+   You'll want to create a database called modal-examples. Make sure it's
+   accessible from [70]all IP addresses. In the process, you will create a
+   database user with a password. Navigate to the Modal Secrets dashboard
+   [71]here and add this information, as well as the connection string for
+   your database, to a Modal Secret based on the MongoDB template
+   available in the dashboard.
+
+MongoDB Client (database.py)
+
+   If your Modal Secret and MongoDB Atlas instance are set up correctly,
+   you should be able to run the following command:
+modal run backend.database::MongoClient.ping
+
+   (BUTTON) Copy
+
+   Once that command is working, you can start manipulating the database
+   from Modal.
+
+   To start, you'll want to add an Area of Interest (AOI) to the database:
+modal run backend.database --action add_aoi
+
+   (BUTTON) Copy
+
+   By default, it's the state of California as defined by the GeoJSON in
+   this repository's data folder (originally retrieved from [72]the
+   geojsonio GitHub repository). You can pass a different GeoJSON file to
+   the add_aoi action with the --target flag.
+
+   The modal run command is used for one-off tasks. To deploy the database
+   client for use in other parts of the app along with the webhooks that
+   anyone can use to run search queries, we use modal deploy:
+modal deploy backend.database
+
+   (BUTTON) Copy
+
+   Those webhooks come with interactive OpenAPI docs, which you can access
+   by navigating to the /docs route of the deployment's URL. You should
+   see that URL in the terminal output. You can also find the URL in the
+   app's [73]Modal dashboard.
+
+   For our deployment, the URL for the interactive docs for the geographic
+   search endpoint is
+   [74]https://modal-labs--clay-mongo-client-geo-search.modal.run/docs.
+
+   If you haven't yet run the backfill jobs for your database instance, as
+   described below, this search will not return any results, but you can
+   use it to check that the database client is deployed.
+
+Backfill and Updates (extract.py)
+
+   We add data to the database by querying the Sentinel STAC API for
+   images.
+
+   Run the following command to search for images in the AOI from the
+   preceding week and add them to the database:
+modal run backend.extract
+
+   (BUTTON) Copy
+
+   You can either check the results via the Atlas UI or by executing a
+   search query in the database client's geo search webhook, as described
+   above.
+
+   To regularly update the database with new images, we deploy the app
+   defined in extract.py:
+modal deploy backend.extract
+
+   (BUTTON) Copy
+
+   This app also runs a regular job to add embeddings to the images in the
+   database.
+
+   But it doesn't compute the embeddings itself -- embeddings are provided
+   by a separate service, which is described next.
+
+Clay Embeddings Service (embeddings.py)
+
+   To build the environment for the embeddings service and to test the
+   embedding engine on some sample data, execute the following command:
+modal run backend.embeddings
+
+   (BUTTON) Copy
+
+   To deploy this on Modal, we again use modal deploy:
+modal deploy backend.embeddings
+
+   (BUTTON) Copy
+
+Putting It All Together
+
+   Now that the embedding service is deployed, we can add vectors by
+   invoking the enrich_vectors function in extract with modal run:
+modal run backend.extract::enrich_vectors
+
+   (BUTTON) Copy
+
+   This command will ensure all the images in the database have
+   embeddings.
+
+   You should be able to observe them on records viewed via the Atlas UI
+   or by executing a search query via the database client's geo search
+   webhook, as described previously.
+
+   To use the embeddings for search, we recommend running the frontend UI,
+   which we walk through next.
+
+Deploying the Frontend
+
+   The frontend is much simpler than the backend. It comprises a small
+   Alpine JS app and a FastAPI Python server to deliver it to client
+   browsers.
+
+   You can play with our deployment of the frontend [75]here.
+
+Alpine App (app.js)
+
+   The Alpine app provides a basic interface for constructing geo search
+   queries by clicking on a map and viewing results. Clicking on the
+   returned images triggers a vector search for similar images. Images can
+   be furthermore filtered by date using the date pickers.
+
+FastAPI Server (serve.py)
+
+   This app is served to the client by a FastAPI server.
+
+   To deploy it, run the following command:
+modal deploy frontend
+
+   (BUTTON) Copy
+   [76]Using MongoDB Atlas Vector and GeoJSON Search with Modal
+   [77]Overview [78]Deploying the Backend [79]Setup: Modal and MongoDB
+   Atlas [80]MongoDB Client (database.py) [81]Backfill and Updates
+   (extract.py) [82]Clay Embeddings Service (embeddings.py) [83]Putting It
+   All Together [84]Deploying the Frontend [85]Alpine App (app.js)
+   [86]FastAPI Server (serve.py)
+   Modal logo © 2024
+   [87]About [88]Status [89]Changelog [90]Documentation [91]Slack
+   Community [92]Pricing [93]Examples
+

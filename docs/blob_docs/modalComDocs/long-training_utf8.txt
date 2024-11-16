@@ -1,0 +1,328 @@
+Page: modal.com_files/modal.com/docs/examples/long-training.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Run long, resumable training jobs on Modal
+
+   Individual Modal Function calls have a [63]maximum timeout of 24 hours.
+   You can still run long training jobs on Modal by making them
+   interruptible and resumable (aka [64]reentrant).
+
+   This is usually done via checkpointing: saving the model state to disk
+   at regular intervals. We recommend implementing checkpointing logic
+   regardless of the duration of your training jobs. This prevents loss of
+   progress in case of interruptions or [65]preemptions.
+
+   In this example, we'll walk through how to implement this pattern in
+   [66]PyTorch Lightning.
+
+   But the fundamental pattern is simple and can be applied to any
+   training framework:
+       checkpoint
+
+Resuming from checkpoints in a training loop
+
+   The train function below shows some very simple training logic using
+   the built-in checkpointing features of PyTorch Lightning.
+
+   Lightning uses a special filename, last.ckpt, to indicate which
+   checkpoint is the most recent. We check for this file and resume
+   training from it if it exists.
+from pathlib import Path
+
+import modal
+
+
+def train(experiment):
+    experiment_dir = CHECKPOINTS_PATH / experiment
+    last_checkpoint = experiment_dir / "last.ckpt"
+
+    if last_checkpoint.exists():
+        print(
+            f"!V! resuming training from the latest checkpoint: {last_checkpoint
+}"
+        )
+        train_model(
+            DATA_PATH,
+            experiment_dir,
+            resume_from_checkpoint=last_checkpoint,
+        )
+        print("!V! training finished successfully")
+    else:
+        print("!V! starting training from scratch")
+        train_model(DATA_PATH, experiment_dir)
+
+   (BUTTON) Copy
+
+   This implementation works fine in a local environment. Running it
+   serverlessly and durably on Modal -- with access to auto-scaling cloud
+   GPU infrastructure -- does not require any adjustments to the code. We
+   just need to ensure that data and checkpoints are saved in Modal
+   Volumes.
+
+Modal Volumes are distributed file systems
+
+   Modal [69]Volumes are distributed file systems -- you can read and
+   write files from them just like local disks, but they are accessible to
+   all of your Modal Functions. Their performance is tuned for
+   [70]Write-Once, Read-Many workloads with small numbers of large files.
+
+   You can attach them to any Modal Function that needs access.
+
+   But first, you need to create them:
+volume = modal.Volume.from_name("example-long-training", create_if_missing=True)
+
+   (BUTTON) Copy
+
+Porting training to Modal
+
+   To attach a Modal Volume to our training function, we need to port it
+   over to run on Modal.
+
+   That means we need to define our training function's dependencies (as a
+   [71]container image) and attach it to an application (a [72]modal.App).
+
+   Modal Functions that run on GPUs [73]already have CUDA drivers
+   installed, so dependency specification is straightforward. We just
+   pip_install PyTorch and PyTorch Lightning.
+image = modal.Image.debian_slim(python_version="3.12").pip_install(
+    "lightning~=2.4.0", "torch~=2.4.0", "torchvision==0.19.0"
+)
+
+app = modal.App("example-long-training-lightning", image=image)
+
+   (BUTTON) Copy
+
+   Next, we attach our training function to this app with app.function.
+
+   We define all of the serverless infrastructure-specific details of our
+   training at this point. For resumable training, there are three key
+   pieces: attaching volumes, adding retries, and setting the timeout.
+
+   We want to attach the Volume to our Function so that the data and
+   checkpoints are saved into it. In this sample code, we set these paths
+   via global variables, but in another setting, these might be set via
+   environment variables or other configuration mechanisms.
+volume_path = Path("/experiments")
+DATA_PATH = volume_path / "data"
+CHECKPOINTS_PATH = volume_path / "checkpoints"
+
+volumes = {volume_path: volume}
+
+   (BUTTON) Copy
+
+   Then, we define how we want to restart our training in case of
+   interruption. We can use modal.Retries to add automatic retries to our
+   Function. We set the delay time to 0.0 seconds, because on pre-emption
+   or timeout we want to restart immediately. We set max_retries to the
+   current maximum, which is 10.
+retries = modal.Retries(initial_delay=0.0, max_retries=10)
+
+   (BUTTON) Copy
+
+   Timeouts on Modal are set in seconds, with a minimum of 10 seconds and
+   a maximum of 24 hours. When running training jobs that last up to week,
+   we'd set that timeout to 24 hours, which would give our training job a
+   maximum of 10 days to complete before we'd need to manually restart.
+
+   For this example, we'll set it to 30 seconds. When running the example,
+   you should observe a few interruptions.
+timeout = 30  # seconds
+
+   (BUTTON) Copy
+
+   Now, we put all of this together by wrapping train and decorating it
+   with app.function to add all the infrastructure.
+@app.function(volumes=volumes, gpu="a10g", timeout=timeout, retries=retries)
+def train_interruptible(*args, **kwargs):
+    train(*args, **kwargs)
+
+   (BUTTON) Copy
+
+Kicking off interruptible training
+
+   We define a [74]local_entrypoint to kick off the training job from the
+   local Python environment.
+@app.local_entrypoint()
+def main(experiment: str = None):
+    if experiment is None:
+        from uuid import uuid4
+
+        experiment = uuid4().hex[:8]
+    print(f"!V! starting interruptible training experiment {experiment}")
+    train_interruptible.remote(experiment)
+
+   (BUTTON) Copy
+
+   You can run this with
+modal run --detach 06_gpu_and_ml/long-training.py
+
+   (BUTTON) Copy
+
+   You should see the training job start and then be interrupted,
+   producing a large stack trace in the terminal in red font. The job will
+   restart within a few seconds.
+
+   The --detach flag ensures training will continue even if you close your
+   terminal or turn off your computer. Try detaching and then watch the
+   logs in the [75]Modal dashboard.
+
+Details of PyTorch Lightning implementation
+
+   This basic pattern works for any training framework or for custom
+   training jobs -- or for any reentrant work that can save state to disk.
+
+   But to make the example complete, we include all the details of the
+   PyTorch Lightning implementation below.
+
+   PyTorch Lightning offers [76]built-in checkpointing. You can specify
+   the checkpoint file path that you want to resume from using the
+   ckpt_path parameter of [77]trainer.fit Additionally, you can specify
+   the checkpointing interval with the every_n_epochs parameter of
+   [78]ModelCheckpoint.
+def get_checkpoint(checkpoint_dir):
+    from lightning.pytorch.callbacks import ModelCheckpoint
+
+    return ModelCheckpoint(
+        dirpath=checkpoint_dir,
+        save_last=True,
+        every_n_epochs=10,
+        filename="{epoch:02d}",
+    )
+
+
+def train_model(data_dir, checkpoint_dir, resume_from_checkpoint=None):
+    import lightning as L
+
+    autoencoder = get_autoencoder()
+    train_loader = get_train_loader(data_dir=data_dir)
+    checkpoint_callback = get_checkpoint(checkpoint_dir)
+
+    trainer = L.Trainer(
+        limit_train_batches=100, max_epochs=100, callbacks=[checkpoint_callback]
+    )
+    if resume_from_checkpoint is not None:
+        trainer.fit(
+            model=autoencoder,
+            train_dataloaders=train_loader,
+            ckpt_path=resume_from_checkpoint,
+        )
+    else:
+        trainer.fit(autoencoder, train_loader)
+
+
+def get_autoencoder(checkpoint_path=None):
+    import lightning as L
+    from torch import nn, optim
+
+    class LitAutoEncoder(L.LightningModule):
+        def __init__(self):
+            super().__init__()
+            self.encoder = nn.Sequential(
+                nn.Linear(28 * 28, 64), nn.ReLU(), nn.Linear(64, 3)
+            )
+            self.decoder = nn.Sequential(
+                nn.Linear(3, 64), nn.ReLU(), nn.Linear(64, 28 * 28)
+            )
+
+        def training_step(self, batch, batch_idx):
+            x, _ = batch
+            x = x.view(x.size(0), -1)
+            z = self.encoder(x)
+            x_hat = self.decoder(z)
+            loss = nn.functional.mse_loss(x_hat, x)
+            self.log("train_loss", loss)
+            return loss
+
+        def configure_optimizers(self):
+            optimizer = optim.Adam(self.parameters(), lr=1e-3)
+            return optimizer
+
+    return LitAutoEncoder()
+
+
+def get_train_loader(data_dir):
+    from torch import utils
+    from torchvision.datasets import MNIST
+    from torchvision.transforms import ToTensor
+
+    print("!V! setting up data")
+    dataset = MNIST(data_dir, download=True, transform=ToTensor())
+    train_loader = utils.data.DataLoader(dataset, num_workers=4)
+    return train_loader
+
+   (BUTTON) Copy
+   [79]Run long, resumable training jobs on Modal [80]Resuming from
+   checkpoints in a training loop [81]Modal Volumes are distributed file
+   systems [82]Porting training to Modal [83]Kicking off interruptible
+   training [84]Details of PyTorch Lightning implementation
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [85]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [86]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run --detach 06_gpu_and_ml/long-training.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [87]About [88]Status [89]Changelog [90]Documentation [91]Slack
+   Community [92]Pricing [93]Examples
+

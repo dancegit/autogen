@@ -1,0 +1,247 @@
+Page: modal.com_files/modal.com/docs/reference/modal.Sandbox.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.sandbox
+
+modal.sandbox.Sandbox
+
+class Sandbox(modal.object.Object)
+
+   (BUTTON) Copy
+
+   A Sandbox object lets you interact with a running sandbox. This API is
+   similar to Python's [71]asyncio.subprocess.Process.
+
+   Refer to the [72]guide on how to spawn and use sandboxes.
+def __init__(self, *args, **kwargs):
+
+   (BUTTON) Copy
+
+create
+
+@staticmethod
+def create(
+    *entrypoint_args: str,
+    app: Optional["modal.app._App"] = None,  # Optionally associate the sandbox
+with an app
+    environment_name: Optional[str] = None,  # Optionally override the default e
+nvironment
+    image: Optional[_Image] = None,  # The image to run as the container for the
+ sandbox.
+    mounts: Sequence[_Mount] = (),  # Mounts to attach to the sandbox.
+    secrets: Sequence[_Secret] = (),  # Environment variables to inject into the
+ sandbox.
+    network_file_systems: Dict[Union[str, os.PathLike], _NetworkFileSystem] = {}
+,
+    timeout: Optional[int] = None,  # Maximum execution time of the sandbox in s
+econds.
+    workdir: Optional[str] = None,  # Working directory of the sandbox.
+    gpu: GPU_T = None,
+    cloud: Optional[str] = None,
+    region: Optional[Union[str, Sequence[str]]] = None,  # Region or regions to
+run the sandbox on.
+    cpu: Optional[float] = None,  # How many CPU cores to request. This is a sof
+t limit.
+    # Specify, in MiB, a memory request which is the minimum memory required.
+    # Or, pass (request, limit) to additionally specify a hard limit in MiB.
+    memory: Optional[Union[int, Tuple[int, int]]] = None,
+    block_network: bool = False,  # Whether to block network access
+    # List of CIDRs the sandbox is allowed to access. If None, all CIDRs are all
+owed.
+    cidr_allowlist: Optional[Sequence[str]] = None,
+    volumes: Dict[
+        Union[str, os.PathLike], Union[_Volume, _CloudBucketMount]
+    ] = {},  # Mount points for Modal Volumes and CloudBucketMounts
+    pty_info: Optional[api_pb2.PTYInfo] = None,
+    # List of ports to tunnel into the sandbox. Encrypted ports are tunneled wit
+h TLS.
+    encrypted_ports: Sequence[int] = [],
+    # List of ports to tunnel into the sandbox without encryption.
+    unencrypted_ports: Sequence[int] = [],
+    _experimental_scheduler_placement: Optional[
+        SchedulerPlacement
+    ] = None,  # Experimental controls over fine-grained scheduling (alpha).
+    client: Optional[_Client] = None,
+) -> "_Sandbox":
+
+   (BUTTON) Copy
+
+from_id
+
+@staticmethod
+def from_id(sandbox_id: str, client: Optional[_Client] = None) -> "_Sandbox":
+
+   (BUTTON) Copy
+
+   Construct a Sandbox from an id and look up the Sandbox result.
+
+   The ID of a Sandbox object can be accessed using .object_id.
+
+set_tags
+
+def set_tags(self, tags: Dict[str, str], *, client: Optional[_Client] = None):
+
+   (BUTTON) Copy
+
+   Set tags (key-value pairs) on the Sandbox. Tags can be used to filter
+   results in Sandbox.list.
+
+wait
+
+def wait(self, raise_on_termination: bool = True):
+
+   (BUTTON) Copy
+
+   Wait for the Sandbox to finish running.
+
+tunnels
+
+def tunnels(self, timeout: int = 50) -> Dict[int, Tunnel]:
+
+   (BUTTON) Copy
+
+   Get tunnel metadata for the sandbox.
+
+   Raises SandboxTimeoutError if the tunnels are not available after the
+   timeout.
+
+   Returns a dictionary of Tunnel objects which are keyed by the container
+   port.
+
+   NOTE: Previous to client v0.64.152, this returned a list of TunnelData
+   objects.
+
+terminate
+
+def terminate(self):
+
+   (BUTTON) Copy
+
+   Terminate Sandbox execution.
+
+   This is a no-op if the Sandbox has already finished running.
+
+poll
+
+def poll(self) -> Optional[int]:
+
+   (BUTTON) Copy
+
+   Check if the Sandbox has finished running.
+
+   Returns None if the Sandbox is still running, else returns the exit
+   code.
+
+exec
+
+def exec(
+    self,
+    *cmds: str,
+    # Deprecated: internal use only
+    pty_info: Optional[api_pb2.PTYInfo] = None,
+    stdout: StreamType = StreamType.PIPE,
+    stderr: StreamType = StreamType.PIPE,
+    timeout: Optional[int] = None,
+    workdir: Optional[str] = None,
+    secrets: Sequence[_Secret] = (),
+    # Internal option to set terminal size and metadata
+    _pty_info: Optional[api_pb2.PTYInfo] = None,
+):
+
+   (BUTTON) Copy
+
+   Execute a command in the Sandbox and return a [73]ContainerProcess
+   handle.
+
+   Usage
+app = modal.App.lookup("my-app", create_if_missing=True)
+
+sandbox = modal.Sandbox.create("sleep", "infinity", app=app)
+
+process = sandbox.exec("bash", "-c", "for i in $(seq 1 10); do echo foo $i; slee
+p 0.5; done")
+
+for line in process.stdout:
+    print(line)
+
+   (BUTTON) Copy
+
+stdout
+
+@property
+def stdout(self) -> _StreamReader:
+
+   (BUTTON) Copy
+
+   [74]StreamReader for the sandbox's stdout stream.
+
+stderr
+
+@property
+def stderr(self) -> _StreamReader:
+
+   (BUTTON) Copy
+
+   [75]StreamReader for the sandbox's stderr stream.
+
+stdin
+
+@property
+def stdin(self) -> _StreamWriter:
+
+   (BUTTON) Copy
+
+   [76]StreamWriter for the sandbox's stdin stream.
+
+returncode
+
+@property
+def returncode(self) -> Optional[int]:
+
+   (BUTTON) Copy
+
+   Return code of the sandbox process if it has finished running, else
+   None.
+
+list
+
+@staticmethod
+def list(
+    *, app_id: Optional[str] = None, tags: Optional[Dict[str, str]] = None, clie
+nt: Optional[_Client] = None
+) -> AsyncGenerator["_Sandbox", None]:
+
+   (BUTTON) Copy
+
+   List all sandboxes for the current environment or app ID (if
+   specified). If tags are specified, only sandboxes that have at least
+   those tags are returned. Returns an iterator over Sandbox objects.
+   [77]modal.sandbox [78]modal.sandbox.Sandbox [79]create [80]from_id
+   [81]set_tags [82]wait [83]tunnels [84]terminate [85]poll [86]exec
+   [87]stdout [88]stderr [89]stdin [90]returncode [91]list
+   Modal logo © 2024
+   [92]About [93]Status [94]Changelog [95]Documentation [96]Slack
+   Community [97]Pricing [98]Examples
+

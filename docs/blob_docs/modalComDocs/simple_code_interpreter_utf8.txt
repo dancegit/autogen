@@ -1,0 +1,192 @@
+Page: modal.com_files/modal.com/docs/examples/simple_code_interpreter.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Build a stateful, sandboxed code interpreter
+
+   This example demonstrates how to build a stateful code interpreter
+   using a Modal [63]Sandbox.
+
+   We'll create a Modal Sandbox that listens for code to execute and then
+   executes the code in a Python interpreter. Because we're running in a
+   sandboxed environment, we can safely use the "unsafe" exec() to execute
+   the code.
+
+Setting up a code interpreter in a Modal Sandbox
+
+   Our code interpreter uses a Python "driver program" to listen for code
+   sent in JSON format to its standard input (stdin), execute the code,
+   and then return the results in JSON format on standard output (stdout).
+import inspect
+import json
+from typing import Any
+
+import modal
+
+
+def driver_program():
+    import json
+    import sys
+    from contextlib import redirect_stderr, redirect_stdout
+    from io import StringIO
+
+    # When you `exec` code in Python, you can pass in a dictionary
+    # that defines the global variables the code has access to.
+
+    # We'll use that to store state.
+
+    globals: dict[str, Any] = {}
+    while True:
+        command = json.loads(input())  # read a line of JSON from stdin
+        if (code := command.get("code")) is None:
+            print(json.dumps({"error": "No code to execute"}))
+            continue
+
+        # Capture the executed code's outputs
+        stdout_io, stderr_io = StringIO(), StringIO()
+        with redirect_stdout(stdout_io), redirect_stderr(stderr_io):
+            try:
+                exec(code, globals)
+            except Exception as e:
+                print(f"Execution Error: {e}", file=sys.stderr)
+
+        print(
+            json.dumps(
+                {
+                    "stdout": stdout_io.getvalue(),
+                    "stderr": stderr_io.getvalue(),
+                }
+            ),
+            flush=True,
+        )
+
+   (BUTTON) Copy
+
+   Now that we have the driver program, we can write a function to take a
+   ContainerProcess that is running the driver program and execute code in
+   it.
+def run_code(p: modal.container_process.ContainerProcess, code: str):
+    p.stdin.write(json.dumps({"code": code}))
+    p.stdin.write("\n")
+    p.stdin.drain()
+    next_line = next(iter(p.stdout))
+    result = json.loads(next_line)
+    print(result["stdout"], end="")
+    print("\033[91m" + result["stderr"] + "\033[0m", end="")
+
+   (BUTTON) Copy
+
+   We've got our driver program and our code runner. Now we can create a
+   Sandbox and run the driver program in it.
+
+   We have to convert the driver program to a string to pass it to the
+   Sandbox. Here we use inspect.getsource to get the source code as a
+   string, but you could also keep the driver program in a separate file
+   and read it in.
+driver_program_text = inspect.getsource(driver_program)
+driver_program_command = f"""{driver_program_text}\n\ndriver_program()"""
+
+app = modal.App.lookup("code-interpreter", create_if_missing=True)
+sb = modal.Sandbox.create(app=app)
+p = sb.exec("python", "-c", driver_program_command)
+
+   (BUTTON) Copy
+
+Running code in a Modal Sandbox
+
+   Now we can execute some code in the Sandbox!
+run_code(p, "print('hello, world!')")  # hello, world!
+
+   (BUTTON) Copy
+
+   The Sandbox and our code interpreter are stateful, so we can define
+   variables and use them in subsequent code.
+run_code(p, "x = 10")
+run_code(p, "y = 5")
+run_code(p, "result = x + y")
+run_code(p, "print(f'The result is: {result}')")  # The result is: 15
+
+   (BUTTON) Copy
+
+   We can also see errors when code fails.
+run_code(p, "print('Attempting to divide by zero...')")
+run_code(p, "1 / 0")  # Execution Error: division by zero
+
+   (BUTTON) Copy
+
+   Finally, let's clean up after ourselves and terminate the Sandbox.
+sb.terminate()
+
+   (BUTTON) Copy
+   [64]Build a stateful, sandboxed code interpreter [65]Setting up a code
+   interpreter in a Modal Sandbox [66]Running code in a Modal Sandbox
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [67]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [68]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+python 13_sandboxes/simple_code_interpreter.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [69]About [70]Status [71]Changelog [72]Documentation [73]Slack
+   Community [74]Pricing [75]Examples
+

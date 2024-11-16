@@ -1,0 +1,219 @@
+Page: modal.com_files/modal.com/docs/examples/doc_ocr_jobs.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Document OCR job queue
+
+   This tutorial shows you how to use Modal as an infinitely scalable job
+   queue that can service async tasks from a web app. For the purpose of
+   this tutorial, we've also built a [63]React + FastAPI web app on Modal
+   that works together with it, but note that you don't need a web app
+   running on Modal to use this pattern. You can submit async tasks to
+   Modal from any Python application (for example, a regular Django app
+   running on Kubernetes).
+
+   Our job queue will handle a single task: running OCR transcription for
+   images. We'll make use of a pre-trained Document Understanding model
+   using the [64]donut package. Try it out for yourself [65]here.
+
+   receipt parser frontend
+
+Define an App
+
+   Let's first import modal and define a [66]App. Later, we'll use the
+   name provided for our App to find it from our web app, and submit tasks
+   to it.
+import urllib.request
+
+import modal
+
+app = modal.App("example-doc-ocr-jobs")
+
+   (BUTTON) Copy
+
+Model cache
+
+   donut downloads the weights for pre-trained models to a local
+   directory, if those weights don't already exist. To decrease start-up
+   time, we want this download to happen just once, even across separate
+   function invocations. To accomplish this, we use the
+   [67]Image.run_function method, which allows us to run some code at
+   image build time to save the model weights into the image.
+CACHE_PATH = "/root/model_cache"
+MODEL_NAME = "naver-clova-ix/donut-base-finetuned-cord-v2"
+
+
+def get_model():
+    from donut import DonutModel
+
+    pretrained_model = DonutModel.from_pretrained(
+        MODEL_NAME,
+        cache_dir=CACHE_PATH,
+    )
+
+    return pretrained_model
+
+
+image = (
+    modal.Image.debian_slim(python_version="3.9")
+    .pip_install(
+        "donut-python==1.0.7",
+        "huggingface-hub==0.16.4",
+        "transformers==4.21.3",
+        "timm==0.5.4",
+    )
+    .run_function(get_model)
+)
+
+   (BUTTON) Copy
+
+Handler function
+
+   Now let's define our handler function. Using the [68]@app.function()
+   decorator, we set up a Modal [69]Function that uses GPUs, runs on a
+   [70]custom container image, and automatically [71]retries failures up
+   to 3 times.
+@app.function(
+    gpu="any",
+    image=image,
+    retries=3,
+)
+def parse_receipt(image: bytes):
+    import io
+
+    import torch
+    from PIL import Image
+
+    # Use donut fine-tuned on an OCR dataset.
+    task_prompt = "<s_cord-v2>"
+    pretrained_model = get_model()
+
+    # Initialize model.
+    pretrained_model.half()
+    device = torch.device("cuda")
+    pretrained_model.to(device)
+
+    # Run inference.
+    input_img = Image.open(io.BytesIO(image))
+    output = pretrained_model.inference(image=input_img, prompt=task_prompt)[
+        "predictions"
+    ][0]
+    print("Result: ", output)
+
+    return output
+
+   (BUTTON) Copy
+
+Deploy
+
+   Now that we have a function, we can publish it by deploying the app:
+modal deploy doc_ocr_jobs.py
+
+   (BUTTON) Copy
+
+   Once it's published, we can [72]look up this function from another
+   Python process and submit tasks to it:
+fn = modal.Function.lookup("example-doc-ocr-jobs", "parse_receipt")
+fn.spawn(my_image)
+
+   (BUTTON) Copy
+
+   Modal will auto-scale to handle all the tasks queued, and then scale
+   back down to 0 when there's no work left. To see how you could use this
+   from a Python web app, take a look at the [73]receipt parser frontend
+   tutorial.
+
+Run manually
+
+   We can also trigger parse_receipt manually for easier debugging: modal
+   run doc_ocr_jobs::app.main To try it out, you can find some example
+   receipts [74]here.
+@app.local_entrypoint()
+def main():
+    from pathlib import Path
+
+    receipt_filename = Path(__file__).parent / "receipt.png"
+    if receipt_filename.exists():
+        with open(receipt_filename, "rb") as f:
+            image = f.read()
+        print(f"running OCR on {f.name}")
+    else:
+        receipt_url = "https://nwlc.org/wp-content/uploads/2022/01/Brandys-walma
+rt-receipt-8.webp"
+        image = urllib.request.urlopen(receipt_url).read()
+        print(f"running OCR on sample from URL {receipt_url}")
+    print(parse_receipt.remote(image))
+
+   (BUTTON) Copy
+   [75]Document OCR job queue [76]Define an App [77]Model cache
+   [78]Handler function [79]Deploy [80]Run manually
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [81]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [82]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 09_job_queues/doc_ocr_jobs.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [83]About [84]Status [85]Changelog [86]Documentation [87]Slack
+   Community [88]Pricing [89]Examples
+

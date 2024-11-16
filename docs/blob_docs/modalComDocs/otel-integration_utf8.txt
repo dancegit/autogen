@@ -1,0 +1,79 @@
+Page: modal.com_files/modal.com/docs/guide/otel-integration.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Connecting Modal to your OpenTelemetry Provider
+
+   You can export Modal logs to your [81]OpenTelemetry provider using the
+   Modal OpenTelemetry integration. This integration is compatible with
+   any observability provider that supports the OpenTelemetry HTTP APIs.
+
+What this integration does
+
+   This integration allows you to:
+
+Installing the integration
+
+       the URL that the Modal integration will send logs to. Note that
+       this should be the base URL of the OpenTelemetry provider, and not
+       a specific endpoint. For example, for the [82]US New Relic
+       instance, the endpoint URL is https://otlp.nr-data.net, not
+       https://otlp.nr-data.net/v1/logs.
+       send logs to your OpenTelemetry provider. This is the key that the
+       Modal integration will use to authenticate with your provider.
+       Modal can provide any key/value HTTP header pairs. For example, for
+       [83]New Relic, the header is api-key.
+       These keys should be prefixed with OTEL_HEADER_, followed by the
+       name of the header. The value of this key should be the value of
+       the header. For example, for New Relic, an example Secret might
+       look like OTEL_HEADER_api-key: YOUR_API_KEY. If you use the
+       OpenTelemetry Secret template, this will be pre-filled for you.
+       OpenTelemetry push URL from step 1 and the Secret from step 3.
+       being sent to your provider. If it's all working, you should see a
+       Hello from Modal! log from the modal.test_logs service.
+
+Uninstalling the integration
+
+   Once the integration is uninstalled, all logs will stop being sent to
+   your provider.
+       OpenTelemetry integration.
+
+   [86]Connecting Modal to your OpenTelemetry Provider [87]What this
+   integration does [88]Installing the integration [89]Uninstalling the
+   integration
+   Modal logo © 2024
+   [90]About [91]Status [92]Changelog [93]Documentation [94]Slack
+   Community [95]Pricing [96]Examples
+

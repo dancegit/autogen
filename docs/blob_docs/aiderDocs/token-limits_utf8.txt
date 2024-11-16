@@ -1,0 +1,183 @@
+Page: aider.chat_files/aider.chat/docs/troubleshooting/token-limits.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+
+Token limits
+
+   Every LLM has limits on how many tokens it can process for each
+   request:
+     * The model's context window limits how many total tokens of input
+       and output it can process.
+     * Each model has limit on how many output tokens it can produce.
+
+   Aider will report an error if a model responds indicating that it has
+   exceeded a token limit. The error will include suggested actions to try
+   and avoid hitting token limits. Here's an example error:
+Model gpt-3.5-turbo has hit a token limit!
+
+Input tokens: 768 of 16385
+Output tokens: 4096 of 4096 -- exceeded output limit!
+Total tokens: 4864 of 16385
+
+To reduce output tokens:
+- Ask for smaller changes in each request.
+- Break your code into smaller source files.
+- Try using a stronger model like gpt-4o or opus that can return diffs.
+
+For more info: https://aider.chat/docs/token-limits.html
+
+Input tokens & context window size
+
+   The most common problem is trying to send too much data to a model,
+   overflowing its context window. Technically you can exhaust the context
+   window if the input is too large or if the input plus output are too
+   large.
+
+   Strong models like GPT-4o and Opus have quite large context windows, so
+   this sort of error is typically only an issue when working with weaker
+   models.
+
+   The easiest solution is to try and reduce the input tokens by removing
+   files from the chat. It's best to only add the files that aider will
+   need to edit to complete your request.
+     * Use /tokens to see token usage.
+     * Use /drop to remove unneeded files from the chat session.
+     * Use /clear to clear the chat history.
+     * Break your code into smaller source files.
+
+Output token limits
+
+   Most models have quite small output limits, often as low as 4k tokens.
+   If you ask aider to make a large change that affects a lot of code, the
+   LLM may hit output token limits as it tries to send back all the
+   changes.
+
+   To avoid hitting output token limits:
+     * Ask for smaller changes in each request.
+     * Break your code into smaller source files.
+     * Use a strong model like gpt-4o, sonnet or opus that can return
+       diffs.
+     * Use a model that supports [85]infinite output.
+
+Other causes
+
+   Sometimes token limit errors are caused by non-compliant API proxy
+   servers or bugs in the API server you are using to host a local model.
+   Aider has been well tested when directly connecting to major [86]LLM
+   provider cloud APIs. For serving local models, [87]Ollama is known to
+   work well with aider.
+
+   Try using aider without an API proxy server or directly with one of the
+   recommended cloud APIs and see if your token limit problems resolve.
+
+More help
+
+   If you need more help, please check our [88]GitHub issues and file a
+   new issue if your problem isn't discussed. Or drop into our [89]Discord
+   to chat with us.
+
+   When reporting problems, it is very helpful if you can provide:
+     * Aider version
+     * LLM model you are using
+
+   Including the "announcement" lines that aider prints at startup is an
+   easy way to share this helpful info.
+Aider v0.37.1-dev
+Models: gpt-4o with diff edit format, weak model gpt-3.5-turbo
+Git repo: .git with 243 files
+Repo-map: using 1024 tokens
+
+   Use /help <question> to [90]ask for help about using aider, customizing
+   settings, troubleshooting, using LLMs, etc.
+

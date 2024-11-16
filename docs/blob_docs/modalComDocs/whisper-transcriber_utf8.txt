@@ -1,0 +1,132 @@
+Page: modal.com_files/modal.com/docs/examples/whisper-transcriber.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+Example: Parallel podcast transcription using Whisper
+
+   OpenAI's late-September 2022 release of the [62]Whisper speech
+   recognition model was another eye-widening milestone in the rapidly
+   improving field of deep learning, and [63]like others we jumped to try
+   Whisper on podcasts.
+
+   The result is the [64]Modal Podcast Transcriber!
+
+   homepage of modal whisper transcriber app
+
+   This example application is more feature-packed than others, and
+   doesn't fit in a single page of code and commentary. So instead of
+   progressing through the example's code linearly, this post provides a
+   higher-level walkthrough of how Modal is used to do fast, on-demand
+   podcast episode transcription for whichever podcast you'd like.
+
+Hour-long episodes transcribed in just 1 minute
+
+   The focal point of this demonstration app is that it does serverless
+   CPU transcription across dozens of containers at the click of a button,
+   completing hour-long audio files in just 1 minute.
+
+   We use a podcast metadata API to allow users to transcribe an arbitrary
+   episode from whatever niche podcast a user desires -- [65]how about The
+   Pen Addict, a podcast dedicated to stationary?.
+
+   The video below shows the 45-minute long first episode of [66]Serial
+   season 2 get transcribed in 62 seconds.
+
+   What's extra cool is that each transcription segment has links back to
+   auto-play the original audio. If you read a transcription and wonder,
+   did they really say that? Click the timestamp on the right and find
+   out!
+
+   (§ Enable sound for this video)
+
+Try it yourself
+
+   If you're itching to see this in action, here are links to begin
+   transcribing the three most popular podcasts on Spotify right now:
+
+Tech-stack overview
+
+   The entire application is hosted serverlessly on Modal and consists of
+   these main components:
+     * A React + [70]Vite single page application (SPA) deployed as static
+       files into a Modal web endpoint.
+     * A Modal web endpoint running [71]FastAPI
+     * The [72]Podchaser API provides podcast search and episode metadata
+       retrieval. It's hooked into our code with a [73]Modal Secret.
+     * A Modal async job queue, described in more detail below.
+
+   All of this is deployed with one command and costs $0.00 when it's not
+   transcribing podcasts or serving HTTP requests.
+
+Speed-boosting Whisper with parallelism
+
+   Modal's dead-simple parallelism primitives are the key to doing the
+   transcription so quickly. Even with a GPU, transcribing a full episode
+   serially was taking around 10 minutes.
+
+   But by pulling in ffmpeg with a simple .pip_install("ffmpeg-python")
+   addition to our Modal Image, we could exploit the natural silences of
+   the podcast medium to partition episodes into hundreds of short
+   segments. Each segment is transcribed by Whisper in its own container
+   task with 2 physical CPU cores, and when all are done we stitch the
+   segments back together with only a minimal loss in transcription
+   quality. This approach actually accords quite well with Whisper's model
+   architecture:
+
+     "The Whisper architecture is a simple end-to-end approach,
+     implemented as an encoder-decoder Transformer. Input audio is split
+     into 30-second chunks, converted into a log-Mel spectrogram, and
+     then passed into an encoder."
+
+     -[74]Introducing Whisper
+
+Run this app on Modal
+
+   All source code for this example can be [75]found on GitHub. The
+   README.md includes instructions on setting up the frontend build and
+   getting authenticated with the Podchaser API. Happy transcribing!
+   [76]Example: Parallel podcast transcription using Whisper [77]Hour-long
+   episodes transcribed in just 1 minute [78]Try it yourself
+   [79]Tech-stack overview [80]Speed-boosting Whisper with parallelism
+   [81]Run this app on Modal
+   Modal logo © 2024
+   [82]About [83]Status [84]Changelog [85]Documentation [86]Slack
+   Community [87]Pricing [88]Examples
+

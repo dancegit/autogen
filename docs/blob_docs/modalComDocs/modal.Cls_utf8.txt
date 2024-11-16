@@ -1,0 +1,120 @@
+Page: modal.com_files/modal.com/docs/reference/modal.Cls.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.Cls
+
+class Cls(modal.object.Object)
+
+   (BUTTON) Copy
+
+   Cls adds method pooling and [71]lifecycle hook behavior to
+   [72]modal.Function.
+
+   Generally, you will not construct a Cls directly. Instead, use the
+   [73]@app.cls() decorator on the App object.
+def __init__(self, *args, **kwargs):
+
+   (BUTTON) Copy
+
+from_name
+
+@classmethod
+def from_name(
+    cls: Type["_Cls"],
+    app_name: str,
+    tag: str,
+    namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
+    environment_name: Optional[str] = None,
+    workspace: Optional[str] = None,
+) -> "_Cls":
+
+   (BUTTON) Copy
+
+   Reference a Cls from a deployed App by its name.
+
+   In contrast to modal.Cls.lookup, this is a lazy method that defers
+   hydrating the local object with metadata from Modal servers until the
+   first time it is actually used.
+Class = modal.Cls.from_name("other-app", "Class")
+
+   (BUTTON) Copy
+
+with_options
+
+def with_options(
+    self: "_Cls",
+    cpu: Optional[Union[float, Tuple[float, float]]] = None,
+    memory: Optional[Union[int, Tuple[int, int]]] = None,
+    gpu: GPU_T = None,
+    secrets: Collection[_Secret] = (),
+    volumes: Dict[Union[str, os.PathLike], _Volume] = {},
+    retries: Optional[Union[int, Retries]] = None,
+    timeout: Optional[int] = None,
+    concurrency_limit: Optional[int] = None,
+    allow_concurrent_inputs: Optional[int] = None,
+    container_idle_timeout: Optional[int] = None,
+) -> "_Cls":
+
+   (BUTTON) Copy
+
+   Beta: Allows for the runtime modification of a modal.Cls's
+   configuration.
+
+   This is a beta feature and may be unstable.
+
+   Usage:
+Model = modal.Cls.lookup("my_app", "Model")
+ModelUsingGPU = Model.with_options(gpu="A100")
+ModelUsingGPU().generate.remote(42)  # will run with an A100 GPU
+
+   (BUTTON) Copy
+
+lookup
+
+@staticmethod
+def lookup(
+    app_name: str,
+    tag: str,
+    namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
+    client: Optional[_Client] = None,
+    environment_name: Optional[str] = None,
+    workspace: Optional[str] = None,
+) -> "_Cls":
+
+   (BUTTON) Copy
+
+   Lookup a Cls from a deployed App by its name.
+
+   In contrast to modal.Cls.from_name, this is an eager method that will
+   hydrate the local object with metadata from Modal servers.
+Class = modal.Cls.lookup("other-app", "Class")
+obj = Class()
+
+   (BUTTON) Copy
+   [74]modal.Cls [75]from_name [76]with_options [77]lookup
+   Modal logo © 2024
+   [78]About [79]Status [80]Changelog [81]Documentation [82]Slack
+   Community [83]Pricing [84]Examples
+

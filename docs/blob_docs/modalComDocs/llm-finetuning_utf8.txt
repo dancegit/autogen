@@ -1,0 +1,238 @@
+Page: modal.com_files/modal.com/docs/examples/llm-finetuning.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+Fine-tune an LLM using Axolotl (ft. Llama 2, CodeLlama, Mistral, etc.)
+
+   [62]View on GitHub
+
+   Tired of prompt engineering? [63]Fine-tuning helps you get more out of
+   a pretrained LLM by adjusting the model weights to better fit a
+   specific task. This operational guide will help you take a base model
+   and fine-tune it on your own dataset (API docs, conversation
+   transcripts, etc.) using the popular open-source tool, [64]axolotl.
+
+   The repository comes ready to use as-is with all the recommended,
+   start-of-the-art optimizations for fast training results:
+     * [65]Parameter-Efficient Fine-Tuning (PEFT) via [66]LoRA adapters
+       for faster convergence
+     * [67]Flash Attention for fast and memory-efficient attention during
+       training (note: only works with certain hardware, like A100s)
+     * [68]Gradient checkpointing to reduce VRAM footprint, fit larger
+       batches and get higher training throughput
+     * Distributed training via [69]DeepSpeed so training scales optimally
+       with multiple GPUs
+
+   Axolotl can be used to fine-tune any LLM. For the purposes of this
+   guide, we'll use axolotl to fine-tune CodeLlama 7B to generate SQL
+   queries, but the code is easy to tweak for many base models, datasets,
+   and training configurations.
+
+   Best of all, using Modal for training means you never have to worry
+   about infrastructure headaches like building images, provisioning GPUs,
+   and managing cloud storage. If a training script runs on Modal, it's
+   repeatable and scalable enough to ship to production right away.
+
+Prerequisites
+
+   To follow along, make sure that you have completed the following:
+pip install modal
+python3 -m modal setup
+       (BUTTON) Copy
+       needed, which you can get if you go into your Hugging Face settings
+       > API tokens)
+git clone https://github.com/modal-labs/llm-finetuning.git
+cd llm-finetuning
+       (BUTTON) Copy
+
+   Some models like Llama 2 also require that you apply for access, which
+   you can do on the [71]Hugging Face page (granted instantly).
+
+Code overview
+
+   The source directory contains a [72]training script to launch a
+   training job in the cloud with your config/dataset (config.yml and
+   my_data.jsonl, unless otherwise specified), as well as an [73]inference
+   engine for testing your training results.
+
+   We use Modal's [74]built-in cloud storage system to share data across
+   all functions in the app. In particular, we mount a persisting volume
+   at /pretrained inside the container to store our pretrained models (so
+   we only need to load them once) and another persisting volume at /runs
+   to store our training config, dataset, and results for each run (for
+   easier reproducibility and management).
+
+Training
+
+   The training script contains three Modal functions that run in the
+   cloud:
+     * launch prepares a new folder in the /runs volume with the training
+       config and data for a new training job. It also ensures the base
+       model is downloaded from HuggingFace.
+     * train takes a prepared run folder in the volume and performs the
+       training job using the config and data.
+     * merge merges the trained adapter with the base model (as a CPU
+       job).
+
+   By default, when you make local changes to either config.yml or
+   my_data.jsonl, they will be used for your next training run. You can
+   also specify which local config and data files to use with the --config
+   and --dataset flags. See [75]Making it your own for more details on
+   customizing your dataset and config.
+
+   To kickstart a training job with the CLI, you need to specify the
+   config and data files:
+modal run --detach src.train --config=config/mistral.yml --data=data/sqlqa.jsonl
+
+   (BUTTON) Copy
+
+   --detach lets the app continue running even if your client disconnects.
+
+   The training run folder name will be in the command output (e.g.
+   axo-2023-11-24-17-26-66e8). You can check if your fine-tuned model is
+   stored properly in this folder using [76]modal volume ls.
+
+Serving your fine-tuned model
+
+   Once a training run has completed, run inference to compare the model
+   before/after training.
+     * Inference.completion can spawn a vLLM inference container for any
+       pre-trained or fine-tuned model from a previous training job.
+
+   You can serve a model for inference using the following command,
+   specifying which training run folder to load the model from with the
+   -run-folder flag (run folder name is in the training log output):
+modal run -q src.inference --run-folder /runs/axo-2023-11-24-17-26-66e8
+
+   (BUTTON) Copy
+
+   We use [77]vLLM to speed up our inference [78]up to 24x.
+
+Making it your own
+
+   Training on your own dataset, using a different base model, and
+   activating another SOTA technique is as easy as modifying a couple
+   files.
+
+Dataset
+
+   Bringing your own dataset is as simple as creating a JSONL file --
+   Axolotl supports many dataset formats ([79]see more).
+
+   We recommend adding your custom dataset as a JSONL file in the src
+   directory and making the appropriate modifications to your config, as
+   explained below.
+
+Config
+
+   All of your training parameters and options are customizable in a
+   single config file. We recommend duplicating one of the
+   [80]example_configs to src/config.yml and modifying as you need. See an
+   overview of Axolotl's config options [81]here.
+
+   The most important options to consider are:
+     * Model
+base_model: codellama/CodeLlama-7b-Instruct-hf
+       (BUTTON) Copy
+     * Dataset (by default we upload a local .jsonl file from the src
+       folder in completion format, but you can see all dataset options
+       [82]here)
+datasets:
+- path: my_data.jsonl
+   ds_type: json
+   type: completion
+       (BUTTON) Copy
+     * LoRA
+adapter: lora # for qlora, or leave blank for full finetune
+lora_r: 8
+lora_alpha: 16
+lora_dropout: 0.05
+lora_target_modules:
+  - q_proj
+  - v_proj
+       (BUTTON) Copy
+     * Multi-GPU training
+       We recommend [83]DeepSpeed for multi-GPU training, which is easy to
+       set up. Axolotl provides several default deepspeed JSON
+       [84]configurations and Modal makes it easy to [85]attach multiple
+       GPUs of any type in code, so all you need to do is specify which of
+       these configs you'd like to use.
+       In your config.yml:
+deepspeed: /root/axolotl/deepspeed/zero3.json
+       (BUTTON) Copy
+       In train.py:
+import os
+
+N_GPUS = int(os.environ.get("N_GPUS", 2))
+GPU_MEM = os.environ.get("GPU_MEM", "80GB")
+GPU_CONFIG = modal.gpu.A100(count=N_GPUS, size=GPU_MEM)  # you can also change t
+his in code to use A10Gs or T4s
+       (BUTTON) Copy
+     * Logging with Weights and Biases
+       To track your training runs with Weights and Biases:
+            dashboard, if not set up already (only the WANDB_API_KEY is
+            needed, which you can get if you log into your Weights and
+            Biases account and go to the [87]Authorize page)
+            your app in common.py should look like:
+import modal
+
+app = modal.App(
+    "my_app",
+    secrets=[
+        modal.Secret.from_name("huggingface"),
+        modal.Secret.from_name("my-wandb-secret"),
+    ],
+)
+       (BUTTON) Copy
+wandb_project: mistral-7b-samsum
+wandb_watch: gradients
+       (BUTTON) Copy
+
+   Once you have your trained model, you can easily deploy it to
+   production for serverless inference via Modal's web endpoint feature
+   (see example [88]here). Modal will handle all the auto-scaling for you,
+   so that you only pay for the compute you use!
+   [89]Fine-tune an LLM using Axolotl (ft. Llama 2, CodeLlama, Mistral,
+   etc.) [90]Prerequisites [91]Code overview [92]Training [93]Serving your
+   fine-tuned model [94]Making it your own [95]Dataset [96]Config
+   Modal logo © 2024
+   [97]About [98]Status [99]Changelog [100]Documentation [101]Slack
+   Community [102]Pricing [103]Examples
+

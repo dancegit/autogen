@@ -1,0 +1,422 @@
+Page: modal.com_files/modal.com/docs/examples/cloud_bucket_mount_loras.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+LoRAs Galore: Create a LoRA Playground with Modal, Gradio, and S3
+
+   This example shows how to mount an S3 bucket in a Modal app using
+   [63]CloudBucketMount. We will download a bunch of LoRA adapters from
+   the [64]HuggingFace Hub into our S3 bucket then read from that bucket,
+   on the fly, when doing inference.
+
+   By default, we use the [65]IKEA instructions LoRA as an example, which
+   produces the following image when prompted to generate "IKEA
+   instructions for building a GPU rig for deep learning":
+
+   IKEA instructions for building a GPU rig for deep learning
+
+   By the end of this example, we've deployed a "playground" app where
+   anyone with a browser can try out these custom models. That's the power
+   of Modal: custom, autoscaling AI applications, deployed in seconds. You
+   can try out our deployment [66]here.
+
+Basic setup
+
+import io
+import os
+from pathlib import Path
+from typing import Optional
+
+import modal
+
+   (BUTTON) Copy
+
+   You will need to have an S3 bucket and AWS credentials to run this
+   example. Refer to the documentation for the detailed [67]IAM
+   permissions those credentials will need.
+
+   After you are done creating a bucket and configuring IAM settings, you
+   now need to create a [68]Modal Secret. Navigate to the "Secrets" tab
+   and click on the AWS card, then fill in the fields with the AWS key and
+   secret created previously. Name the Secret s3-bucket-secret.
+bucket_secret = modal.Secret.from_name("s3-bucket-secret")
+
+MOUNT_PATH: Path = Path("/mnt/bucket")
+LORAS_PATH: Path = MOUNT_PATH / "loras/v5"
+
+   (BUTTON) Copy
+
+   Modal runs serverless functions inside containers. The environments
+   those functions run in are defined by the container Image. The line
+   below constructs an image with the dependencies we need -- no need to
+   install them locally.
+image = modal.Image.debian_slim().pip_install(
+    "huggingface_hub==0.21.4",
+    "transformers==4.38.2",
+    "diffusers==0.26.3",
+    "peft==0.9.0",
+    "accelerate==0.27.2",
+)
+
+with image.imports():
+    # we import these dependencies only inside the container
+    import diffusers
+    import huggingface_hub
+    import torch
+
+   (BUTTON) Copy
+
+   We attach the S3 bucket to all the Modal functions in this app by
+   mounting it on the filesystem they see, passing a CloudBucketMount to
+   the volumes dictionary argument. We can read and write to this mounted
+   bucket (almost) as if it were a local directory.
+app = modal.App(
+    "loras-galore",
+    image=image,
+    volumes={
+        MOUNT_PATH: modal.CloudBucketMount(
+            "modal-s3mount-test-bucket",
+            secret=bucket_secret,
+        )
+    },
+)
+
+   (BUTTON) Copy
+
+Acquiring LoRA weights
+
+   search_loras() will use the Hub API to search for LoRAs. We limit LoRAs
+   to a maximum size to avoid downloading very large model weights. We
+   went with 800 MiB, but feel free to adapt to what works best for you.
+@app.function()
+def search_loras(limit: int, max_model_size: int = 1024 * 1024 * 1024):
+    api = huggingface_hub.HfApi()
+
+    model_ids: list[str] = []
+    for model in api.list_models(
+        tags=["lora", "base_model:stabilityai/stable-diffusion-xl-base-1.0"],
+        library="diffusers",
+        sort="downloads",  # sort by most downloaded
+    ):
+        try:
+            model_size = 0
+            for file in api.list_files_info(model.id):
+                model_size += file.size
+
+        except huggingface_hub.utils.GatedRepoError:
+            print(f"gated model ({model.id}); skipping")
+            continue
+
+        # Skip models that are larger than file limit.
+        if model_size > max_model_size:
+            print(f"model {model.id} is too large; skipping")
+            continue
+
+        model_ids.append(model.id)
+        if len(model_ids) >= limit:
+            return model_ids
+
+    return model_ids
+
+   (BUTTON) Copy
+
+   We want to take the LoRA weights we found and move them from Hugging
+   Face onto S3, where they'll be accessible, at short latency and high
+   throughput, for our Modal functions. Downloading files in this mount
+   will automatically upload files to S3. To speed things up, we will run
+   this function in parallel using Modal's [69]map.
+@app.function()
+def download_lora(repository_id: str) -> Optional[str]:
+    os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+
+    # CloudBucketMounts will report 0 bytes of available space leading to many
+    # unnecessary warnings, so we patch the method that emits those warnings.
+    from huggingface_hub import file_download
+
+    file_download._check_disk_space = lambda x, y: False
+
+    repository_path = LORAS_PATH / repository_id
+    try:
+        # skip models we've already downloaded
+        if not repository_path.exists():
+            huggingface_hub.snapshot_download(
+                repository_id,
+                local_dir=repository_path.as_posix().replace(".", "_"),
+                allow_patterns=["*.safetensors"],
+            )
+        downloaded_lora = len(list(repository_path.rglob("*.safetensors"))) > 0
+    except OSError:
+        downloaded_lora = False
+    except FileNotFoundError:
+        downloaded_lora = False
+    if downloaded_lora:
+        return repository_id
+    else:
+        return None
+
+   (BUTTON) Copy
+
+Inference with LoRAs
+
+   We define a StableDiffusionLoRA class to organize our inference code.
+   We load Stable Diffusion XL 1.0 as a base model, then, when doing
+   inference, we load whichever LoRA the user specifies from the S3
+   bucket. For more on the decorators we use on the methods below to speed
+   up building and booting, check out the [70]container lifecycle hooks
+   guide.
+@app.cls(gpu="a10g")  # A10G GPUs are great for inference
+class StableDiffusionLoRA:
+    pipe_id = "stabilityai/stable-diffusion-xl-base-1.0"
+
+    @modal.build()  # when we setup our image, we download the base model
+    def build(self):
+        diffusers.DiffusionPipeline.from_pretrained(
+            self.pipe_id, torch_dtype=torch.float16
+        )
+
+    @modal.enter()  # when a new container starts, we load the base model into t
+he GPU
+    def load(self):
+        self.pipe = diffusers.DiffusionPipeline.from_pretrained(
+            self.pipe_id, torch_dtype=torch.float16
+        ).to("cuda")
+
+    @modal.method()  # at inference time, we pull in the LoRA weights and pass t
+he final model the prompt
+    def run_inference_with_lora(
+        self, lora_id: str, prompt: str, seed: int = 8888
+    ) -> bytes:
+        for file in (LORAS_PATH / lora_id).rglob("*.safetensors"):
+            self.pipe.load_lora_weights(lora_id, weight_name=file.name)
+            break
+
+        lora_scale = 0.9
+        image = self.pipe(
+            prompt,
+            num_inference_steps=10,
+            cross_attention_kwargs={"scale": lora_scale},
+            generator=torch.manual_seed(seed),
+        ).images[0]
+
+        buffer = io.BytesIO()
+        image.save(buffer, format="PNG")
+
+        return buffer.getvalue()
+
+   (BUTTON) Copy
+
+Try it locally!
+
+   To use our inference code from our local command line, we add a
+   local_entrypoint to our app. Run it using modal run
+   cloud_bucket_mount_loras.py, and pass --help to see the available
+   options.
+
+   The inference code will run on our machines, but the results will be
+   available on yours.
+@app.local_entrypoint()
+def main(
+    limit: int = 100,
+    example_lora: str = "ostris/ikea-instructions-lora-sdxl",
+    prompt: str = "IKEA instructions for building a GPU rig for deep learning",
+    seed: int = 8888,
+):
+    # Download LoRAs in parallel.
+    lora_model_ids = [example_lora]
+    lora_model_ids += search_loras.remote(limit)
+
+    downloaded_loras = []
+    for model in download_lora.map(lora_model_ids):
+        if model:
+            downloaded_loras.append(model)
+
+    print(f"downloaded {len(downloaded_loras)} loras => {downloaded_loras}")
+
+    # Run inference using one of the downloaded LoRAs.
+    byte_stream = StableDiffusionLoRA().run_inference_with_lora.remote(
+        example_lora, prompt, seed
+    )
+    dir = Path("/tmp/stable-diffusion-xl")
+    if not dir.exists():
+        dir.mkdir(exist_ok=True, parents=True)
+
+    output_path = dir / f"{as_slug(prompt.lower())}.png"
+    print(f"Saving it to {output_path}")
+    with open(output_path, "wb") as f:
+        f.write(byte_stream)
+
+   (BUTTON) Copy
+
+LoRA Exploradora: A hosted Gradio interface
+
+   Command line tools are cool, but we can do better! With the Gradio
+   library by Hugging Face, we can create a simple web interface around
+   our Python inference function, then use Modal to host it for anyone to
+   try out.
+
+   To set up your own, run modal deploy cloud_bucket_mount_loras.py and
+   navigate to the URL it prints out. If you're playing with the code, use
+   modal serve instead to see changes live.
+web_image = modal.Image.debian_slim().pip_install(
+    "fastapi[standard]==0.115.4", "gradio~=4.29.0", "pillow~=10.2.0"
+)
+
+
+@app.function(
+    image=web_image,
+    keep_warm=1,
+    container_idle_timeout=60 * 20,
+    # gradio requires sticky sessions
+    # so we limit the number of concurrent containers to 1
+    # and allow it to scale to 100 concurrent inputs
+    allow_concurrent_inputs=100,
+    concurrency_limit=1,
+)
+@modal.asgi_app()
+def ui():
+    """A simple Gradio interface around our LoRA inference."""
+    import io
+
+    import gradio as gr
+    from fastapi import FastAPI
+    from gradio.routes import mount_gradio_app
+    from PIL import Image
+
+    # determine which loras are available
+    lora_ids = [
+        f"{lora_dir.parent.stem}/{lora_dir.stem}"
+        for lora_dir in LORAS_PATH.glob("*/*")
+    ]
+
+    # pick one to be default, set a default prompt
+    default_lora_id = (
+        "ostris/ikea-instructions-lora-sdxl"
+        if "ostris/ikea-instructions-lora-sdxl" in lora_ids
+        else lora_ids[0]
+    )
+    default_prompt = (
+        "IKEA instructions for building a GPU rig for deep learning"
+        if default_lora_id == "ostris/ikea-instructions-lora-sdxl"
+        else "text"
+    )
+
+    # the simple path to making an app on Gradio is an Interface: a UI wrapped a
+round a function.
+    def go(lora_id: str, prompt: str, seed: int) -> Image:
+        return Image.open(
+            io.BytesIO(
+                StableDiffusionLoRA().run_inference_with_lora.remote(
+                    lora_id, prompt, seed
+                )
+            ),
+        )
+
+    iface = gr.Interface(
+        go,
+        inputs=[  # the inputs to go/our inference function
+            gr.Dropdown(
+                choices=lora_ids, value=default_lora_id, label=" LoRA ID"
+            ),
+            gr.Textbox(default_prompt, label="¨ Prompt"),
+            gr.Number(value=8888, label="² Random Seed"),
+        ],
+        outputs=gr.Image(label="Generated Image"),
+        # some extra bits to make it look nicer
+        title="LoRAs Galore",
+        description="# Try out some of the top custom SDXL models!"
+        "\n\nPick a LoRA finetune of SDXL from the dropdown, then prompt it to g
+enerate an image."
+        "\n\nCheck out [the code on GitHub](https://github.com/modal-labs/modal-
+examples/blob/main/10_integrations/cloud_bucket_mount_loras.py)"
+        " if you want to create your own version or just see how it works."
+        "\n\nPowered by [Modal](https://modal.com) ",
+        theme="soft",
+        allow_flagging="never",
+    )
+
+    return mount_gradio_app(app=FastAPI(), blocks=iface, path="/")
+
+
+def as_slug(name):
+    """Converts a string, e.g. a prompt, into something we can use as a filename
+."""
+    import re
+
+    s = str(name).strip().replace(" ", "-")
+    s = re.sub(r"(?u)[^-\w.]", "", s)
+    return s
+
+   (BUTTON) Copy
+   [71]LoRAs Galore: Create a LoRA Playground with Modal, Gradio, and S3
+   [72]Basic setup [73]Acquiring LoRA weights [74]Inference with LoRAs
+   [75]Try it locally! [76]LoRA Exploradora: A hosted Gradio interface
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [77]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [78]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 10_integrations/cloud_bucket_mount_loras.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [79]About [80]Status [81]Changelog [82]Documentation [83]Slack
+   Community [84]Pricing [85]Examples
+

@@ -1,0 +1,260 @@
+Page: modal.com_files/modal.com/docs/guide/cuda.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Using CUDA on Modal
+
+   Modal makes it easy to accelerate your workloads with datacenter-grade
+   NVIDIA GPUs.
+
+   To take advantage of the hardware, you need to use matching software:
+   the CUDA stack. This guide explains the components of that stack and
+   how to install them on Modal. For more on which GPUs are available on
+   Modal and how to choose a GPU for your use case, see [81]this guide.
+
+   Here's the tl;dr:
+     * The [82]NVIDIA Accelerated Graphics Driver for Linux-x86_64,
+       version 550.90.07, and [83]CUDA Driver API, version 12.4, are
+       already installed. You can call nvidia-smi or run compiled CUDA
+       programs from any Modal Function with access to a GPU.
+     * That means you can install many popular libraries like torch that
+       bundle their other CUDA dependencies [84]with a simple pip_install.
+     * For bleeding-edge libraries like flash-attn, you may need to
+       install CUDA dependencies manually. To make your life easier,
+       [85]use an existing image.
+
+What is CUDA?
+
+   When someone refers to "installing CUDA" or "using CUDA", they are
+   referring not to a library, but to a stack with multiple layers. Your
+   application code (and its dependencies) can interact with the stack at
+   different levels.
+
+   The CUDA stack
+
+   This leads to a lot of confusion. To help clear that up, the following
+   sections explain each component in detail.
+
+Level 0: Kernel-mode driver components
+
+   At the lowest level are the [86]kernel-mode driver components. The
+   Linux kernel is essentially a single program operating the entire
+   machine and all of its hardware. To add hardware to the machine, this
+   program is extended by loading new modules into it. These components
+   communicate directly with hardware -- in this case the GPU.
+
+   Because they are kernel modules, these driver components are tightly
+   integrated with the host operating system that runs your containerized
+   Modal Functions and are not something you can inspect or change
+   yourself.
+
+Level 1: User-mode driver API
+
+   All action in Linux that doesn't occur in the kernel occurs in [87]user
+   space. To talk to the kernel drivers from our user space programs, we
+   need user-mode driver components.
+
+   Most prominently, that includes:
+     * the [88]CUDA Driver API, a [89]shared object called libcuda.so.
+       This object exposes functions like [90]cuMemAlloc, for allocating
+       GPU memory.
+     * the [91]NVIDIA management library, libnvidia-ml.so, and its command
+       line interface [92]nvidia-smi. You can use these tools to check the
+       status of the system's GPU(s).
+
+   These components are installed on all Modal machines with access to
+   GPUs. Because they are user-level components, you can use them
+   directly:
+import modal
+
+app = modal.App()
+
+@app.function(gpu="any")
+def check_nvidia_smi():
+    import subprocess
+    output = subprocess.check_output(["nvidia-smi"], text=True)
+    assert "Driver Version: 550.90.07" in output
+    assert "CUDA Version: 12.4" in output
+    return output
+
+   (BUTTON) Copy
+
+Level 2: CUDA Toolkit
+
+   Wrapping the CUDA Driver API is the [93]CUDA Runtime API, the
+   libcudart.so shared library. This API includes functions like
+   [94]cudaLaunchKernel and is more commonly used in CUDA programs (see
+   [95]this HackerNews comment for color commentary on why). This shared
+   library is not installed by default on Modal.
+
+   The CUDA Runtime API is generally installed as part of the larger
+   [96]NVIDIA CUDA Toolkit, which includes the [97]NVIDIA CUDA compiler
+   driver (nvcc) and its toolchain and a number of useful goodies for
+   writing and debugging CUDA programs (cuobjdump, cudnn, profilers,
+   etc.).
+
+   Contemporary GPU-accelerated machine learning workloads like LLM
+   inference frequently make use of many components of the CUDA Toolkit,
+   such as the run-time compilation library [98]nvrtc.
+
+   So why aren't these components installed along with the drivers? A
+   compiled CUDA program can run without the CUDA Runtime API installed on
+   the system, by [99]statically linking the CUDA Runtime API into the
+   program binary, though this is fairly uncommon for CUDA-accelerated
+   Python programs. Additionally, older versions of these components are
+   needed for some applications and some application deployments even use
+   several versions at once. Both patterns are compatible with the host
+   machine driver provided on Modal.
+
+Install GPU-accelerated torch and transformers with pip_install
+
+   The components of the CUDA Toolkit can be installed via pip, via PyPI
+   packages like [100]nvidia-cuda-runtime-cu12 and
+   [101]nvidia-cuda-nvrtc-cu12. These components are listed as
+   dependencies of some popular GPU-accelerated Python libraries, like
+   torch.
+
+   Because Modal already includes the lower parts of the CUDA stack, you
+   can install these libraries with [102]the pip_install method of
+   modal.Image, just like any other Python library:
+image = modal.Image.debian_slim().pip_install("torch")
+
+
+@app.function(gpu="any", image=image)
+def run_torch():
+    import torch
+    has_cuda = torch.cuda.is_available()
+    print(f"It is {has_cuda} that torch can access CUDA")
+    return has_cuda
+
+   (BUTTON) Copy
+
+   Many libraries for running open-weights models, like transformers and
+   vllm, use torch under the hood and so can be installed in the same way:
+image = modal.Image.debian_slim().pip_install("transformers[torch]")
+image = image.apt_install("ffmpeg")  # for audio processing
+
+
+@app.function(gpu="any", image=image)
+def run_transformers():
+    from transformers import pipeline
+    transcriber = pipeline(model="openai/whisper-tiny.en", device="cuda")
+    result = transcriber("https://modal-cdn.com/mlk.flac")
+    print(result["text"])  # I have a dream that one day this nation will rise u
+p live out the true meaning of its creed
+
+   (BUTTON) Copy
+
+For more complex setups, use an officially-supported CUDA image
+
+   The disadvantage of installing the CUDA stack via pip is that many
+   other libraries that depend on its components being installed as normal
+   system packages cannot find them.
+
+   For these cases, we recommend you use an image that already has the
+   full CUDA stack installed as system packages and all environment
+   variables set correctly, like the [103]nvidia/cuda:*-devel-* images on
+   Docker Hub.
+
+   One library that requires this more involved installation process is
+   [104]flash-attn, which was, for a time, by far the fastest
+   implementation of Transformer multi-head attention:
+cuda_version = "12.4.0"  # should be no greater than host CUDA version
+flavor = "devel"  #  includes full CUDA toolkit
+operating_sys = "ubuntu22.04"
+tag = f"{cuda_version}-{flavor}-{operating_sys}"
+
+image = (
+    modal.Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.11")
+    .apt_install("git")
+    .pip_install(  # required to build flash-attn
+        "ninja",
+        "packaging",
+        "wheel",
+        "torch",
+    )
+    .run_commands(  # add flash-attn
+        "pip install flash-attn==2.5.8 --no-build-isolation"
+    )
+)
+
+
+@app.function(gpu="a10g", image=image)
+def run_flash_attn():
+    import torch
+    from flash_attn import flash_attn_func
+
+    batch_size, seqlen, nheads, headdim, nheads_k = 2, 4, 3, 16, 3
+
+    q = torch.randn(batch_size, seqlen, nheads, headdim, dtype=torch.float16).to
+("cuda")
+    k = torch.randn(batch_size, seqlen, nheads_k, headdim, dtype=torch.float16).
+to("cuda")
+    v = torch.randn(batch_size, seqlen, nheads_k, headdim, dtype=torch.float16).
+to("cuda")
+
+    out = flash_attn_func(q, k, v)
+    assert out.shape == (batch_size, seqlen, nheads, headdim)
+
+   (BUTTON) Copy
+
+   Make sure to choose a version of CUDA that is no greater than 12.4, the
+   version provided by the host machine. Older minor (12.*) versions are
+   guaranteed to be compatible with the host machine's driver, but older
+   major (11.*, 10.*, etc.) versions may not be.
+
+What next?
+
+   For more on accessing and choosing GPUs on Modal, check out [105]this
+   guide.
+
+   To see these installation patterns in action, check out these examples:
+     * [106]Fast multi-GPU inference with vLLM (Mixtral 8x7B)
+     * [107]Finetuning Stable Diffusion on pictures of your pet
+     * [108]Real-time Stable Diffusion XL Turbo
+
+   [109]Using CUDA on Modal [110]What is CUDA? [111]Level 0: Kernel-mode
+   driver components [112]Level 1: User-mode driver API [113]Level 2: CUDA
+   Toolkit [114]Install GPU-accelerated torch and transformers with
+   pip_install [115]For more complex setups, use an officially-supported
+   CUDA image [116]What next?
+   See it in action
+   [117]High-speed inference with vLLM
+   [118]Stable Diffusion XL Turbo
+   [119]Blender video renderer
+   Modal logo © 2024
+   [120]About [121]Status [122]Changelog [123]Documentation [124]Slack
+   Community [125]Pricing [126]Examples
+

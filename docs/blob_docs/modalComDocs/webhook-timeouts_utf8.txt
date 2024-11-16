@@ -1,0 +1,116 @@
+Page: modal.com_files/modal.com/docs/guide/webhook-timeouts.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Request timeouts
+
+   Web endpoint (a.k.a. webhook) requests should complete quickly, ideally
+   within a few seconds. All web endpoint function types
+   ([81]web_endpoint, asgi_app, wsgi_app) have a maximum HTTP request
+   timeout of 150 seconds enforced. However, the underlying Modal function
+   can have a longer [82]timeout.
+
+   In case the function takes more than 150 seconds to complete, a HTTP
+   status 303 redirect response is returned pointing at the original URL
+   with a special query parameter linking it that request. This is the
+   result URL for your function. Most web browsers allow for up to 20 such
+   redirects, effectively allowing up to 50 minutes (20 * 150 s) for web
+   endpoints before the request times out.
+
+   (Note: This does not work with requests that require [83]CORS, since
+   the response will not have been returned from your code in time for the
+   server to populate CORS headers.)
+
+   Some libraries and tools might require you to add a flag or option in
+   order to follow redirects automatically, e.g. curl -L ... or http
+   --follow ....
+
+   The result URL can be reloaded without triggering a new request. It
+   will block until the request completes.
+
+Polling solutions
+
+   Sometimes it can be useful to be able to poll for results rather than
+   wait for a long running HTTP request. The easiest way to do this is to
+   have your web endpoint spawn a modal.Function call and return the
+   function call id that another endpoint can use to poll the submitted
+   function's status. Here is an example:
+import fastapi
+
+import modal
+from modal.functions import FunctionCall
+
+
+image = modal.Image.debian_slim().pip_install("fastapi[standard]")
+app = modal.App(image=image)
+
+web_app = fastapi.FastAPI()
+
+
+@app.function()
+@modal.asgi_app()
+def fastapi_app():
+    return web_app
+
+
+@app.function()
+def slow_operation():
+    ...
+
+
+@web_app.post("/accept")
+async def accept_job(request: fastapi.Request):
+    call = slow_operation.spawn()
+    return {"call_id": call.object_id}
+
+
+@web_app.get("/result/{call_id}")
+async def poll_results(call_id: str):
+    function_call = FunctionCall.from_id(call_id)
+    try:
+        return function_call.get(timeout=0)
+    except TimeoutError:
+        http_accepted_code = 202
+        return fastapi.responses.JSONResponse({}, status_code=http_accepted_code
+)
+
+   (BUTTON) Copy
+
+   [84]Document OCR Web App is an example that uses this pattern.
+   [85]Request timeouts [86]Polling solutions
+   Modal logo © 2024
+   [87]About [88]Status [89]Changelog [90]Documentation [91]Slack
+   Community [92]Pricing [93]Examples
+

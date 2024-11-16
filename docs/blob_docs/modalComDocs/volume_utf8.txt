@@ -1,0 +1,248 @@
+Page: modal.com_files/modal.com/docs/reference/cli/volume.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal volume
+
+   Read and edit modal.Volume volumes.
+
+   Note: users of modal.NetworkFileSystem should use the modal nfs command
+   instead.
+
+   Usage:
+modal volume [OPTIONS] COMMAND [ARGS]...
+
+   (BUTTON) Copy
+
+   Options:
+     * --help: Show this message and exit.
+
+   Commands:
+     * create: Create a named, persistent modal.Volume.
+     * get: Download files from a modal.Volume object.
+     * list: List the details of all modal.Volume volumes in an
+       Environment.
+     * ls: List files and directories in a modal.Volume volume.
+     * put: Upload a file or directory to a modal.Volume.
+     * rm: Delete a file or directory from a modal.Volume.
+     * cp: Copy within a modal.Volume.
+     * delete: Delete a named, persistent modal.Volume.
+
+modal volume create
+
+   Create a named, persistent modal.Volume.
+
+   Usage:
+modal volume create [OPTIONS] NAME
+
+   (BUTTON) Copy
+
+   Arguments:
+     * NAME: [required]
+
+   Options:
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --version INTEGER: VolumeFS version. (Experimental)
+     * --help: Show this message and exit.
+
+modal volume get
+
+   Download files from a modal.Volume object.
+
+   If a folder is passed for REMOTE_PATH, the contents of the folder will
+   be downloaded recursively, including all subdirectories.
+
+   Example
+modal volume get <volume_name> logs/april-12-1.txt
+modal volume get <volume_name> / volume_data_dump
+
+   (BUTTON) Copy
+
+   Use "-" as LOCAL_DESTINATION to write file contents to standard output.
+
+   Usage:
+modal volume get [OPTIONS] VOLUME_NAME REMOTE_PATH [LOCAL_DESTINATION]
+
+   (BUTTON) Copy
+
+   Arguments:
+     * VOLUME_NAME: [required]
+     * REMOTE_PATH: [required]
+     * [LOCAL_DESTINATION]: [default: .]
+
+   Options:
+     * --force / --no-force: [default: no-force]
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --help: Show this message and exit.
+
+modal volume list
+
+   List the details of all modal.Volume volumes in an Environment.
+
+   Usage:
+modal volume list [OPTIONS]
+
+   (BUTTON) Copy
+
+   Options:
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --json / --no-json: [default: no-json]
+     * --help: Show this message and exit.
+
+modal volume ls
+
+   List files and directories in a modal.Volume volume.
+
+   Usage:
+modal volume ls [OPTIONS] VOLUME_NAME [PATH]
+
+   (BUTTON) Copy
+
+   Arguments:
+     * VOLUME_NAME: [required]
+     * [PATH]: [default: /]
+
+   Options:
+     * --json / --no-json: [default: no-json]
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --help: Show this message and exit.
+
+modal volume put
+
+   Upload a file or directory to a modal.Volume.
+
+   Remote parent directories will be created as needed.
+
+   Ending the REMOTE_PATH with a forward slash (/), it's assumed to be a
+   directory and the file will be uploaded with its current name under
+   that directory.
+
+   Usage:
+modal volume put [OPTIONS] VOLUME_NAME LOCAL_PATH [REMOTE_PATH]
+
+   (BUTTON) Copy
+
+   Arguments:
+     * VOLUME_NAME: [required]
+     * LOCAL_PATH: [required]
+     * [REMOTE_PATH]: [default: /]
+
+   Options:
+     * -f, --force: Overwrite existing files.
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --help: Show this message and exit.
+
+modal volume rm
+
+   Delete a file or directory from a modal.Volume.
+
+   Usage:
+modal volume rm [OPTIONS] VOLUME_NAME REMOTE_PATH
+
+   (BUTTON) Copy
+
+   Arguments:
+     * VOLUME_NAME: [required]
+     * REMOTE_PATH: [required]
+
+   Options:
+     * -r, --recursive: Delete directory recursively
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --help: Show this message and exit.
+
+modal volume cp
+
+   Copy within a modal.Volume. Copy source file to destination file or
+   multiple source files to destination directory.
+
+   Usage:
+modal volume cp [OPTIONS] VOLUME_NAME PATHS...
+
+   (BUTTON) Copy
+
+   Arguments:
+     * VOLUME_NAME: [required]
+     * PATHS...: [required]
+
+   Options:
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --help: Show this message and exit.
+
+modal volume delete
+
+   Delete a named, persistent modal.Volume.
+
+   Usage:
+modal volume delete [OPTIONS] VOLUME_NAME
+
+   (BUTTON) Copy
+
+   Arguments:
+     * VOLUME_NAME: Name of the modal.Volume to be deleted. Case sensitive
+       [required]
+
+   Options:
+     * -y, --yes: Run without pausing for confirmation.
+     * -e, --env TEXT: Environment to interact with.
+
+   If not specified, Modal will use the default environment of your
+   current profile, or the MODAL_ENVIRONMENT variable. Otherwise, raises
+   an error if the workspace has multiple environments.
+     * --help: Show this message and exit.
+
+   [71]modal volume [72]modal volume create [73]modal volume get [74]modal
+   volume list [75]modal volume ls [76]modal volume put [77]modal volume
+   rm [78]modal volume cp [79]modal volume delete
+   Modal logo © 2024
+   [80]About [81]Status [82]Changelog [83]Documentation [84]Slack
+   Community [85]Pricing [86]Examples
+

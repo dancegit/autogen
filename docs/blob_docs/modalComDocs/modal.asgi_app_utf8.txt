@@ -1,0 +1,63 @@
+Page: modal.com_files/modal.com/docs/reference/modal.asgi_app.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.asgi_app
+
+def asgi_app(
+    _warn_parentheses_missing=None,
+    *,
+    label: Optional[str] = None,  # Label for created endpoint. Final subdomain
+will be <workspace>--<label>.modal.run.
+    custom_domains: Optional[Iterable[str]] = None,  # Deploy this endpoint on a
+ custom domain.
+    wait_for_response: bool = True,  # DEPRECATED: this must always be True now
+) -> Callable[[Callable[..., Any]], _PartialFunction]:
+
+   (BUTTON) Copy
+
+   Decorator for registering an ASGI app with a Modal function.
+
+   Asynchronous Server Gateway Interface (ASGI) is a standard for Python
+   synchronous and asynchronous apps, supported by all popular Python web
+   libraries. This is an advanced decorator that gives full flexibility in
+   defining one or more web endpoints on Modal.
+
+   Usage:
+from typing import Callable
+
+@app.function()
+@modal.asgi_app()
+def create_asgi() -> Callable:
+    ...
+
+   (BUTTON) Copy
+
+   To learn how to use Modal with popular web frameworks, see the
+   [71]guide on web endpoints.
+   [72]modal.asgi_app
+   Modal logo © 2024
+   [73]About [74]Status [75]Changelog [76]Documentation [77]Slack
+   Community [78]Pricing [79]Examples
+

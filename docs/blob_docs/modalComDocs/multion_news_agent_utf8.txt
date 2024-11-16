@@ -1,0 +1,171 @@
+Page: modal.com_files/modal.com/docs/examples/multion_news_agent.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+MultiOn: Twitter News Agent
+
+   In this example, we use Modal to deploy a cron job that periodically
+   checks for AI news everyday and tweets it on Twitter using the MultiOn
+   Agent API.
+
+Import and define the app
+
+   Let's start off with imports, and defining a Modal app.
+import os
+
+import modal
+
+app = modal.App("multion-news-tweet-agent")
+
+   (BUTTON) Copy
+
+Searching for AI News
+
+   Let's also define an image that has the multion package installed, so
+   we can query the API.
+multion_image = modal.Image.debian_slim().pip_install("multion")
+
+   (BUTTON) Copy
+
+   We can now define our main entrypoint, that uses [63]MultiOn to scrape
+   AI news everyday and post it on our twitter account. We specify a
+   [64]schedule in the function decorator, which means that our function
+   will run automatically at the given interval.
+
+Set up MultiOn
+
+   [65]MultiOn is a next-gen Web Action Agent that can take actions on
+   behalf of the user. You can watch it in action here: [66]Youtube demo.
+
+   The MultiOn API enables building the next level of web automation &
+   custom AI agents capable of performing complex actions on the internet
+   with just a few lines of code.
+
+   To get started, first create an account with [67]MultiOn, install the
+   [68]MultiOn chrome extension and login to your Twitter account in your
+   browser. To use the API create a [69]MultiOn API Key and store it as a
+   modal secret on [70]the dashboard
+@app.function(
+    image=multion_image, secrets=[modal.Secret.from_name("MULTION_API_KEY")]
+)
+def news_tweet_agent():
+    # Import MultiOn
+    import multion
+
+    # Login to MultiOn using the API key
+    multion.login(use_api=True, multion_api_key=os.environ["MULTION_API_KEY"])
+
+    # Enable the Agent to run locally
+    multion.set_remote(False)
+
+    params = {
+        "url": "https://www.multion.ai",
+        "cmd": "Go to twitter (im already signed in). Search for the last tweets
+ i made (check the last 10 tweets). Remember them so then you can go a search fo
+r super interesting AI news. Search the news on up to 3 different sources. If yo
+u see that the source has not really interesting AI news or i already made a twe
+et about that, then go to a different one. When you finish the research, go and
+make a few small and interesting AI tweets with the info you gathered. Make sure
+ the tweet is small but informative and interesting for AI enthusiasts. Don't do
+ more than 5 tweets",
+        "maxSteps": 100,
+    }
+
+    response = multion.browse(params)
+
+    print(f"MultiOn response: {response}")
+
+   (BUTTON) Copy
+
+Test running
+
+   We can now test run our scheduled function as follows: modal run
+   multion_news_agent.py.py::app.news_tweet_agent
+
+Defining the schedule and deploying
+
+   Let's define a function that will be called by Modal every day.
+@app.function(schedule=modal.Cron("0 9 * * *"))
+def run_daily():
+    news_tweet_agent.remote()
+
+   (BUTTON) Copy
+
+   In order to deploy this as a persistent cron job, you can run modal
+   deploy multion_news_agent.py.
+
+   Once the job is deployed, visit the [71]apps page page to see its
+   execution history, logs and other stats.
+   [72]MultiOn: Twitter News Agent [73]Import and define the app
+   [74]Searching for AI News [75]Set up MultiOn [76]Test running
+   [77]Defining the schedule and deploying
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [78]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [79]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 10_integrations/multion_news_agent.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [80]About [81]Status [82]Changelog [83]Documentation [84]Slack
+   Community [85]Pricing [86]Examples
+

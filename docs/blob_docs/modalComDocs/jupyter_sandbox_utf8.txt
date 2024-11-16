@@ -1,0 +1,197 @@
+Page: modal.com_files/modal.com/docs/examples/jupyter_sandbox.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Run a Jupyter notebook in a Modal Sandbox
+
+   This example demonstrates how to run a Jupyter notebook in a Modal
+   [63]Sandbox.
+
+Setting up the Sandbox
+
+   All Sandboxes are associated with an App.
+
+   We look up our app by name, creating it if it doesn't exist.
+import json
+import secrets
+import time
+import urllib.request
+
+import modal
+
+app = modal.App.lookup("example-jupyter", create_if_missing=True)
+
+   (BUTTON) Copy
+
+   We define a custom Docker image that has Jupyter and some other
+   dependencies installed. Using a pre-defined image allows us to avoid
+   re-installing packages on every Sandbox startup.
+image = (
+    modal.Image.debian_slim(python_version="3.12").pip_install("jupyter~=1.1.0")
+    # .pip_install("pandas", "numpy", "seaborn")  # Any other deps
+)
+
+   (BUTTON) Copy
+
+Starting a Jupyter server in a Sandbox
+
+   Since we'll be exposing a Jupyter server over the Internet, we need to
+   create a password. We'll use secrets from the standard library to
+   create a token and then store it in a Modal [64]Secret.
+token = secrets.token_urlsafe(13)
+token_secret = modal.Secret.from_dict({"JUPYTER_TOKEN": token})
+
+   (BUTTON) Copy
+
+   Now, we can start our Sandbox. Note our use of the encrypted_ports
+   argument, which allows us to securely expose the Jupyter server to the
+   public Internet. We use modal.enable_output() to print the Sandbox's
+   image build logs to the console.
+JUPYTER_PORT = 8888
+
+print("  Creating sandbox")
+
+with modal.enable_output():
+    sandbox = modal.Sandbox.create(
+        "jupyter",
+        "notebook",
+        "--no-browser",
+        "--allow-root",
+        "--ip=0.0.0.0",
+        f"--port={JUPYTER_PORT}",
+        "--NotebookApp.allow_origin='*'",
+        "--NotebookApp.allow_remote_access=1",
+        encrypted_ports=[JUPYTER_PORT],
+        secrets=[token_secret],
+        timeout=5 * 60,  # 5 minutes
+        image=image,
+        app=app,
+        gpu=None,  # add a GPU if you need it!
+    )
+
+print(f"  Sandbox ID: {sandbox.object_id}")
+
+   (BUTTON) Copy
+
+Communicating with a Jupyter server
+
+   Next, we print out a URL that we can use to connect to our Jupyter
+   server. Note that we have to call [65]Sandbox.tunnels to get the URL.
+   The Sandbox is not publicly accessible until we do so.
+tunnel = sandbox.tunnels()[JUPYTER_PORT]
+url = f"{tunnel.url}/?token={token}"
+print(f"  Jupyter notebook is running at: {url}")
+
+   (BUTTON) Copy
+
+   Jupyter servers expose a [66]REST API that you can use for programmatic
+   manipulation.
+
+   For example, we can check the server's status by sending a GET request
+   to the /api/status endpoint.
+def is_jupyter_up():
+    try:
+        response = urllib.request.urlopen(
+            f"{tunnel.url}/api/status?token={token}"
+        )
+        if response.getcode() == 200:
+            data = json.loads(response.read().decode())
+            return data.get("started", False)
+    except Exception:
+        return False
+    return False
+
+   (BUTTON) Copy
+
+   We'll now wait for the Jupyter server to be ready by hitting that
+   endpoint.
+timeout = 60  # seconds
+start_time = time.time()
+while time.time() - start_time < timeout:
+    if is_jupyter_up():
+        print("  Jupyter is up and running!")
+        break
+    time.sleep(1)
+else:
+    print("  Timed out waiting for Jupyter to start.")
+
+   (BUTTON) Copy
+
+   You can now open this URL in your browser to access the Jupyter
+   notebook!
+
+   When you're done, terminate the sandbox using your [67]Modal dashboard
+   or by running Sandbox.from_id(sandbox.object_id).terminate().
+   [68]Run a Jupyter notebook in a Modal Sandbox [69]Setting up the
+   Sandbox [70]Starting a Jupyter server in a Sandbox [71]Communicating
+   with a Jupyter server
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [72]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [73]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+python 13_sandboxes/jupyter_sandbox.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [74]About [75]Status [76]Changelog [77]Documentation [78]Slack
+   Community [79]Pricing [80]Examples
+

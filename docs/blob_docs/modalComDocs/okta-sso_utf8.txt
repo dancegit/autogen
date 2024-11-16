@@ -1,0 +1,105 @@
+Page: modal.com_files/modal.com/docs/guide/okta-sso.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Okta SSO
+
+Prerequisites
+
+     * A Workspace that's on an [81]Enterprise plan
+     * Admin access to the Workspace you want to configure with Okta
+       Single-Sign-On (SSO)
+     * Admin privileges for your Okta Organization
+
+Supported features
+
+     * IdP-initiated SSO
+     * SP-initiated SSO
+     * Just-In-Time account provisioning
+
+   For more information on the listed features, visit the [82]Okta
+   Glossary.
+
+Configuration
+
+Read this before you enable "Require SSO"
+
+   Enabling "Require SSO" will force all users to sign in via Okta. Ensure
+   that you have admin access to your Modal Workspace through an Okta
+   account before enabling.
+
+Configuration steps
+
+Step 1: Add Modal app to Okta Applications
+
+       Okta browse application
+       workspace. See [83]Step 2 if you're unsure what this is. Okta add
+       workspace
+
+Step 2: Link your Workspace to Okta Modal application
+
+       "Sign On" tab). Okta metadata url
+       Management page (e.g. https://modal.com/settings/[workspace
+       name]/workspace-management)
+
+Step 3: Assign users / groups and test the integration
+
+       groups.
+
+   Okta Assign Users
+       in the previous step.
+       Single Sign-On.
+
+Notes
+
+   The following SAML attributes are used by the integration:
+     Name        Value
+   email     user.email
+   firstName user.firstName
+   lastName  user.lastName
+
+SP-initiated SSO
+
+   The sign-in process is initiated from [85]https://modal.com/login/sso
+
+   [86]Okta SSO [87]Prerequisites [88]Supported features [89]Configuration
+   [90]Read this before you enable "Require SSO" [91]Configuration steps
+   [92]Step 1: Add Modal app to Okta Applications [93]Step 2: Link your
+   Workspace to Okta Modal application [94]Step 3: Assign users / groups
+   and test the integration [95]Notes [96]SP-initiated SSO
+   Modal logo © 2024
+   [97]About [98]Status [99]Changelog [100]Documentation [101]Slack
+   Community [102]Pricing [103]Examples
+

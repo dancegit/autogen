@@ -1,0 +1,211 @@
+Page: modal.com_files/modal.com/docs/guide/dynamic-batching.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Dynamic batching (beta)
+
+   Modal's @batched feature allows you to accumulate requests and process
+   them in dynamically-sized batches, rather than one-by-one.
+
+   Batching increases throughput at a potential cost to latency. Batched
+   requests can share resources and reuse work, reducing the time and cost
+   per request. Batching is particularly useful for GPU-accelerated
+   machine learning workloads, as GPUs are designed to maximize throughput
+   and are frequently bottlenecked on shareable resources, like weights
+   stored in memory.
+
+   Static batching can lead to unbounded latency, as the function waits
+   for a fixed number of requests to arrive. Modal's dynamic batching
+   waits for the lesser of a fixed time or a fixed number of requests
+   before executing, maximizing the throughput benefit of batching while
+   minimizing the latency penalty.
+
+Enable dynamic batching with @batched
+
+   To enable dynamic batching, apply the [81]@modal.batched decorator to
+   the target Python function. Then, wrap it in @app.function() and run it
+   on Modal, and the inputs will be accumulated and processed in batches.
+
+   Here's what that looks like:
+import modal
+
+app = modal.App()
+
+@app.function()
+@modal.batched(max_batch_size=2, wait_ms=1000)
+async def batch_add(xs: list[int], ys: list[int]) -> list[int]:
+    return [x + y for x, y in zip(xs, ys)]
+
+   (BUTTON) Copy
+
+   When you invoke a function decorated with @batched, you invoke it
+   asynchronously on individual inputs. Outputs are returned where they
+   were invoked.
+
+   For instance, the code below invokes the decorated batch_add function
+   above three times, but batch_add only executes twice:
+@app.local_entrypoint()
+async def main():
+    inputs = [(1, 300), (2, 200), (3, 100)]
+    async for result in batch_add.starmap.aio(inputs):
+        print(f"Sum: {result}")
+        # Sum: 301
+        # Sum: 202
+        # Sum: 103
+
+   (BUTTON) Copy
+
+   The first time it is executed with xs batched to [1, 2] and ys batched
+   to [300, 200]. After about a one second delay, it is executed with xs
+   batched to [3] and ys batched to [100]. The result is an iterator that
+   yields 301, 202, and 101.
+
+Use @batched with functions that take and return lists
+
+   For a Python function to be compatible with @modal.batched, it must
+   adhere to the following rules:
+     * The inputs to the function must be lists. In the example above, we
+       pass xs and ys, which are both lists of ints.
+     * The function must return a list. In the example above, the function
+       returns a list of sums.
+     * The lengths of all the input lists and the output list must be the
+       same. In the example above, if L == len(xs) == len(ys), then L ==
+       len(batch_add(xs, ys)).
+
+Modal Cls methods are compatible with dynamic batching
+
+   Methods on Modal [82]Clses also support dynamic batching.
+import modal
+
+app = modal.App()
+
+@app.cls()
+class BatchedClass():
+    @modal.batched(max_batch_size=2, wait_ms=1000)
+    async def batch_add(self, xs: list[int], ys: list[int]) -> list[int]:
+        return [x + y for x, y in zip(xs, ys)]
+
+   (BUTTON) Copy
+
+   One additional rule applies to classes with Batched Methods:
+     * If a class has a Batched Method, it cannot have other Batched
+       Methods or [83]Methods.
+
+Configure the wait time and batch size of dynamic batches
+
+   The @batched decorator takes in two required configuration parameters:
+     * max_batch_size limits the number of inputs combined into a single
+       batch.
+     * wait_ms limits the amount of time the Function waits for more
+       inputs after the first input is received.
+
+   The first invocation of the Batched Function initiates a new batch, and
+   subsequent calls add requests to this ongoing batch. If max_batch_size
+   is reached, the batch immediately executes. If the max_batch_size is
+   not met but wait_ms has passed since the first request was added to the
+   batch, the unfilled batch is executed.
+
+Selecting a batch configuration
+
+   To optimize the batching configurations for your application, consider
+   the following heuristics:
+     * Set max_batch_size to the largest value your function can handle,
+       so you can amortize and parallelize as much work as possible.
+     * Set wait_ms to the difference between your targeted latency and the
+       execution time. Most applications have a targeted latency, and this
+       allows the latency of any request to stay within that limit.
+
+Serve @modal.web_endpoints with dynamic batching
+
+   Here's a simple example of serving a Function that batches requests
+   dynamically with a [84]@modal.web_endpoint. Run [85]modal serve, submit
+   requests to the endpoint, and the Function will batch your requests on
+   the fly.
+import modal
+
+app = modal.App(image=modal.Image.debian_slim().pip_install("fastapi"))
+
+@app.function()
+@modal.batched(max_batch_size=2, wait_ms=1000)
+async def batch_add(xs: list[int], ys: list[int]) -> list[int]:
+    return [x + y for x, y in zip(xs, ys)]
+
+
+@app.function()
+@modal.web_endpoint(method="POST", docs=True)
+async def add(body: dict[str, int]) -> dict[str, int]:
+    result = await batch_add.remote.aio(body["x"], body["y"])
+    return {"result": result}
+
+   (BUTTON) Copy
+
+   Now, you can submit requests to the web endpoint and process them in
+   batches. For instance, the three requests in the following example,
+   which might be requests from concurrent clients in a real deployment,
+   will be batched into two executions:
+import asyncio
+import aiohttp
+
+async def send_post_request(session, url, data):
+    async with session.post(url, json=data) as response:
+        return await response.json()
+
+async def main():
+    # Enter the URL of your web endpoint here
+    url = "https://workspace--app-name-endpoint-name.modal.run"
+
+    async with aiohttp.ClientSession() as session:
+        # Submit three requests asynchronously
+        tasks = [
+            send_post_request(session, url, {"x": 1, "y": 300}),
+            send_post_request(session, url, {"x": 2, "y": 200}),
+            send_post_request(session, url, {"x": 3, "y": 100}),
+        ]
+        results = await asyncio.gather(*tasks)
+        for result in results:
+            print(f"Sum: {result['result']}")
+
+asyncio.run(main())
+
+   (BUTTON) Copy
+   [86]Dynamic batching (beta) [87]Enable dynamic batching with @batched
+   [88]Use @batched with functions that take and return lists [89]Modal
+   Cls methods are compatible with dynamic batching [90]Configure the wait
+   time and batch size of dynamic batches [91]Selecting a batch
+   configuration [92]Serve @modal.web_endpoints with dynamic batching
+   Modal logo © 2024
+   [93]About [94]Status [95]Changelog [96]Documentation [97]Slack
+   Community [98]Pricing [99]Examples
+

@@ -1,0 +1,176 @@
+Page: aider.chat_files/aider.chat/docs/git.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+
+Git integration
+
+   Aider works best with code that is part of a git repo. Aider is tightly
+   integrated with git, which makes it easy to:
+     * Use the /undo command to instantly undo any AI changes that you
+       don't like.
+     * Go back in the git history to review the changes that aider made to
+       your code
+     * Manage a series of aider's changes on a git branch
+
+   Aider uses git in these ways:
+     * It asks to create a git repo if you launch it in a directory
+       without one.
+     * Whenever aider edits a file, it commits those changes with a
+       descriptive commit message. This makes it easy to undo or review
+       aider's changes.
+     * Aider takes special care before editing files that already have
+       uncommitted changes (dirty files). Aider will first commit any
+       preexisting changes with a descriptive commit message. This keeps
+       your edits separate from aider's edits, and makes sure you never
+       lose your work if aider makes an inappropriate change.
+
+In-chat commands
+
+   Aider also allows you to use [85]in-chat commands to perform git
+   operations:
+     * /diff will show all the file changes since the last message you
+       sent.
+     * /undo will undo and discard the last change.
+     * /commit to commit all dirty changes with a sensible commit message.
+     * /git will let you run raw git commands to do more complex
+       management of your git history.
+
+   You can also manage your git history outside of aider with your
+   preferred git tools.
+
+Disabling git integration
+
+   While it is not recommended, you can disable aider's use of git in a
+   few ways:
+     * --no-auto-commits will stop aider from git committing each of its
+       changes.
+     * --no-dirty-commits will stop aider from committing dirty files
+       before applying its edits.
+     * --no-git will completely stop aider from using git on your files.
+       You should ensure you are keeping sensible backups of the files you
+       are working with.
+
+Commit messages
+
+   Aider sends the --weak-model a copy of the diffs and the chat history
+   and asks it to produce a commit message. By default, aider creates
+   commit messages which follow [86]Conventional Commits.
+
+   You can customize the [87]commit prompt with the --commit-prompt
+   option. You can place that on the command line, or [88]configure it via
+   a config file or environment variables.
+
+Commit attribution
+
+   Aider marks commits that it either authored or committed.
+     * If aider authored the changes in a commit, they will have "(aider)"
+       appended to the git author and git committer name metadata.
+     * If aider simply committed changes (found in dirty files), the
+       commit will have "(aider)" appended to the git committer name
+       metadata.
+
+   You can use --no-attribute-author and --no-attribute-committer to
+   disable modification of the git author and committer name fields.
+
+   Additionally, you can use the following options to prefix commit
+   messages:
+     * --attribute-commit-message-author: Prefix commit messages with
+       `aider: ` if aider authored the changes.
+     * --attribute-commit-message-committer: Prefix all commit messages
+       with `aider: `, regardless of whether aider authored the changes or
+       not.
+
+   Both of these options are disabled by default, but can be useful for
+   easily identifying changes made by aider.
+

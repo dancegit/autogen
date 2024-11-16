@@ -1,0 +1,305 @@
+Page: modal.com_files/modal.com/docs/reference/modal.Volume.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.Volume
+
+class Volume(modal.object.Object)
+
+   (BUTTON) Copy
+
+   A writeable volume that can be used to share files between one or more
+   Modal functions.
+
+   The contents of a volume is exposed as a filesystem. You can use it to
+   share data between different functions, or to persist durable state
+   across several instances of the same function.
+
+   Unlike a networked filesystem, you need to explicitly reload the volume
+   to see changes made since it was mounted. Similarly, you need to
+   explicitly commit any changes you make to the volume for the changes to
+   become visible outside the current container.
+
+   Concurrent modification is supported, but concurrent modifications of
+   the same files should be avoided! Last write wins in case of concurrent
+   modification of the same file - any data the last writer didn't have
+   when committing changes will be lost!
+
+   As a result, volumes are typically not a good fit for use cases where
+   you need to make concurrent modifications to the same file (nor is
+   distributed file locking supported).
+
+   Volumes can only be reloaded if there are no open files for the volume
+   - attempting to reload with open files will result in an error.
+
+   Usage
+import modal
+
+app = modal.App()
+volume = modal.Volume.from_name("my-persisted-volume", create_if_missing=True)
+
+@app.function(volumes={"/root/foo": volume})
+def f():
+    with open("/root/foo/bar.txt", "w") as f:
+        f.write("hello")
+    volume.commit()  # Persist changes
+
+@app.function(volumes={"/root/foo": volume})
+def g():
+    volume.reload()  # Fetch latest changes
+    with open("/root/foo/bar.txt", "r") as f:
+        print(f.read())
+
+   (BUTTON) Copy
+def __init__(self, *args, **kwargs):
+
+   (BUTTON) Copy
+
+from_name
+
+@staticmethod
+def from_name(
+    label: str,
+    namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
+    environment_name: Optional[str] = None,
+    create_if_missing: bool = False,
+    version: "typing.Optional[modal_proto.api_pb2.VolumeFsVersion.ValueType]" =
+None,
+) -> "_Volume":
+
+   (BUTTON) Copy
+
+   Reference a Volume by name, creating if necessary.
+
+   In contrast to modal.Volume.lookup, this is a lazy method that defers
+   hydrating the local object with metadata from Modal servers until the
+   first time is is actually used.
+vol = modal.Volume.from_name("my-volume", create_if_missing=True)
+
+app = modal.App()
+
+# Volume refers to the same object, even across instances of `app`.
+@app.function(volumes={"/data": vol})
+def f():
+    pass
+
+   (BUTTON) Copy
+
+ephemeral
+
+@classmethod
+@contextmanager
+def ephemeral(
+    cls: Type["_Volume"],
+    client: Optional[_Client] = None,
+    environment_name: Optional[str] = None,
+    version: "typing.Optional[modal_proto.api_pb2.VolumeFsVersion.ValueType]" =
+None,
+    _heartbeat_sleep: float = EPHEMERAL_OBJECT_HEARTBEAT_SLEEP,
+) -> Iterator["_Volume"]:
+
+   (BUTTON) Copy
+
+   Creates a new ephemeral volume within a context manager:
+
+   Usage:
+with Volume.ephemeral() as vol:
+    assert vol.listdir() == []
+
+async with Volume.ephemeral() as vol:
+    assert await vol.listdir() == []
+
+   (BUTTON) Copy
+
+lookup
+
+@staticmethod
+def lookup(
+    label: str,
+    namespace=api_pb2.DEPLOYMENT_NAMESPACE_WORKSPACE,
+    client: Optional[_Client] = None,
+    environment_name: Optional[str] = None,
+    create_if_missing: bool = False,
+    version: "typing.Optional[modal_proto.api_pb2.VolumeFsVersion.ValueType]" =
+None,
+) -> "_Volume":
+
+   (BUTTON) Copy
+
+   Lookup a named Volume.
+
+   In contrast to modal.Volume.from_name, this is an eager method that
+   will hydrate the local object with metadata from Modal servers.
+vol = modal.Volume.lookup("my-volume")
+print(vol.listdir("/"))
+
+   (BUTTON) Copy
+
+commit
+
+@live_method
+def commit(self):
+
+   (BUTTON) Copy
+
+   Commit changes to the volume.
+
+   If successful, the changes made are now persisted in durable storage
+   and available to other containers accessing the volume.
+
+reload
+
+@live_method
+def reload(self):
+
+   (BUTTON) Copy
+
+   Make latest committed state of volume available in the running
+   container.
+
+   Any uncommitted changes to the volume, such as new or modified files,
+   may implicitly be committed when reloading.
+
+   Reloading will fail if there are open files for the volume.
+
+iterdir
+
+@live_method_gen
+def iterdir(self, path: str, *, recursive: bool = True) -> Iterator[FileEntry]:
+
+   (BUTTON) Copy
+
+   Iterate over all files in a directory in the volume.
+
+   Passing a directory path lists all files in the directory. For a file
+   path, return only that file's description. If recursive is set to True,
+   list all files and folders under the path recursively.
+
+listdir
+
+@live_method
+def listdir(self, path: str, *, recursive: bool = False) -> List[FileEntry]:
+
+   (BUTTON) Copy
+
+   List all files under a path prefix in the modal.Volume.
+
+   Passing a directory path lists all files in the directory. For a file
+   path, return only that file's description. If recursive is set to True,
+   list all files and folders under the path recursively.
+
+read_file
+
+@live_method_gen
+def read_file(self, path: str) -> Iterator[bytes]:
+
+   (BUTTON) Copy
+
+   Read a file from the modal.Volume.
+
+   Example:
+vol = modal.Volume.lookup("my-modal-volume")
+data = b""
+for chunk in vol.read_file("1mb.csv"):
+    data += chunk
+print(len(data))  # == 1024 * 1024
+
+   (BUTTON) Copy
+
+remove_file
+
+@live_method
+def remove_file(self, path: str, recursive: bool = False) -> None:
+
+   (BUTTON) Copy
+
+   Remove a file or directory from a volume.
+
+copy_files
+
+@live_method
+def copy_files(self, src_paths: Sequence[str], dst_path: str) -> None:
+
+   (BUTTON) Copy
+
+   Copy files within the volume from src_paths to dst_path. The semantics
+   of the copy operation follow those of the UNIX cp command.
+
+   The src_paths parameter is a list. If you want to copy a single file,
+   you should pass a list with a single element.
+
+   src_paths and dst_path should refer to the desired location inside the
+   volume. You do not need to prepend the volume mount path.
+
+   Usage
+vol = modal.Volume.lookup("my-modal-volume")
+
+vol.copy_files(["bar/example.txt"], "bar2")  # Copy files to another directory
+vol.copy_files(["bar/example.txt"], "bar/example2.txt")  # Rename a file by copy
+ing
+
+   (BUTTON) Copy
+
+   Note that if the volume is already mounted on the Modal function, you
+   should use normal filesystem operations like os.rename() and then
+   commit() the volume. The copy_files() method is useful when you don't
+   have the volume mounted as a filesystem, e.g. when running a script on
+   your local computer.
+
+batch_upload
+
+@live_method
+def batch_upload(self, force: bool = False) -> "_VolumeUploadContextManager":
+
+   (BUTTON) Copy
+
+   Initiate a batched upload to a volume.
+
+   To allow overwriting existing files, set force to True (you cannot
+   overwrite existing directories with uploaded files regardless).
+
+   Example:
+vol = modal.Volume.lookup("my-modal-volume")
+
+with vol.batch_upload() as batch:
+    batch.put_file("local-path.txt", "/remote-path.txt")
+    batch.put_directory("/local/directory/", "/remote/directory")
+    batch.put_file(io.BytesIO(b"some data"), "/foobar")
+
+   (BUTTON) Copy
+
+delete
+
+@staticmethod
+def delete(label: str, client: Optional[_Client] = None, environment_name: Optio
+nal[str] = None):
+
+   (BUTTON) Copy
+   [71]modal.Volume [72]from_name [73]ephemeral [74]lookup [75]commit
+   [76]reload [77]iterdir [78]listdir [79]read_file [80]remove_file
+   [81]copy_files [82]batch_upload [83]delete
+   Modal logo © 2024
+   [84]About [85]Status [86]Changelog [87]Documentation [88]Slack
+   Community [89]Pricing [90]Examples
+

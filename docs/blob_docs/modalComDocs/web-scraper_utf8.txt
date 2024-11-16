@@ -1,0 +1,298 @@
+Page: modal.com_files/modal.com/docs/examples/web-scraper.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+A simple web scraper
+
+   In this guide we'll introduce you to Modal by writing a simple web
+   scraper. We'll explain the foundations of a Modal application step by
+   step.
+
+Set up your first Modal app
+
+   Modal apps are orchestrated as Python scripts, but can theoretically
+   run anything you can run in a container. To get you started, make sure
+   to install the latest Modal Python package and set up an API token (the
+   first two steps of the [62]Getting started page).
+
+Finding links
+
+   First, we create an empty Python file scrape.py. This file will contain
+   our application code. Lets write some basic Python code to fetch the
+   contents of a web page and print the links (href attributes) it finds
+   in the document:
+import re
+import sys
+import urllib.request
+
+
+def get_links(url):
+    response = urllib.request.urlopen(url)
+    html = response.read().decode("utf8")
+    links = []
+    for match in re.finditer('href="(.*?)"', html):
+        links.append(match.group(1))
+    return links
+
+
+if __name__ == "__main__":
+    links = get_links(sys.argv[1])
+    print(links)
+
+   (BUTTON) Copy
+
+   Now obviously this is just pure standard library Python code, and you
+   can run it on your machine:
+$ python scrape.py http://example.com
+
+   (BUTTON) Copy
+
+Running it in Modal
+
+   To make the get_links function run in Modal instead of your local
+   machine, all you need to do is
+     * Import modal
+     * Create a [63]modal.App instance
+     * Add a @app.function() annotation to your function
+     * Replace the if __name__ == "__main__": block with a function
+       decorated with [64]@app.local_entrypoint()
+     * Call get_links using get_links.remote
+
+import re
+import urllib.request
+import modal
+
+app = modal.App(name="link-scraper")
+
+
+@app.function()
+def get_links(url):
+    ...
+
+
+@app.local_entrypoint()
+def main(url):
+    links = get_links.remote(url)
+    print(links)
+
+   (BUTTON) Copy
+
+   You can now run this with the Modal CLI, using modal run instead of
+   python. This time, you'll see additional progress indicators while the
+   script is running:
+$ modal run scrape.py --url http://example.com
+X Initialized.
+X Created objects.
+X App completed.
+
+   (BUTTON) Copy
+
+Custom containers
+
+   In the code above we make use of the Python standard library urllib
+   library. This works great for static web pages, but many pages these
+   days use javascript to dynamically load content, which wouldn't appear
+   in the loaded html file. Let's use the [65]Playwright package to
+   instead launch a headless Chromium browser which can interpret any
+   javascript that might be on the page.
+
+   We can pass custom container images (defined using [66]modal.Image) to
+   the @app.function() decorator. We'll make use of the
+   modal.Image.debian_slim pre-bundled image add the shell commands to
+   install Playwright and its dependencies:
+playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
+    "apt-get update",
+    "apt-get install -y software-properties-common",
+    "apt-add-repository non-free",
+    "apt-add-repository contrib",
+    "pip install playwright==1.30.0",
+    "playwright install-deps chromium",
+    "playwright install chromium",
+)
+
+   (BUTTON) Copy
+
+   Note that we don't have to install Playwright or Chromium on our
+   development machine since this will all run in Modal. We can now modify
+   our get_links function to make use of the new tools:
+@app.function(image=playwright_image)
+async def get_links(cur_url: str):
+    from playwright.async_api import async_playwright
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+        await page.goto(cur_url)
+        links = await page.eval_on_selector_all("a[href]", "elements => elements
+.map(element => element.href)")
+        await browser.close()
+
+    print("Links", links)
+    return links
+
+   (BUTTON) Copy
+
+   Since Playwright has a nice async interface, we'll redeclare our
+   get_links function as async (Modal works with both sync and async
+   functions).
+
+   The first time you run the function after making this change, you'll
+   notice that the output first shows the progress of building the custom
+   image you specified, after which your function runs like before. This
+   image is then cached so that on subsequent runs of the function it will
+   not be rebuilt as long as the image definition is the same.
+
+Scaling out
+
+   So far, our script only fetches the links for a single page. What if we
+   want to scrape a large list of links in parallel?
+
+   We can do this easily with Modal, because of some magic: the function
+   we wrapped with the @app.function() decorator is no longer an ordinary
+   function, but a Modal [67]Function object. This means it comes with a
+   map property built in, that lets us run this function for all inputs in
+   parallel, scaling up to as many workers as needed.
+
+   Let's change our code to scrape all urls we feed to it in parallel:
+@app.local_entrypoint()
+def main():
+    urls = ["http://modal.com", "http://github.com"]
+    for links in get_links.map(urls):
+        for link in links:
+            print(link)
+
+   (BUTTON) Copy
+
+Schedules and deployments
+
+   Let's say we want to log the scraped links daily. We move the print
+   loop into its own Modal function and annotate it with a
+   modal.Period(days=1) schedule - indicating we want to run it once per
+   day. Since the scheduled function will not run from our command line,
+   we also add a hard-coded list of links to crawl for now. In a more
+   realistic setting we could read this from a database or other
+   accessible data source.
+@app.function(schedule=modal.Period(days=1))
+def daily_scrape():
+    urls = ["http://modal.com", "http://github.com"]
+    for links in get_links.map(urls):
+        for link in links:
+            print(link)
+
+   (BUTTON) Copy
+
+   To deploy this as a permanent app, run the command
+modal deploy scrape.py
+
+   (BUTTON) Copy
+
+   Running this command deploys this function and then closes immediately.
+   We can see the deployment and all of its runs, including the printed
+   links, on the Modal [68]Apps page. Rerunning the script will redeploy
+   the code with any changes you have made - overwriting an existing
+   deploy with the same name ("link-scraper" in this case).
+
+Integrations and Secrets
+
+   Instead of looking at the links in the run logs of our deployments,
+   let's say we wanted to post them to our #scraped-links Slack channel.
+   To do this, we can make use of the [69]Slack API and the slack-sdk
+   [70]PyPI package.
+
+   The Slack SDK WebClient requires an API token to get access to our
+   Slack Workspace, and since it's bad practice to hardcode credentials
+   into application code we make use of Modal's Secrets. Secrets are
+   snippets of data that will be injected as environment variables in the
+   containers running your functions.
+
+   The easiest way to create Secrets is to go to the [71]Secrets section
+   of modal.com. You can both create a free-form secret with any
+   environment variables, or make use of presets for common services.
+   We'll use the Slack preset and after filling in the necessary
+   information we are presented with a snippet of code that can be used to
+   post to Slack using our credentials:
+import os
+slack_sdk_image = modal.Image.debian_slim().pip_install("slack-sdk")
+
+
+@app.function(image=slack_sdk_image, secrets=[modal.Secret.from_name("my-slack-s
+ecret")])
+def bot_token_msg(channel, message):
+    import slack_sdk
+    client = slack_sdk.WebClient(token=os.environ["SLACK_BOT_TOKEN"])
+    client.chat_postMessage(channel=channel, text=message)
+
+   (BUTTON) Copy
+
+   Copy that code as-is, then amend the daily_scrape function to call
+   bot_token_msg.
+@app.function(schedule=modal.Period(days=1))
+def daily_scrape():
+    urls = ["http://modal.com", "http://github.com"]
+    for links in get_links.map(urls):
+        for link in links:
+            bot_token_msg.remote("scraped-links", link)
+
+   (BUTTON) Copy
+
+   Note that we are freely making function calls across completely
+   different container images, as if they were regular Python functions in
+   the same program.
+
+   We rerun the script which overwrites the old deploy with our updated
+   code, and now we get a daily feed of our scraped links in our Slack
+   channel
+
+Summary
+
+   We have shown how you can use Modal to develop distributed Python data
+   applications using custom containers. Through simple constructs we were
+   able to add parallel execution. With the change of a single line of
+   code were were able to go from experimental development code to a
+   deployed application. The full code of this example can be found
+   [72]here. We hope this overview gives you a glimpse of what you are
+   able to build using Modal.
+   [73]A simple web scraper [74]Set up your first Modal app [75]Finding
+   links [76]Running it in Modal [77]Custom containers [78]Scaling out
+   [79]Schedules and deployments [80]Integrations and Secrets [81]Summary
+   Modal logo © 2024
+   [82]About [83]Status [84]Changelog [85]Documentation [86]Slack
+   Community [87]Pricing [88]Examples
+

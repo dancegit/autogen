@@ -1,0 +1,150 @@
+Page: modal.com_files/modal.com/docs/reference/modal.io_streams.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal.io_streams
+
+modal.io_streams.StreamReader
+
+class StreamReader(object)
+
+   (BUTTON) Copy
+
+   Provides an interface to buffer and fetch logs from a stream (stdout or
+   stderr).
+
+   As an asynchronous iterable, the object supports the async for
+   statement.
+
+   Usage
+from modal import Sandbox
+
+sandbox = Sandbox.create(
+    "bash",
+    "-c",
+    "for i in $(seq 1 10); do echo foo; sleep 0.1; done",
+    app=app,
+)
+for message in sandbox.stdout:
+    print(f"Message: {message}")
+
+   (BUTTON) Copy
+
+file_descriptor
+
+@property
+def file_descriptor(self):
+
+   (BUTTON) Copy
+
+read
+
+def read(self) -> str:
+
+   (BUTTON) Copy
+
+   Fetch and return contents of the entire stream. If EOF was received,
+   return an empty string.
+
+   Usage
+from modal import Sandbox
+
+sandbox = Sandbox.create("echo", "hello", app=app)
+sandbox.wait()
+
+print(sandbox.stdout.read())
+
+   (BUTTON) Copy
+
+modal.io_streams.StreamWriter
+
+class StreamWriter(object)
+
+   (BUTTON) Copy
+
+   Provides an interface to buffer and write logs to a sandbox or
+   container process stream (stdin).
+def __init__(self, object_id: str, object_type: Literal["sandbox", "container_pr
+ocess"], client: _Client):
+
+   (BUTTON) Copy
+
+write
+
+def write(self, data: Union[bytes, bytearray, memoryview, str]):
+
+   (BUTTON) Copy
+
+   Writes data to stream's internal buffer, but does not drain/flush the
+   write.
+
+   This method needs to be used along with the drain() method which
+   flushes the buffer.
+
+   Usage
+from modal import Sandbox
+
+sandbox = Sandbox.create(
+    "bash",
+    "-c",
+    "while read line; do echo $line; done",
+    app=app,
+)
+sandbox.stdin.write(b"foo\n")
+sandbox.stdin.write(b"bar\n")
+sandbox.stdin.write_eof()
+
+sandbox.stdin.drain()
+sandbox.wait()
+
+   (BUTTON) Copy
+
+write_eof
+
+def write_eof(self):
+
+   (BUTTON) Copy
+
+   Closes the write end of the stream after the buffered write data is
+   drained. If the process was blocked on input, it will become unblocked
+   after write_eof().
+
+   This method needs to be used along with the drain() method which
+   flushes the EOF to the process.
+
+drain
+
+def drain(self):
+
+   (BUTTON) Copy
+
+   Flushes the write buffer to the running process. Flushes the EOF if the
+   writer is closed.
+   [71]modal.io_streams [72]modal.io_streams.StreamReader
+   [73]file_descriptor [74]read [75]modal.io_streams.StreamWriter
+   [76]write [77]write_eof [78]drain
+   Modal logo © 2024
+   [79]About [80]Status [81]Changelog [82]Documentation [83]Slack
+   Community [84]Pricing [85]Examples
+

@@ -1,0 +1,207 @@
+Page: aider.chat_files/aider.chat/docs/usage/commands.html
+----------------------------------------
+   #[1]RSS Feed
+
+   [2]Skip to main content
+
+   [3]aider (BUTTON)
+
+     * [4]Home
+     * (BUTTON) [5]Installation
+          + [6]Installing aider
+          + [7]Optional steps
+          + [8]Aider with docker
+          + [9]Install with pipx
+          + [10]GitHub Codespaces
+     * (BUTTON) [11]Usage
+          + [12]Tips
+          + [13]In-chat commands
+          + [14]Chat modes
+          + [15]Tutorial videos
+          + [16]Voice-to-code with aider
+          + [17]Images & web pages
+          + [18]Prompt caching
+          + [19]Aider in your browser
+          + [20]Specifying coding conventions
+          + [21]Linting and testing
+     * (BUTTON) [22]Connecting to LLMs
+          + [23]OpenAI
+          + [24]Anthropic
+          + [25]Gemini
+          + [26]GROQ
+          + [27]Azure
+          + [28]Cohere
+          + [29]DeepSeek
+          + [30]Ollama
+          + [31]OpenAI compatible APIs
+          + [32]OpenRouter
+          + [33]Vertex AI
+          + [34]Amazon Bedrock
+          + [35]Other LLMs
+          + [36]Editing format
+          + [37]Model warnings
+     * (BUTTON) [38]Configuration
+          + [39]Options reference
+          + [40]YAML config file
+          + [41]Config with .env
+          + [42]Advanced model settings
+     * (BUTTON) [43]Troubleshooting
+          + [44]File editing problems
+          + [45]Model warnings
+          + [46]Token limits
+          + [47]Aider not found
+          + [48]Dependency versions
+          + [49]Using /help
+     * (BUTTON) [50]Example chat transcripts
+          + [51]Create a simple flask app with aider
+          + [52]Modify an open source 2048 game with aider
+          + [53]A complex multi-file change, with debugging
+          + [54]Create a "black box" test case
+          + [55]Automatically update docs with aider
+          + [56]Build pong with aider and pygame.
+          + [57]Complete a css exercise with aider
+          + [58]Download, analyze and plot US Census data
+          + [59]Editing an asciinema cast file with aider
+          + [60]Hello aider!
+          + [61]Honor the NO_COLOR environment variable
+          + [62]Improve css styling of chat transcripts
+          + [63]Semantic search & replace code with aider
+     * (BUTTON) [64]More info
+          + [65]Git integration
+          + [66]Supported languages
+          + [67]Repository map
+          + [68]Scripting aider
+          + [69]Infinite output
+          + [70]Edit formats
+          + [71]Analytics
+          + [72]Privacy policy
+          + [73]Release history
+     * [74]FAQ
+     * [75]Aider LLM Leaderboards
+     * [76]Aider blog
+
+     * [77]GitHub
+     * [78]Discord
+
+   Aider is AI pair programming in your terminal. Aider is on [79]GitHub
+   and [80]Discord.
+
+   ____________________
+
+     * [81]GitHub
+     * [82]Discord
+     * [83]Blog
+
+
+In-chat commands
+
+   Aider supports commands from within the chat, which all start with /.
+   Command Description
+   /add Add files to the chat so aider can edit them or review them in
+   detail
+   /architect Enter architect mode to discuss high-level design and
+   architecture
+   /ask Ask questions about the code base without editing any files
+   /chat-mode Switch to a new chat mode
+   /clear Clear the chat history
+   /code Ask for changes to your code
+   /commit Commit edits to the repo made outside the chat (commit message
+   optional)
+   /copy Copy the last assistant message to the clipboard
+   /diff Display the diff of changes since the last message
+   /drop Remove files from the chat session to free up context space
+   /exit Exit the application
+   /git Run a git command (output excluded from chat)
+   /help Ask questions about aider
+   /lint Lint and fix in-chat files or all dirty files if none in chat
+   /load Load and execute commands from a file
+   /ls List all known files and indicate which are included in the chat
+   session
+   /map Print out the current repository map
+   /map-refresh Force a refresh of the repository map
+   /model Switch to a new LLM
+   /models Search the list of available models
+   /paste Paste image/text from the clipboard into the chat. Optionally
+   provide a name for the image.
+   /quit Exit the application
+   /read-only Add files to the chat that are for reference, not to be
+   edited
+   /report Report a problem by opening a GitHub Issue
+   /reset Drop all files and clear the chat history
+   /run Run a shell command and optionally add the output to the chat
+   (alias: !)
+   /save Save commands to a file that can reconstruct the current chat
+   session's files
+   /settings Print out the current settings
+   /test Run a shell command and add the output to the chat on non-zero
+   exit code
+   /tokens Report on the number of tokens used by the current chat context
+   /undo Undo the last git commit if it was done by aider
+   /voice Record and transcribe voice input
+   /web Scrape a webpage, convert to markdown and send in a message
+
+   You can easily re-send commands or messages. Use the up arrow ^| to
+   scroll back or CONTROL-R to search your message history.
+
+Entering multi-line chat messages
+
+   You can send long, multi-line messages in the chat in a few ways:
+     * Paste a multi-line message directly into the chat.
+     * Enter { alone on the first line to start a multiline message and }
+       alone on the last line to end it.
+     * Use Meta-ENTER to start a new line without sending the message
+       (Esc+ENTER in some environments).
+     * Use /paste to paste text from the clipboard into the chat.
+
+Interrupting with CONTROL-C
+
+   It's always safe to use Control-C to interrupt aider if it isn't
+   providing a useful response. The partial response remains in the
+   conversation, so you can refer to it when you reply to the LLM with
+   more information or direction.
+
+Keybindings
+
+   The interactive prompt is built with [85]prompt-toolkit which provides
+   emacs and vi keybindings.
+
+Emacs
+
+     * Up Arrow : Scroll back through previously sent messages.
+     * Down Arrow : Scroll forward through previously sent messages.
+     * Ctrl-A : Move cursor to the start of the line.
+     * Ctrl-B : Move cursor back one character.
+     * Ctrl-D : Delete the character under the cursor.
+     * Ctrl-E : Move cursor to the end of the line.
+     * Ctrl-F : Move cursor forward one character.
+     * Ctrl-K : Delete from the cursor to the end of the line.
+     * Ctrl-L : Clear the screen.
+     * Ctrl-N : Move down to the next history entry.
+     * Ctrl-P : Move up to the previous history entry.
+     * Ctrl-R : Reverse search in command history.
+
+Vi
+
+   To use vi/vim keybindings, run aider with the --vim switch.
+     * Up Arrow : Scroll back through previously sent messages.
+     * Down Arrow : Scroll forward through previously sent messages.
+     * Esc : Switch to command mode.
+     * i : Switch to insert mode.
+     * a : Move cursor one character to the right and switch to insert
+       mode.
+     * A : Move cursor to the end of the line and switch to insert mode.
+     * I : Move cursor to the beginning of the line and switch to insert
+       mode.
+     * h : Move cursor one character to the left.
+     * j : Move cursor down one line.
+     * k : Move cursor up one line.
+     * l : Move cursor one character to the right.
+     * w : Move cursor forward one word.
+     * b : Move cursor backward one word.
+     * 0 : Move cursor to the beginning of the line.
+     * $ : Move cursor to the end of the line.
+     * x : Delete the character under the cursor.
+     * dd : Delete the current line.
+     * u : Undo the last change.
+     * Ctrl-R : Redo the last undone change.
+

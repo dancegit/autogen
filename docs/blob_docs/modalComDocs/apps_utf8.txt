@@ -1,0 +1,171 @@
+Page: modal.com_files/modal.com/docs/guide/apps.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Apps, Stubs, and entrypoints
+
+   An App is the object that represents an application running on Modal.
+   Every other object in Modal is attached to some [81]App, including
+   Functions, [82]Secrets, and [83]Images. When you [84]run or [85]deploy
+   an App, it creates an ephemeral or a deployed App, respectively.
+
+   You can view a list of all currently running Apps on the [86]apps page.
+
+Apps were once Stubs
+
+   The App class in the client was previously called Stub. Both names are
+   still supported, but Stub is an alias for App and will not be supported
+   at some point in the future.
+
+Ephemeral Apps
+
+   An ephemeral App is created when you use the [87]modal run CLI command,
+   or the [88]app.run method. This creates a temporary App that only
+   exists for the duration of your script.
+
+   Ephemeral Apps are stopped automatically when the calling program
+   exits, or when the server detects that the client is no longer
+   connected. You can use [89]--detach in order to keep an ephemeral App
+   running even after the client exits.
+
+   By using app.run you can run your Modal apps from within your Python
+   scripts:
+def main():
+    ...
+    with app.run():
+        some_modal_function.remote()
+
+   (BUTTON) Copy
+
+Deployed Apps
+
+   A deployed App is created using the [90]modal deploy CLI command. The
+   App is persisted indefinitely until you delete it via the [91]web UI.
+   Functions in a deployed App that have an attached [92]schedule will be
+   run on a schedule. Otherwise, you can invoke them manually using
+   [93]web endpoints or Python.
+
+   Deployed Apps are named via the [94]App constructor. Re-deploying an
+   existing App (based on the name) will update it in place.
+
+Entrypoints for ephemeral Apps
+
+   The code that runs first when you modal run an App is called the
+   "entrypoint".
+
+   You can register a local entrypoint using the
+   [95]@app.local_entrypoint() decorator. You can also use a regular Modal
+   function as an entrypoint, in which case only the code in global scope
+   is executed locally.
+
+Argument parsing
+
+   If your entrypoint function takes arguments with primitive types, modal
+   run automatically parses them as CLI options. For example, the
+   following function can be called with modal run script.py --foo 1 --bar
+   "hello":
+# script.py
+
+@app.local_entrypoint()
+def main(foo: int, bar: str):
+    some_modal_function.remote(foo, bar)
+
+   (BUTTON) Copy
+
+   You can also use your own argument parsing library, such as argparse
+   and use [96]app.run to run your app manually. Note that in this case
+   you need to invoke your script as you would invoke any other python
+   script, e.g. with python script.py --foo 1 --bar "hello".
+import modal
+import argparse
+
+app = modal.App()
+
+
+@app.function()
+def func(a, b):
+    print(f"a={a}, b={b}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--foo", type=int)
+    parser.add_argument("--bar", type=str)
+    args = parser.parse_args()
+
+    with app.run():
+        func.remote(args.foo, args.bar)
+
+   (BUTTON) Copy
+
+Manually specifying an entrypoint
+
+   If there is only one local_entrypoint registered, [97]modal run
+   script.py will automatically use it. If you have no entrypoint
+   specified, and just one decorated Modal function, that will be used as
+   a remote entrypoint instead. Otherwise, you can direct modal run to use
+   a specific entrypoint.
+
+   For example, if you have a function decorated with [98]@app.function()
+   in your file:
+# script.py
+
+@app.function()
+def f():
+    print("Hello world!")
+
+
+@app.function()
+def g():
+    print("Goodbye world!")
+
+
+@app.local_entrypoint()
+def main():
+    f.remote()
+
+   (BUTTON) Copy
+
+   Running [99]modal run script.py will execute the main function locally,
+   which would call the f function remotely. However you can instead run
+   modal run script.py::app.f or modal run script.py::app.g to execute f
+   or g directly.
+   [100]Apps, Stubs, and entrypoints [101]Apps were once Stubs
+   [102]Ephemeral Apps [103]Deployed Apps [104]Entrypoints for ephemeral
+   Apps [105]Argument parsing [106]Manually specifying an entrypoint
+   Modal logo © 2024
+   [107]About [108]Status [109]Changelog [110]Documentation [111]Slack
+   Community [112]Pricing [113]Examples
+

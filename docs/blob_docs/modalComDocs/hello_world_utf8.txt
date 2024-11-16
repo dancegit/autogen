@@ -1,0 +1,195 @@
+Page: modal.com_files/modal.com/docs/examples/hello_world.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Featured[9]Getting started [10]Hello, world[11]Simple web
+   scraper[12]Serving web endpoints[13]Large language models (LLMs)
+   [14]Deploy an OpenAI-compatible LLM service with
+   vLLM[15]High-throughput serverless TensorRT-LLM[16]Run Vision-Language
+   Models with SGLang[17]Deploy a Moshi voice chatbot[18]Run a multimodal
+   RAG chatbot to answer questions about PDFs[19]Fine-tune an LLM with
+   Axolotl[20]Replace your CEO with an LLM[21]Diffusion models [22]Run
+   Flux fast with torch.compile[23]Fine-tune an image generator on your
+   pet[24]Generate video clips with Mochi[25]Transform images with Stable
+   Diffusion XL Turbo[26]Deploy ControlNet demos with Gradio[27]Run a
+   music-generating Discord bot[28]Training models from scratch [29]Train
+   an SLM with early-stopping grid search over hyperparameters[30]Run
+   long, resumable training jobs[31]Sandboxed code execution [32]Run a
+   LangGraph agent's code in a secure GPU sandbox[33]Build a stateful,
+   sandboxed code interpreter[34]Run Node.js, Ruby, and more in a
+   Sandbox[35]Run a sandboxed Jupyter notebook[36]Parallel processing and
+   job scheduling [37]Transcribe podcasts with Whisper[38]Deploy a Hacker
+   News Slackbot[39]Run a Document OCR job queue[40]Serve a Document OCR
+   web app[41]Hosting popular libraries [42]FastHTML: Deploy 100,000
+   multiplayer checkboxes[43]YOLO: Fine-tuning and serve computer vision
+   models[44]MultiOn: Create an agent for AI news[45]Blender: Build a 3D
+   render farm[46]Streamlit: Run and deploy Streamlit apps[47]ComfyUI: Run
+   ComfyUI interactively and as an API[48]SQLite: Publish explorable data
+   with Datasette[49]Y! Finance: Process stock prices in
+   parallel[50]Algolia: Build docsearch with a crawler[51]Connecting to
+   other APIs [52]MongoDB: Vector and geospatial search over satellite
+   images[53]Google Sheets: Sync databases and APIs to a Google
+   Sheet[54]LangChain: Run a RAG Q&A chatbot[55]Tailscale: Add Modal Apps
+   to your VPN[56]Prometheus: Publish custom metrics with
+   Pushgateway[57]Managing data [58]Mount S3 buckets in Modal
+   apps[59]Build your own data warehouse with DuckDB, DBT, and
+   Modal[60]Create a LoRA Playground with Modal, Gradio, and
+   S3[61]Miscellaneous
+     __________________________________________________________________
+
+   [62]View on GitHub
+
+Hello, world!
+
+   This tutorial demonstrates some core features of Modal:
+     * You can run functions on Modal just as easily as you run them
+       locally.
+     * Running functions in parallel on Modal is simple and fast.
+     * Logs and errors show up immediately, even for functions running on
+       Modal.
+
+Importing Modal and setting up
+
+   We start by importing modal and creating a App. We build up this App to
+   [63]define our application.
+import sys
+
+import modal
+
+app = modal.App("example-hello-world")
+
+   (BUTTON) Copy
+
+Defining a function
+
+   Modal takes code and runs it in the cloud.
+
+   So first we've got to write some code.
+
+   Let's write a simple function that takes in an input, prints a log or
+   an error to the console, and then returns an output.
+
+   To make this function work with Modal, we just wrap it in a decorator,
+   [64]@app.function.
+@app.function()
+def f(i):
+    if i % 2 == 0:
+        print("hello", i)
+    else:
+        print("world", i, file=sys.stderr)
+
+    return i * i
+
+   (BUTTON) Copy
+
+Running our function locally, remotely, and in parallel
+
+   Now let's see three different ways we can call that function:
+       f.map
+
+   We call f in each of these ways inside the main function below.
+@app.local_entrypoint()
+def main():
+    # run the function locally
+    print(f.local(1000))
+
+    # run the function remotely on Modal
+    print(f.remote(1000))
+
+    # run the function in parallel and remotely on Modal
+    total = 0
+    for ret in f.map(range(200)):
+        total += ret
+
+    print(total)
+
+   (BUTTON) Copy
+
+   Enter modal run hello_world.py in a shell, and you'll see a Modal app
+   initialize. You'll then see the printed logs of the main function and,
+   mixed in with them, all the logs of f as it is run locally, then
+   remotely, and then remotely and in parallel.
+
+   That's all triggered by adding the [65]@app.local_entrypoint decorator
+   on main, which defines it as the function to start from locally when we
+   invoke modal run.
+
+What just happened?
+
+   When we called .remote on f, the function was executed in the cloud, on
+   Modal's infrastructure, not on the local machine.
+
+   In short, we took the function f, put it inside a container, sent it
+   the inputs, and streamed back the logs and outputs.
+
+But why does this matter?
+
+   Try one of these things next to start seeing the full power of Modal!
+
+You can change the code and run it again
+
+   For instance, change the print statement in the function f to print
+   "spam" and "eggs" instead and run the app again. You'll see that that
+   your new code is run with no extra work from you -- and it should even
+   run faster!
+
+   Modal's goal is to make running code in the cloud feel like you're
+   running code locally. That means no waiting for long image builds when
+   you've just moved a comma, no fiddling with container image pushes, and
+   no context-switching to a web UI to inspect logs.
+
+You can map over more data
+
+   Change the map range from 200 to some large number, like 1170. You'll
+   see Modal create and run even more containers in parallel this time.
+
+   And it'll happen lightning fast!
+
+You can run a more interesting function
+
+   The function f is a bit silly and doesn't do much, but in its place
+   imagine something that matters to you, like:
+     * Running [66]language model inference or [67]fine-tuning
+     * Manipulating [68]audio or [69]images
+     * [70]Collecting financial data to backtest a trading algorithm
+
+   Modal lets you parallelize that operation effortlessly by running
+   hundreds or thousands of containers in the cloud.
+   [71]Hello, world! [72]Importing Modal and setting up [73]Defining a
+   function [74]Running our function locally, remotely, and in parallel
+   [75]What just happened? [76]But why does this matter? [77]You can
+   change the code and run it again [78]You can map over more data [79]You
+   can run a more interesting function
+
+Try this on Modal!
+
+   You can run this example on Modal in 60 seconds.
+   [80]Create account to run
+
+   After creating a free account, install the Modal Python package, and
+   create an API token.
+   $
+pip install modal
+
+   $
+modal setup
+
+   (BUTTON) Copy
+
+   Clone the [81]modal-examples repository and run:
+   $
+git clone https://github.com/modal-labs/modal-examples
+
+   $
+cd modal-examples
+
+   $
+modal run 01_getting_started/hello_world.py
+
+   (BUTTON) Copy
+   Modal logo © 2024
+   [82]About [83]Status [84]Changelog [85]Documentation [86]Slack
+   Community [87]Pricing [88]Examples
+

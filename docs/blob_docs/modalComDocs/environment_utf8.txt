@@ -1,0 +1,127 @@
+Page: modal.com_files/modal.com/docs/reference/cli/environment.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Changelog [9]API Reference
+   [10]modal.App[11]modal.Client[12]modal.CloudBucketMount[13]modal.Cls[14
+   ]modal.ContainerProcess[15]modal.Cron[16]modal.Dict[17]modal.Error[18]m
+   odal.Function[19]modal.Image[20]modal.Mount[21]modal.NetworkFileSystem[
+   22]modal.Period[23]modal.Proxy[24]modal.Queue[25]modal.Retries[26]modal
+   .Sandbox[27]modal.Secret[28]modal.Stub[29]modal.Tunnel[30]modal.Volume[
+   31]modal.asgi_app[32]modal.batched[33]modal.build[34]modal.call_graph[3
+   5]modal.current_function_call_id[36]modal.current_input_id[37]modal.ena
+   ble_output[38]modal.enter[39]modal.exit[40]modal.forward[41]modal.gpu[4
+   2]modal.interact[43]modal.io_streams[44]modal.is_local[45]modal.method[
+   46]modal.parameter[47]modal.runner[48]modal.web_endpoint[49]modal.web_s
+   erver[50]modal.wsgi_app[51]modal.exception[52]modal.config [53]CLI
+   Reference [54]modal app[55]modal config[56]modal container[57]modal
+   deploy[58]modal dict[59]modal environment[60]modal launch[61]modal
+   nfs[62]modal profile[63]modal queue[64]modal run[65]modal
+   secret[66]modal serve[67]modal setup[68]modal shell[69]modal
+   token[70]modal volume
+     __________________________________________________________________
+
+modal environment
+
+   Create and interact with Environments
+
+   Environments are sub-divisons of workspaces, allowing you to deploy the
+   same app in different namespaces. Each environment has their own set of
+   Secrets and any lookups performed from an app in an environment will by
+   default look for entities in the same environment.
+
+   Typical use cases for environments include having one for development
+   and one for production, to prevent overwriting production apps when
+   developing new features while still being able to deploy changes to a
+   live environment.
+
+   Usage:
+modal environment [OPTIONS] COMMAND [ARGS]...
+
+   (BUTTON) Copy
+
+   Options:
+     * --help: Show this message and exit.
+
+   Commands:
+     * list: List all environments in the current workspace
+     * create: Create a new environment in the current workspace
+     * delete: Delete an environment in the current workspace
+     * update: Update the name or web suffix of an environment
+
+modal environment list
+
+   List all environments in the current workspace
+
+   Usage:
+modal environment list [OPTIONS]
+
+   (BUTTON) Copy
+
+   Options:
+     * --json / --no-json: [default: no-json]
+     * --help: Show this message and exit.
+
+modal environment create
+
+   Create a new environment in the current workspace
+
+   Usage:
+modal environment create [OPTIONS] NAME
+
+   (BUTTON) Copy
+
+   Arguments:
+     * NAME: Name of the new environment. Must be unique. Case sensitive
+       [required]
+
+   Options:
+     * --help: Show this message and exit.
+
+modal environment delete
+
+   Delete an environment in the current workspace
+
+   Deletes all apps in the selected environment and deletes the
+   environment irrevocably.
+
+   Usage:
+modal environment delete [OPTIONS] NAME
+
+   (BUTTON) Copy
+
+   Arguments:
+     * NAME: Name of the environment to be deleted. Case sensitive
+       [required]
+
+   Options:
+     * --confirm / --no-confirm: Set this flag to delete without prompting
+       for confirmation [default: no-confirm]
+     * --help: Show this message and exit.
+
+modal environment update
+
+   Update the name or web suffix of an environment
+
+   Usage:
+modal environment update [OPTIONS] CURRENT_NAME
+
+   (BUTTON) Copy
+
+   Arguments:
+     * CURRENT_NAME: [required]
+
+   Options:
+     * --set-name TEXT: New name of the environment
+     * --set-web-suffix TEXT: New web suffix of environment (empty string
+       is no suffix)
+     * --help: Show this message and exit.
+
+   [71]modal environment [72]modal environment list [73]modal environment
+   create [74]modal environment delete [75]modal environment update
+   Modal logo © 2024
+   [76]About [77]Status [78]Changelog [79]Documentation [80]Slack
+   Community [81]Pricing [82]Examples
+

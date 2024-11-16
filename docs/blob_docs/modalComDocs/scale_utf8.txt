@@ -1,0 +1,166 @@
+Page: modal.com_files/modal.com/docs/guide/scale.html
+----------------------------------------
+   [1]Modal logo
+   [2]Guide [3]Examples [4]Reference [5]Playground
+   [6]Log In [7]Sign Up
+   (BUTTON)
+   [8]Introduction[9]Custom container images [10]Custom
+   containers[11]Private registries[12]GPUs and other resources [13]GPU
+   acceleration[14]Using CUDA on Modal[15]Reserving CPU and
+   memory[16]Scaling out [17]Scaling out[18]Dicts and queues[19]Job
+   processing[20]Concurrent inputs on a single container (beta)[21]Dynamic
+   batching (beta)[22]Scheduling and cron jobs[23]Deployment [24]Apps,
+   Stubs, and entrypoints[25]Managing deployments[26]Invoke deployed
+   functions[27]Continuous deployment[28]Secrets and environment variables
+   [29]Secrets[30]Environment variables[31]Web endpoints [32]Web
+   endpoints[33]Streaming endpoints[34]Web endpoint URLs[35]Request
+   timeouts[36]Networking [37]Tunnels (beta)[38]Proxies (beta)[39]Data
+   sharing and storage [40]Passing local data[41]Volumes[42]Mounting local
+   files and directories[43]Storing model weights[44]Dataset
+   ingestion[45]Cloud bucket mounts[46]Network file systems
+   (superseded)[47]Sandboxes [48]Sandboxes[49]Running
+   commands[50]Networking and security[51]File access[52]Performance
+   [53]Cold start performance[54]Memory Snapshot (beta)[55]Geographic
+   latency[56]Reliability and robustness [57]Failures and
+   retries[58]Preemption[59]Timeouts[60]Troubleshooting[61]Security and
+   privacy[62]Integrations [63]Connecting Modal to your Vercel
+   account[64]Connecting Modal to your Datadog account[65]Connecting Modal
+   to your OpenTelemetry provider[66]Okta SSO[67]Slack notifications
+   (beta)[68]Other topics [69]File and project structure[70]Developing and
+   debugging[71]Modal user account
+   setup[72]Workspaces[73]Environments[74]Jupyter
+   notebooks[75]Asynchronous API usage[76]Global variables[77]Region
+   selection[78]Container lifecycle hooks[79]Parameterized functions[80]S3
+   Gateway endpoints
+     __________________________________________________________________
+
+Scaling out
+
+   Modal has a few different tools that helps with increasing performance
+   of your applications.
+
+Parallel execution of inputs
+
+   If your code is running the same function repeatedly with different
+   independent inputs (e.g., a grid search), the easiest way to increase
+   performance is to run those function calls in parallel using Modal's
+   [81]Function.map() method.
+
+   Here is an example if we had a function evaluate_model that takes a
+   single argument:
+import modal
+
+app = modal.App()
+
+
+@app.function()
+def evaluate_model(x):
+    ...
+
+
+@app.local_entrypoint()
+def main():
+    inputs = list(range(100))
+    for result in evaluate_model.map(inputs):  # runs many inputs in parallel
+        ...
+
+   (BUTTON) Copy
+
+   In this example, evaluate_model will be called with each of the 100
+   inputs (the numbers 0 - 99 in this case) roughly in parallel and the
+   results are returned as an iterable with the results ordered in the
+   same way as the inputs.
+
+Exceptions
+
+   By default, if any of the function calls raises an exception, the
+   exception will be propagated. To treat exceptions as successful results
+   and aggregate them in the results list, pass in
+   [82]return_exceptions=True.
+@app.function()
+def my_func(a):
+    if a == 2:
+        raise Exception("ohno")
+    return a ** 2
+
+@app.local_entrypoint()
+def main():
+    print(list(my_func.map(range(3), return_exceptions=True)))
+    # [0, 1, UserCodeException(Exception('ohno'))]
+
+   (BUTTON) Copy
+
+Starmap
+
+   If your function takes multiple variable arguments, you can either use
+   [83]Function.map() with one input iterator per argument, or
+   [84]Function.starmap() with a single input iterator containing
+   sequences (like tuples) that can be spread over the arguments. This
+   works similarly to Python's built in map and itertools.starmap.
+@app.function()
+def my_func(a, b):
+    return a + b
+
+@app.local_entrypoint()
+def main():
+    assert list(my_func.starmap([(1, 2), (3, 4)])) == [3, 7]
+
+   (BUTTON) Copy
+
+Gotchas
+
+   Note that .map() is a method on the modal function object itself, so
+   you don't explicitly call the function.
+
+   Incorrect usage:
+results = evaluate_model(inputs).map()
+
+   (BUTTON) Copy
+
+   Modal's map is also not the same as using Python's builtin map(). While
+   the following will technically work, it will execute all inputs in
+   sequence rather than in parallel.
+
+   Incorrect usage:
+results = map(evaluate_model, inputs)
+
+   (BUTTON) Copy
+
+Asynchronous usage
+
+   All Modal APIs are available in both blocking and asynchronous
+   variants. If you are comfortable with asynchronous programming, you can
+   use it to create arbitrary parallel execution patterns, with the added
+   benefit that any Modal functions will be executed remotely. See the
+   [85]async guide or the examples for more information about asynchronous
+   usage.
+
+GPU acceleration
+
+   Sometimes you can speed up your applications by utilizing GPU
+   acceleration. See the [86]gpu section for more information.
+
+Limiting concurrency
+
+   If you want to limit concurrency, you can use the concurrency_limit
+   argument to app.function. For instance:
+app = modal.App()
+
+@app.function(concurrency_limit=5)
+def f(x):
+    print(x)
+
+   (BUTTON) Copy
+
+   With this, Modal will spin up at most 5 containers at any point.
+   [87]Scaling out [88]Parallel execution of inputs [89]Exceptions
+   [90]Starmap [91]Gotchas [92]Asynchronous usage [93]GPU acceleration
+   [94]Limiting concurrency
+   See it in action
+   [95]Auto-scaling LLM inference endpoints
+   [96]Job queue for OCR
+   [97]Parallel web scraping
+   Modal logo © 2024
+   [98]About [99]Status [100]Changelog [101]Documentation [102]Slack
+   Community [103]Pricing [104]Examples
+
