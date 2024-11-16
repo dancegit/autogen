@@ -1,0 +1,3 @@
+[submodule "submodules/aider"]
+	path = submodules/aider
+	url = git@github.com:dancegit/aider.git
