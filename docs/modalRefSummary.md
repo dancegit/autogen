@@ -38,8 +38,10 @@ This document provides a comprehensive overview of Modal functionality for progr
    volume = modal.Volume.from_name("my-volume")
    ```
 
-
-
+7. **Sandbox**: Secure environment for running arbitrary code.
+   ```python
+   sandbox = modal.Sandbox.create(app=my_app)
+   ```
 
 ## Deployment
 
@@ -72,6 +74,11 @@ This document provides a comprehensive overview of Modal functionality for progr
    modal app rollback my-app v3
    ```
 
+6. View deployment history:
+   ```bash
+   modal app history my-app
+   ```
+
 ### Environment Variables
 
 1. Set environment variables in the Modal dashboard or using secrets:
@@ -91,13 +98,16 @@ This document provides a comprehensive overview of Modal functionality for progr
        import os
        print(f"Cloud Provider: {os.environ['MODAL_CLOUD_PROVIDER']}")
        print(f"Region: {os.environ['MODAL_REGION']}")
+       print(f"Environment: {os.environ['MODAL_ENVIRONMENT']}")
+       print(f"Image ID: {os.environ['MODAL_IMAGE_ID']}")
+       print(f"Task ID: {os.environ['MODAL_TASK_ID']}")
    ```
 
 ## Security
 
 Modal prioritizes security in its serverless infrastructure:
 
-1. **Sandboxed Execution**: Functions run in isolated containers, preventing interference between different workloads.
+1. **Sandboxed Execution**: Functions run in isolated containers using gVisor, preventing interference between different workloads.
 
 2. **Secrets Management**: Use `modal.Secret` to securely store and access sensitive information:
    ```python
@@ -109,11 +119,15 @@ Modal prioritizes security in its serverless infrastructure:
        pass
    ```
 
-3. **HTTPS by Default**: All Modal endpoints use HTTPS, ensuring encrypted communication.
+3. **HTTPS by Default**: All Modal endpoints use HTTPS with TLS 1.3, ensuring encrypted communication.
 
 4. **Access Controls**: Implement fine-grained access controls for your Modal resources using the dashboard.
 
 5. **Audit Logging**: Modal provides comprehensive logs for monitoring and auditing purposes.
+
+6. **SOC 2 Compliance**: Modal has completed a SOC 2 Type 1 audit.
+
+7. **HIPAA Compliance**: Modal services can be used in a HIPAA compliant manner (Enterprise plan required).
 
 ## Scaling
 
@@ -140,6 +154,14 @@ Modal automatically scales your applications based on demand:
        pass
    ```
 
+5. **Dynamic Batching**: Optimize performance with dynamic batching (beta feature):
+   ```python
+   @app.function()
+   @modal.batched(max_batch_size=4, wait_ms=1000)
+   async def batched_multiply(xs: list[int], ys: list[int]) -> list[int]:
+       return [x * y for x, y in zip(xs, xs)]
+   ```
+
 ## Deploying Docker Containers
 
 While Modal primarily uses its own container system, you can integrate Docker containers:
@@ -158,11 +180,17 @@ While Modal primarily uses its own container system, you can integrate Docker co
    image = modal.Image.from_dockerfile("./Dockerfile")
    ```
 
-3. **Docker Compose**: For complex setups, consider using Modal's multi-container support to replicate Docker Compose functionality.
+3. **Private Registries**: Support for private Docker registries:
+   ```python
+   image = modal.Image.from_registry(
+       "us-east1-docker.pkg.dev/my-project-1234/my-repo/my-image:my-version",
+       secret=modal.Secret.from_name("my-gcp-secret")
+   )
+   ```
 
 ## Building Agents
 
-Modal can be used to build complex AI agents using libraries like LangChain or LangGraph. Here's an example of creating a coding agent:
+Modal can be used to build complex AI agents using libraries like LangChain or LangGraph. Here's an example of creating a coding agent with a sandbox:
 
 ```python
 import modal
@@ -170,11 +198,10 @@ from langgraph.graph import StateGraph
 from langchain.chat_models import ChatOpenAI
 
 app = modal.App()
-stub = modal.Stub()
 
 @app.function(
     image=modal.Image.debian_slim().pip_install("langchain", "langgraph"),
-    secrets=[modal.Secret.from_name("openai-api-key")]
+    secrets=[modal.Secret.from_name("openai-secret")]
 )
 def create_agent():
     llm = ChatOpenAI()
@@ -186,11 +213,9 @@ def create_agent():
 
     def execute_code(state):
         code = state["code"]
-        try:
-            exec(code)
-            return {"result": "Code executed successfully"}
-        except Exception as e:
-            return {"result": f"Error: {str(e)}"}
+        sandbox = modal.Sandbox.create(app=app)
+        result = sandbox.exec("python", "-c", code)
+        return {"result": result.stdout.read().decode()}
 
     workflow = StateGraph()
     workflow.add_node("generate", generate_code)
@@ -208,8 +233,6 @@ def main(task: str):
 
 # Run with: modal run agent.py --task "Create a function that calculates the factorial of a number"
 ```
-
-
 
 ## Advanced Features
 
@@ -252,6 +275,19 @@ async def async_task():
     return "Task completed"
 ```
 
+### Parameterized Functions
+
+```python
+@app.cls()
+class MyClass:
+    foo: str = modal.parameter()
+    bar: int = modal.parameter(default=10)
+
+    @modal.method()
+    def baz(self, qux: str = "default") -> str:
+        return f"This code is running in container pool ({self.foo}, {self.bar}), with input qux={qux}"
+```
+
 ## Best Practices
 
 1. Use `modal.Image` to create reproducible environments.
@@ -267,5 +303,8 @@ async def async_task():
 11. Regularly update your Modal client to benefit from the latest security features.
 12. Use Modal's built-in scaling features instead of managing scaling manually.
 13. Leverage Modal's container system for most use cases, falling back to Docker integration when necessary.
+14. Utilize Sandboxes for secure execution of untrusted code.
+15. Implement parameterized functions for efficient resource management.
+16. Take advantage of Modal's support for various cloud providers and regions.
 
 Remember to consult the full Modal documentation for detailed information on these features and more advanced usage scenarios.
