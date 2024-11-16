@@ -1,6 +1,6 @@
 # Modal Reference Summary
 
-This document provides a concise overview of the most important Modal functionality for programmers.
+This document provides a comprehensive overview of Modal functionality for programmers, including deployment, environment variables, managing deployments, and building agents.
 
 ## Core Concepts
 
@@ -38,258 +38,147 @@ This document provides a concise overview of the most important Modal functional
    volume = modal.Volume.from_name("my-volume")
    ```
 
-## Key Classes and Methods
+## Deployment
 
-### modal.App
+### Creating and Managing Deployments
 
-- `modal.App()`: Create a new Modal application.
-  ```python
-  app = modal.App()
-  ```
+1. Deploy an app using the CLI:
+   ```bash
+   modal deploy my_app.py
+   ```
 
-- `@app.function()`: Decorator to register a function with the app.
-  ```python
-  @app.function()
-  def my_function():
-      pass
-  ```
+2. Deploy programmatically:
+   ```python
+   from modal import deploy_app
+   
+   deploy_app(app, name="my-app")
+   ```
 
-- `@app.cls()`: Decorator to register a class with the app.
-  ```python
-  @app.cls()
-  class MyClass:
-      def __init__(self):
-          pass
-  ```
+3. View deployments:
+   ```bash
+   modal app list
+   ```
 
-- `app.run()`: Context manager to run the app.
-  ```python
-  with app.run():
-      result = my_function.remote()
-  ```
+4. Stop a deployment:
+   ```bash
+   modal app stop my-app
+   ```
 
-### modal.Function
+5. Rollback to a previous version:
+   ```bash
+   modal app rollback my-app v3
+   ```
 
-- `@app.function()`: Main decorator for creating Modal functions.
-  ```python
-  @app.function()
-  def process_data(data):
-      return data.upper()
-  ```
+### Environment Variables
 
-- `function.remote()`: Call the function remotely.
-  ```python
-  result = process_data.remote("hello")
-  ```
+1. Set environment variables in the Modal dashboard or using secrets:
+   ```python
+   secret = modal.Secret.from_name("my-env-vars")
+   
+   @app.function(secrets=[secret])
+   def my_function():
+       import os
+       print(os.environ["MY_ENV_VAR"])
+   ```
 
-- `function.map()`: Parallel map over inputs.
-  ```python
-  results = process_data.map(["hello", "world", "modal"])
-  ```
+2. Access runtime environment variables:
+   ```python
+   @app.function()
+   def get_env_info():
+       import os
+       print(f"Cloud Provider: {os.environ['MODAL_CLOUD_PROVIDER']}")
+       print(f"Region: {os.environ['MODAL_REGION']}")
+   ```
 
-### modal.Image
+## Building Agents
 
-- `modal.Image.debian_slim()`: Create a base Debian image.
-  ```python
-  image = modal.Image.debian_slim()
-  ```
+Modal can be used to build complex AI agents using libraries like LangChain or LangGraph. Here's an example of creating a coding agent:
 
-- `image.pip_install()`: Install Python packages.
-  ```python
-  image = modal.Image.debian_slim().pip_install("numpy", "pandas")
-  ```
+```python
+import modal
+from langgraph.graph import StateGraph
+from langchain.chat_models import ChatOpenAI
 
-- `image.apt_install()`: Install system packages.
-  ```python
-  image = modal.Image.debian_slim().apt_install("ffmpeg")
-  ```
+app = modal.App()
+stub = modal.Stub()
 
-- `image.dockerfile_commands()`: Run custom Dockerfile commands.
-  ```python
-  image = modal.Image.debian_slim().dockerfile_commands("RUN echo 'custom command'")
-  ```
+@app.function(
+    image=modal.Image.debian_slim().pip_install("langchain", "langgraph"),
+    secrets=[modal.Secret.from_name("openai-api-key")]
+)
+def create_agent():
+    llm = ChatOpenAI()
+    
+    def generate_code(state):
+        human_input = state["human_input"]
+        response = llm.predict(f"Write Python code for: {human_input}")
+        return {"code": response}
+    
+    def execute_code(state):
+        code = state["code"]
+        try:
+            exec(code)
+            return {"result": "Code executed successfully"}
+        except Exception as e:
+            return {"result": f"Error: {str(e)}"}
+    
+    workflow = StateGraph()
+    workflow.add_node("generate", generate_code)
+    workflow.add_node("execute", execute_code)
+    workflow.set_entry_point("generate")
+    workflow.add_edge("generate", "execute")
+    
+    return workflow.compile()
 
-### modal.Mount
+@app.local_entrypoint()
+def main(task: str):
+    agent = create_agent.remote()
+    result = agent.invoke({"human_input": task})
+    print(result)
 
-- `modal.Mount.from_local_dir()`: Create a mount from a local directory.
-  ```python
-  mount = modal.Mount.from_local_dir("./data")
-  ```
+# Run with: modal run agent.py --task "Create a function that calculates the factorial of a number"
+```
 
-- `modal.Mount.from_local_file()`: Create a mount from a local file.
-  ```python
-  mount = modal.Mount.from_local_file("./config.json")
-  ```
+## Advanced Features
 
-### modal.Secret
+### Scheduling and Cron Jobs
 
-- `modal.Secret.from_name()`: Reference a secret by name.
-  ```python
-  secret = modal.Secret.from_name("my-api-key")
-  ```
+```python
+@app.function(schedule=modal.Period(days=1))
+def daily_task():
+    print("This runs every day")
 
-- `modal.Secret.from_dict()`: Create a secret from a dictionary.
-  ```python
-  secret = modal.Secret.from_dict({"API_KEY": "your-api-key-here"})
-  ```
+@app.function(schedule=modal.Cron("0 9 * * *"))
+def weekday_morning_task():
+    print("This runs every weekday at 9:00 AM")
+```
 
-### modal.Volume
+### GPU Support
 
-- `modal.Volume.from_name()`: Reference a volume by name.
-  ```python
-  volume = modal.Volume.from_name("my-persistent-data")
-  ```
+```python
+@app.function(gpu="T4")
+def gpu_task():
+    import torch
+    print(f"Using GPU: {torch.cuda.get_device_name(0)}")
+```
 
-- `volume.commit()`: Persist changes to the volume.
-  ```python
-  @app.function(volumes={"/data": volume})
-  def update_data():
-      with open("/data/file.txt", "w") as f:
-          f.write("New data")
-      volume.commit()
-  ```
+### Web Endpoints
 
-- `volume.reload()`: Fetch latest changes from the volume.
-  ```python
-  @app.function(volumes={"/data": volume})
-  def read_data():
-      volume.reload()
-      with open("/data/file.txt", "r") as f:
-          return f.read()
-  ```
+```python
+@app.function()
+@modal.web_endpoint(method="GET")
+def hello_web(name: str = "World"):
+    return f"Hello, {name}!"
+```
 
-## Important Decorators
+### Asynchronous Programming
 
-- `@modal.web_endpoint()`: Create a web endpoint.
-  ```python
-  @app.function()
-  @modal.web_endpoint(method="GET")
-  def hello_web(name: str = "World"):
-      return f"Hello, {name}!"
-  ```
-
-- `@modal.asgi_app()`: Register an ASGI app.
-  ```python
-  from fastapi import FastAPI
-
-  fastapi_app = FastAPI()
-
-  @app.function()
-  @modal.asgi_app()
-  def fastapi_function():
-      return fastapi_app
-  ```
-
-- `@modal.wsgi_app()`: Register a WSGI app.
-  ```python
-  from flask import Flask
-
-  flask_app = Flask(__name__)
-
-  @app.function()
-  @modal.wsgi_app()
-  def flask_function():
-      return flask_app
-  ```
-
-- `@modal.enter()`: Lifecycle method for container startup.
-  ```python
-  @app.cls()
-  class MyClass:
-      @modal.enter()
-      def initialize(self):
-          print("Container starting up")
-  ```
-
-- `@modal.exit()`: Lifecycle method for container shutdown.
-  ```python
-  @app.cls()
-  class MyClass:
-      @modal.exit()
-      def cleanup(self):
-          print("Container shutting down")
-  ```
-
-- `@modal.build()`: Method to execute during image build.
-  ```python
-  @app.cls()
-  class MyClass:
-      @modal.build()
-      def build_step(self):
-          print("This runs during image build")
-  ```
-
-## Utility Functions
-
-- `modal.forward()`: Expose a port from a container.
-  ```python
-  @app.function()
-  def run_server():
-      import http.server
-      with modal.forward(8000):
-          http.server.HTTPServer(("", 8000), http.server.SimpleHTTPRequestHandler).serve_forever()
-  ```
-
-- `modal.interact()`: Enable interactive input in a container.
-  ```python
-  @app.function()
-  def interactive_function():
-      modal.interact()
-      name = input("Enter your name: ")
-      print(f"Hello, {name}!")
-  ```
-
-- `modal.is_local()`: Check if code is running locally or in Modal.
-  ```python
-  @app.function()
-  def check_environment():
-      if modal.is_local():
-          print("Running locally")
-      else:
-          print("Running in Modal cloud")
-  ```
-
-## Scheduling and Retries
-
-- `modal.Period()`: Schedule functions to run periodically.
-  ```python
-  @app.function(schedule=modal.Period(hours=1))
-  def hourly_task():
-      print("This runs every hour")
-  ```
-
-- `modal.Cron()`: Schedule functions using cron syntax.
-  ```python
-  @app.function(schedule=modal.Cron("0 9 * * *"))
-  def daily_at_9am():
-      print("This runs every day at 9:00 AM")
-  ```
-
-- `modal.Retries()`: Configure retry policies for functions.
-  ```python
-  @app.function(retries=modal.Retries(max_retries=3, backoff_coefficient=2))
-  def retry_function():
-      # This function will retry up to 3 times with exponential backoff
-      pass
-  ```
-
-## GPU Support
-
-- `gpu="T4"`, `gpu="A100"`, etc.: Request specific GPU types.
-  ```python
-  @app.function(gpu="T4")
-  def gpu_function():
-      import torch
-      print(f"Using GPU: {torch.cuda.get_device_name(0)}")
-  ```
-
-- `modal.gpu.GPU()`: Configure custom GPU requirements.
-  ```python
-  @app.function(gpu=modal.gpu.A100(count=2))
-  def multi_gpu_function():
-      import torch
-      print(f"Number of GPUs: {torch.cuda.device_count()}")
-  ```
+```python
+@app.function()
+async def async_task():
+    await asyncio.sleep(1)
+    return "Task completed"
+```
 
 ## Best Practices
 
@@ -300,5 +189,8 @@ This document provides a concise overview of the most important Modal functional
 5. Implement proper error handling and retries for robustness.
 6. Take advantage of GPU acceleration when needed.
 7. Use web endpoints for creating serverless APIs and applications.
+8. Monitor your deployments using the Modal dashboard or CLI.
+9. Use environment variables for configuration that may change between deployments.
+10. Leverage Modal's scheduling capabilities for recurring tasks.
 
 Remember to consult the full Modal documentation for detailed information on these features and more advanced usage scenarios.
