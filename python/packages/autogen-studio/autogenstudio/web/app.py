@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from loguru import logger
 
-from .routes import sessions, runs, teams, agents, models, tools, ws, aider
+from .routes import sessions, runs, teams, agents, models, tools, ws
 from autogen_ext.agents.aider_agent import AiderAgent
 from .deps import init_managers, cleanup_managers
 from .config import settings
@@ -131,12 +131,7 @@ api.include_router(
     responses={404: {"description": "Not found"}},
 )
 
-api.include_router(
-    aider.router,
-    prefix="/aider",
-    tags=["aider"],
-    responses={404: {"description": "Not found"}},
-)
+# Aider router removed as it will be handled in the Docker container
 
 
 # Version endpoint
