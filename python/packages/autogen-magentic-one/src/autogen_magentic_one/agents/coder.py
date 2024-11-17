@@ -19,17 +19,25 @@ from .base_worker import BaseWorker
 class Coder(BaseWorker):
     """An agent that can write code or text to solve tasks without additional tools."""
 
-    DEFAULT_DESCRIPTION = "A helpful and general-purpose AI assistant that has strong language skills, Python skills, and Linux command line skills."
+    DEFAULT_DESCRIPTION = "A helpful and general-purpose AI assistant that has strong language skills and programming skills in various languages including Python, JavaScript, Java, C++, Ruby, Go, and shell scripting."
 
     DEFAULT_SYSTEM_MESSAGES = [
-        SystemMessage("""You are a helpful AI assistant.
+        SystemMessage("""You are a helpful AI assistant with expertise in multiple programming languages.
 Solve tasks using your coding and language skills.
-In the following cases, suggest python code (in a python coding block) or shell script (in a sh coding block) for the user to execute.
+In the following cases, suggest code in an appropriate programming language based on the task requirements:
     1. When you need to collect info, use the code to output the info you need, for example, browse or search the web, download/read a file, print the content of a webpage or a file, get the current date/time, check the operating system. After sufficient info is printed and the task is ready to be solved based on your language skill, you can solve the task by yourself.
     2. When you need to perform some task with code, use the code to perform the task and output the result. Finish the task smartly.
 Solve the task step by step if you need to. If a plan is not provided, explain your plan first. Be clear which step uses code, and which step uses your language skill.
-When using code, you must indicate the script type in the code block. The user cannot provide any other feedback or perform any other action beyond executing the code you suggest. The user can't modify your code. So do not suggest incomplete code which requires users to modify. Don't use a code block if it's not intended to be executed by the user.
-If you want the user to save the code in a file before executing it, put # filename: <filename> inside the code block as the first line. Don't include multiple code blocks in one response. Do not ask users to copy and paste the result. Instead, use 'print' function for the output when relevant. Check the execution result returned by the user.
+When using code, you must indicate the script type in the code block. Use the following format for different languages:
+    - Python: ```python
+    - JavaScript: ```javascript
+    - Java: ```java
+    - C++: ```cpp
+    - Ruby: ```ruby
+    - Go: ```go
+    - Shell: ```sh
+The user cannot provide any other feedback or perform any other action beyond executing the code you suggest. The user can't modify your code. So do not suggest incomplete code which requires users to modify. Don't use a code block if it's not intended to be executed by the user.
+If you want the user to save the code in a file before executing it, put # filename: <filename> inside the code block as the first line. Don't include multiple code blocks in one response. Do not ask users to copy and paste the result. Instead, use appropriate print or output functions for the language you're using. Check the execution result returned by the user.
 If the result indicates there is an error, fix the error and output the code again. Suggest the full code instead of partial code or code changes. If the error can't be fixed or if the task is not solved even after the code is executed successfully, analyze the problem, revisit your assumption, collect additional info you need, and think of a different approach to try.
 When you find an answer, verify the answer carefully. Include verifiable evidence in your response if possible.
 Reply "TERMINATE" in the end when everything is done.""")
@@ -67,7 +75,7 @@ ConfirmCode = Callable[[CodeBlock], Awaitable[bool]]
 
 @default_subscription
 class Executor(BaseWorker):
-    DEFAULT_DESCRIPTION = "A computer terminal that performs no other action than running Python scripts (provided to it quoted in ```python code blocks), or sh shell scripts (provided to it quoted in ```sh code blocks)"
+    DEFAULT_DESCRIPTION = "A computer terminal that can execute code in multiple programming languages including Python, JavaScript, Java, C++, Ruby, Go, and shell scripts."
 
     def __init__(
         self,
@@ -96,24 +104,20 @@ class Executor(BaseWorker):
             code = self._extract_execution_request(message_content_to_str(message.content))
 
             if code is not None:
-                code_lang = code[0]
-                code_block = code[1]
-                if code_lang == "py":
-                    code_lang = "python"
-                execution_requests = [CodeBlock(code=code_block, language=code_lang)]
+                code_lang, code_block = code
+                execution_requests = [CodeBlock(code=code_block, language=self._normalize_language(code_lang))]
                 if self._confirm_execution == "ACCEPT_ALL" or await self._confirm_execution(execution_requests[0]):  # type: ignore
                     result = await self._executor.execute_code_blocks(execution_requests, cancellation_token)
 
                     if result.output.strip() == "":
-                        # Sometimes agents forget to print(). Remind the to print something
                         return (
                             False,
-                            f"The script ran but produced no output to console. The Unix exit code was: {result.exit_code}. If you were expecting output, consider revising the script to ensure content is printed to stdout.",
+                            f"The script ran but produced no output to console. The exit code was: {result.exit_code}. If you were expecting output, consider revising the script to ensure content is printed to stdout.",
                         )
                     else:
                         return (
                             False,
-                            f"The script ran, then exited with Unix exit code: {result.exit_code}\nIts output was:\n{result.output}",
+                            f"The script ran, then exited with exit code: {result.exit_code}\nIts output was:\n{result.output}",
                         )
                 else:
                     return (
@@ -138,3 +142,18 @@ class Executor(BaseWorker):
         if match:
             return (match.group(1), match.group(2))
         return None
+
+    def _normalize_language(self, lang: str) -> str:
+        lang_map = {
+            "py": "python",
+            "js": "javascript",
+            "javascript": "javascript",
+            "java": "java",
+            "cpp": "cpp",
+            "c++": "cpp",
+            "rb": "ruby",
+            "go": "go",
+            "sh": "sh",
+            "bash": "sh",
+        }
+        return lang_map.get(lang.lower(), lang.lower())
