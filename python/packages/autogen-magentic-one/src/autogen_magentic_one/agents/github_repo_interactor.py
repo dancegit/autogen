@@ -31,6 +31,7 @@ Always provide clear and concise responses about the actions taken or informatio
         self._model_client = model_client
         self._system_messages = system_messages
         self._github = Github(github_token)
+        self._github_token = github_token  # Store the token for potential use in API calls
 
     async def _generate_reply(self, cancellation_token: CancellationToken) -> Tuple[bool, UserContent]:
         """Respond to a reply request."""
@@ -76,6 +77,8 @@ Always provide clear and concise responses about the actions taken or informatio
             issue = repo.create_issue(title=params["issue_title"], body=params["issue_body"])
             return f"Created issue #{issue.number} in {params['repo_name']}: {issue.html_url}"
         except GithubException as e:
+            if e.status == 404:
+                return f"Failed to create issue: Repository not found or insufficient permissions. Make sure the repository exists and you have the correct access rights."
             return f"Failed to create issue: {str(e)}"
 
     def _comment_on_pull_request(self, content: str) -> str:
@@ -92,8 +95,11 @@ Always provide clear and concise responses about the actions taken or informatio
         params = self._extract_params(content, ["repo_name"])
         try:
             repo = self._github.get_repo(params["repo_name"])
-            return f"Repository: {repo.full_name}\nDescription: {repo.description}\nStars: {repo.stargazers_count}\nForks: {repo.forks_count}"
+            visibility = "Private" if repo.private else "Public"
+            return f"Repository: {repo.full_name}\nVisibility: {visibility}\nDescription: {repo.description}\nStars: {repo.stargazers_count}\nForks: {repo.forks_count}"
         except GithubException as e:
+            if e.status == 404:
+                return f"Failed to get repository info: Repository not found or insufficient permissions. Make sure the repository exists and you have the correct access rights."
             return f"Failed to get repository info: {str(e)}"
 
     def _list_issues(self, content: str) -> str:
