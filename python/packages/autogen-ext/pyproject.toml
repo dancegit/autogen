@@ -16,6 +16,7 @@ classifiers = [
 ]
 dependencies = [
     "autogen-core==0.4.0.dev6",
+    "aiofiles",
 ]
 
 
@@ -30,6 +31,7 @@ openai = ["openai>=1.3"]
 web-surfer = [
     "playwright>=1.48.0",
     "pillow>=11.0.0",
+    "aiofiles",
 ]
 
 [tool.hatch.build.targets.wheel]
