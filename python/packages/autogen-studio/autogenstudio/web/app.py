@@ -9,6 +9,7 @@ from typing import AsyncGenerator
 from loguru import logger
 
 from .routes import sessions, runs, teams, agents, models, tools, ws, aider
+from autogen_ext.agents.aider_agent import AiderAgent
 from .deps import init_managers, cleanup_managers
 from .config import settings
 from .initialization import AppInitializer

@@ -1,5 +1,5 @@
 import modal
-from .agents.aider_agent import AiderAgent
+from autogen_ext.agents.aider_agent import AiderAgent
 
 app = modal.App()
 

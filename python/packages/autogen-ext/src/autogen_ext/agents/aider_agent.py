@@ -67,3 +67,21 @@ class AiderAgent(BaseChatAgent):
             await run_aider.remote(f"Commit changes with message: {commit_message}", self.config)
         except Exception as e:
             raise ValueError(f"Error committing changes: {str(e)}")
+from autogen_agentchat.agents import BaseChatAgent
+from autogen_agentchat.base import Response
+from autogen_agentchat.messages import ChatMessage
+from autogen_core.base import CancellationToken
+from typing import Sequence
+
+class AiderAgent(BaseChatAgent):
+    def __init__(self, name: str, description: str = "An AI agent that uses Aider for code-related tasks."):
+        super().__init__(name, description)
+
+    async def on_messages(self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken) -> Response:
+        # Implement the logic for processing messages
+        # This is a placeholder implementation
+        return Response(content="AiderAgent received a message.")
+
+    async def on_reset(self, cancellation_token: CancellationToken) -> None:
+        # Implement reset functionality if needed
+        pass
