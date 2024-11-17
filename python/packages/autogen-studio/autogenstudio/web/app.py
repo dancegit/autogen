@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from loguru import logger
 
-from .routes import sessions, runs, teams, agents, models, tools, ws
+from .routes import sessions, runs, teams, agents, models, tools, ws, aider
 from .deps import init_managers, cleanup_managers
 from .config import settings
 from .initialization import AppInitializer
@@ -127,6 +127,13 @@ api.include_router(
     ws.router,
     prefix="/ws",
     tags=["websocket"],
+    responses={404: {"description": "Not found"}},
+)
+
+api.include_router(
+    aider.router,
+    prefix="/aider",
+    tags=["aider"],
     responses={404: {"description": "Not found"}},
 )
 
