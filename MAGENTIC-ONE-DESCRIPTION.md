@@ -214,3 +214,35 @@ Interface:
 - Output: Returns user responses or inputs to other agents in the system.
 
 These detailed capabilities and interfaces allow the agents to work together seamlessly, with the LedgerOrchestrator managing the overall workflow and delegating tasks to the most appropriate agent based on the current needs of the task at hand.
+
+## Agent Registration and Management
+
+The agents in the Autogen-Magentic-One framework do not explicitly register themselves with the LedgerOrchestrator. Instead, the orchestrator is initialized with a list of agents that it will manage. Here's how this process works:
+
+1. Agent List Initialization:
+   - The LedgerOrchestrator is initialized with a list of AgentProxy objects.
+   - This list is provided as a parameter when creating the LedgerOrchestrator instance.
+
+2. Agent Information Retrieval:
+   - The orchestrator has methods to get information about the agents it manages.
+   - It can retrieve metadata about each agent, such as its name and description.
+
+3. Team Description Generation:
+   - The orchestrator can generate a description of the team's capabilities based on the metadata of all agents.
+
+4. Agent Selection:
+   - When needed, the orchestrator selects the next agent to act based on the LLM's decision and the information in the ledger.
+
+5. LLM Awareness:
+   - The LLM guiding the orchestrator's decisions is made aware of the available agents and their capabilities through prompts that include the team description.
+
+This centralized management approach allows the orchestrator to have full control over the agent ecosystem without requiring the agents to have knowledge of the orchestration process or to actively register themselves.
+
+Currently, the specific list of agents given to the orchestrator upon initialization typically includes:
+- MultimodalWebSurfer
+- FileSurfer
+- Coder
+- Executor
+- UserProxy
+
+This list can be customized based on the specific requirements of the task or application. The flexibility of this design allows for easy addition or removal of agents from the system without changing the core orchestration logic.
