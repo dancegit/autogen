@@ -98,3 +98,32 @@
 
 5. Customizable Agent Deployment:
    - Develop a system to allow users to easily configure which agents to deploy and how they interact within the Modal sandbox.
+
+## Implementation Progress
+
+1. Created the `AiderAgent` class:
+   - Implemented the basic structure of the `AiderAgent` class in `python/packages/autogen-ext/src/autogen_ext/agents/aider_agent.py`.
+   - Extended the `BaseChatAgent` class and implemented core methods like `on_messages`, `on_reset`, `analyze_code`, `generate_code`, and `edit_code`.
+
+2. Implemented Aider configuration:
+   - Created `AiderConfig` class in `python/packages/autogen-ext/src/autogen_ext/agents/aider_config.py` to manage Aider-specific settings.
+   - Implemented `load_aider_config` function to load and validate configuration options.
+
+3. Set up Modal integration:
+   - Created `aider_modal.py` in `python/packages/autogen-ext/src/autogen_ext/agents/` to handle Modal-specific functionality.
+   - Implemented `create_aider_image` function to define the Modal image with necessary dependencies.
+   - Created `run_aider` Modal function to execute Aider commands in a sandboxed environment.
+
+4. Extended `GithubAwareCodeExecutor`:
+   - Modified `python/packages/autogen-ext/src/autogen_ext/executors/github_aider_executor.py` to integrate Aider functionality.
+   - Implemented methods to leverage Aider for code execution, committing changes, and retrieving repository maps.
+
+5. Configured Modal secrets:
+   - Set up Modal secrets for storing sensitive information like API keys and tokens.
+
+Next steps:
+- Implement more advanced Aider functionality in the `AiderAgent` class.
+- Develop comprehensive testing suite for the new components.
+- Create documentation and usage examples for the Aider integration.
+- Implement the main entry point for running the entire system on Modal.
+- Conduct thorough testing of the Modal deployment and sandbox integration.
