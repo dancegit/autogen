@@ -12,6 +12,10 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     python3-pip \
     nodejs \
     npm \
+    default-jdk \
+    golang \
+    ruby \
+    ruby-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -24,3 +28,9 @@ RUN pip3 install --no-cache-dir --upgrade pip \
     pylint \
     black \
     mypy
+
+# Install Ruby gems
+RUN gem install bundler
+
+# Install Go tools
+RUN go install golang.org/x/tools/gopls@latest
