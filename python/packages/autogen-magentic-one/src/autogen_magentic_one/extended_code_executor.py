@@ -18,7 +18,7 @@ class ExtendedCodeExecutor(CodeExecutor):
                 result = self._execute_ruby(block.code)
             elif block.language == "go":
                 result = self._execute_go(block.code)
-            elif block.language == "shell":
+            elif block.language in ["shell", "sh", "bash"]:
                 result = self._execute_shell(block.code)
             else:
                 result = f"Unsupported language: {block.language}"
