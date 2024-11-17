@@ -1,15 +1,9 @@
 import modal
 from typing import List, Dict, Any
 from fastapi import FastAPI
+from submodules.modal_com_custom_sandboxes.aider_image import create_aider_image
 
 app = modal.App()
-
-def create_aider_image():
-    return (
-        modal.Image.debian_slim()
-        .pip_install("aider-chat", "modal", "fastapi")
-        .run_commands("mkdir -p /root/workspace")
-    )
 
 aider_image = create_aider_image()
 
