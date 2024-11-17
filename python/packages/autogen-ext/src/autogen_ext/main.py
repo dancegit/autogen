@@ -1,11 +1,11 @@
 import modal
 
-stub = modal.Stub("autogen-ext")
+app = modal.App()
 
-@stub.function()
+@app.function()
 def hello():
     return "Hello from AutoGen Extension!"
 
 if __name__ == "__main__":
-    with stub.run():
+    with app.run():
         print(hello.remote())
