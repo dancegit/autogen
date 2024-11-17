@@ -1,11 +1,12 @@
 import modal
+from typing import List, Dict, Any
 
 app = modal.App("aider-agent")
 
 def create_aider_image():
     return (
         modal.Image.debian_slim()
-        .pip_install("aider-chat", "modal")
+        .pip_install("aider-chat", "modal", "fastapi")
         .run_commands("mkdir -p /root/workspace")
     )
 
@@ -34,7 +35,56 @@ def run_aider(message: str, config: dict) -> str:
     result = subprocess.run(cmd, capture_output=True, text=True)
     return result.stdout
 
+@app.function(
+    image=aider_image,
+    secrets=[modal.Secret.from_name("aider-secrets")],
+    mounts=[modal.Mount.from_local_dir(".", remote_path="/root/workspace")]
+)
+def list_files() -> List[str]:
+    import os
+    return os.listdir("/root/workspace")
+
+@app.function(
+    image=aider_image,
+    secrets=[modal.Secret.from_name("aider-secrets")],
+    mounts=[modal.Mount.from_local_dir(".", remote_path="/root/workspace")]
+)
+def read_file(file_path: str) -> str:
+    with open(file_path, 'r') as file:
+        return file.read()
+
+@app.function(
+    image=aider_image,
+    secrets=[modal.Secret.from_name("aider-secrets")],
+    mounts=[modal.Mount.from_local_dir(".", remote_path="/root/workspace")]
+)
+def write_file(file_path: str, content: str) -> bool:
+    try:
+        with open(file_path, 'w') as file:
+            file.write(content)
+        return True
+    except Exception:
+        return False
+
+@app.web_endpoint(method="POST")
+def aider_chat(message: str, config: Dict[str, Any]) -> Dict[str, str]:
+    result = run_aider.remote(message, config)
+    return {"response": result}
+
+@app.web_endpoint(method="GET")
+def get_files() -> Dict[str, List[str]]:
+    files = list_files.remote()
+    return {"files": files}
+
+@app.web_endpoint(method="GET")
+def get_file_content(file_path: str) -> Dict[str, str]:
+    content = read_file.remote(file_path)
+    return {"content": content}
+
+@app.web_endpoint(method="POST")
+def update_file(file_path: str, content: str) -> Dict[str, bool]:
+    success = write_file.remote(file_path, content)
+    return {"success": success}
+
 if __name__ == "__main__":
-    with app.run():
-        result = run_aider.remote("Hello, Aider!", {"model_name": "gpt-4"})
-        print(result)
+    modal.runner.deploy_app(app)
