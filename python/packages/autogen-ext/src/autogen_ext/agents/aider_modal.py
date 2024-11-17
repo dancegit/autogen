@@ -4,8 +4,9 @@ app = modal.App("aider-agent")
 
 def create_aider_image():
     return (
-        modal.Image.from_registry("ghcr.io/paul-gauthier/aider:latest")
-        .pip_install("modal")
+        modal.Image.debian_slim()
+        .pip_install("aider-chat", "modal")
+        .run_commands("mkdir -p /root/workspace")
     )
 
 aider_image = create_aider_image()
@@ -13,13 +14,13 @@ aider_image = create_aider_image()
 @app.function(
     image=aider_image,
     secrets=[modal.Secret.from_name("aider-secrets")],
-    mounts=[modal.Mount.from_local_dir(".", remote_path="/workspace")]
+    mounts=[modal.Mount.from_local_dir(".", remote_path="/root/workspace")]
 )
 def run_aider(message: str, config: dict) -> str:
     import os
     import subprocess
     
-    os.chdir("/workspace")
+    os.chdir("/root/workspace")
     
     cmd = [
         "aider",
