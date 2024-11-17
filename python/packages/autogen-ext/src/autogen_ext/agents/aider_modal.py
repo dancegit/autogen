@@ -34,6 +34,6 @@ def run_aider(message: str, config: dict) -> str:
     return result.stdout
 
 if __name__ == "__main__":
-    with stub.run():
+    with app.run():
         result = run_aider.remote("Hello, Aider!", {"model_name": "gpt-4"})
         print(result)
