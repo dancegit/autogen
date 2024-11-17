@@ -117,3 +117,29 @@ The LedgerOrchestrator plays a crucial role in presenting the capabilities of th
 5. Dynamic Updates: The orchestrator can update its understanding of agent capabilities through the planning and replanning process, allowing it to adapt to new information or changing task requirements.
 
 This approach allows the LLM to make informed decisions about which agent to use for each subtask, based on a high-level understanding of each agent's capabilities, without needing to manage the low-level details of individual tools or functions available to each agent.
+
+6. Decision-Making Parameters: When the LLM decides which agent should act next, it considers several key parameters provided by the LedgerOrchestrator:
+
+   a. Task Description: The original task or request that needs to be addressed.
+   b. Team Composition: A list of available agents and their high-level capabilities.
+   c. Current State: Information about the progress made so far, including:
+      - Recent actions taken by agents
+      - Results or outputs from previous actions
+      - Any errors or obstacles encountered
+   d. Plan Status: The current step in the plan and any deviations or updates made to the original plan.
+   e. Conversation History: The full context of the conversation, including all previous messages exchanged between agents.
+   f. Ledger Information: The most recent update to the ledger, which includes:
+      - Whether the request is satisfied
+      - If the process is in a loop
+      - If progress is being made
+   g. Time and Iteration Constraints: Information about the number of rounds completed and any time limits.
+
+These parameters are formatted into a structured prompt (the `_get_ledger_prompt` method) that allows the LLM to analyze the current situation comprehensively. The LLM then uses this information to determine the most appropriate next action, which includes selecting the next agent to act and providing specific instructions or questions for that agent.
+
+This detailed context enables the LLM to make nuanced decisions, such as:
+- Choosing a specialist agent when domain-specific knowledge is required
+- Selecting a generalist agent for high-level planning or synthesis tasks
+- Opting for an information-gathering agent when more data is needed
+- Deciding to replan if the current approach is not yielding results
+
+By providing this rich set of parameters, the LedgerOrchestrator ensures that the LLM can make well-informed decisions that adapt to the evolving needs of the task and the dynamics of the multi-agent system.
