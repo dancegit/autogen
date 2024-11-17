@@ -244,5 +244,18 @@ Currently, the specific list of agents given to the orchestrator upon initializa
 - Coder
 - Executor
 - UserProxy
+- GitHubRepoInteractor
 
 This list can be customized based on the specific requirements of the task or application. The flexibility of this design allows for easy addition or removal of agents from the system without changing the core orchestration logic.
+
+### 7. GitHubRepoInteractor
+
+Capabilities:
+- GitHub repository interaction: Can perform various operations on GitHub repositories.
+- Issue creation: Can create new issues in specified repositories.
+- Pull request commenting: Can add comments to existing pull requests.
+- Repository information retrieval: Can fetch and return information about GitHub repositories.
+
+Interface:
+- Input: Receives instructions or queries about GitHub operations to perform.
+- Output: Returns the results of GitHub operations or requested repository information.
