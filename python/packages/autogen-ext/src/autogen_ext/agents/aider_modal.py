@@ -2,7 +2,7 @@ import modal
 from typing import List, Dict, Any
 from fastapi import FastAPI
 
-stub = modal.Stub("aider-agent")
+app = modal.App("aider-agent")
 
 def create_aider_image():
     return (
@@ -13,7 +13,7 @@ def create_aider_image():
 
 aider_image = create_aider_image()
 
-@stub.function(
+@app.function(
     image=aider_image,
     secrets=[modal.Secret.from_name("aider-secrets")],
     mounts=[modal.Mount.from_local_dir(".", remote_path="/root/workspace")]
@@ -67,7 +67,7 @@ def write_file(file_path: str, content: str) -> bool:
     except Exception:
         return False
 
-@stub.function()
+@app.function()
 @modal.asgi_app()
 def fastapi_app():
     app = FastAPI()
