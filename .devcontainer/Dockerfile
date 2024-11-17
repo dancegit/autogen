@@ -47,5 +47,8 @@ RUN curl -s https://get.sdkman.io | bash \
 RUN curl -s https://get.sdkman.io | bash \
     && bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && sdk install scala"
 
+# Install TypeScript
+RUN npm install -g typescript
+
 # Add SDKMAN to PATH
 ENV PATH="/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/scala/current/bin:${PATH}"

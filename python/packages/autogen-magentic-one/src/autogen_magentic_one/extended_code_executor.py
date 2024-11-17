@@ -26,6 +26,8 @@ class ExtendedCodeExecutor(CodeExecutor):
                 result = self._execute_kotlin(block.code)
             elif block.language == "scala":
                 result = self._execute_scala(block.code)
+            elif block.language == "typescript":
+                result = self._execute_typescript(block.code)
             else:
                 result = f"Unsupported language: {block.language}"
             results.append(result)
@@ -90,4 +92,13 @@ class ExtendedCodeExecutor(CodeExecutor):
             f.write(code)
         result = subprocess.run(["scala", "temp.scala"], capture_output=True, text=True).stdout
         os.remove("temp.scala")
+        return result
+
+    def _execute_typescript(self, code):
+        with open("temp.ts", "w") as f:
+            f.write(code)
+        subprocess.run(["tsc", "temp.ts"], check=True)
+        result = subprocess.run(["node", "temp.js"], capture_output=True, text=True).stdout
+        os.remove("temp.ts")
+        os.remove("temp.js")
         return result
