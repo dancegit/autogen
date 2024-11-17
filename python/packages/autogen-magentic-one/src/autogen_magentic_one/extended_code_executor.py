@@ -20,6 +20,12 @@ class ExtendedCodeExecutor(CodeExecutor):
                 result = self._execute_go(block.code)
             elif block.language in ["shell", "sh", "bash"]:
                 result = self._execute_shell(block.code)
+            elif block.language == "groovy":
+                result = self._execute_groovy(block.code)
+            elif block.language == "kotlin":
+                result = self._execute_kotlin(block.code)
+            elif block.language == "scala":
+                result = self._execute_scala(block.code)
             else:
                 result = f"Unsupported language: {block.language}"
             results.append(result)
@@ -62,3 +68,26 @@ class ExtendedCodeExecutor(CodeExecutor):
 
     def _execute_shell(self, code):
         return subprocess.run(["bash", "-c", code], capture_output=True, text=True).stdout
+
+    def _execute_groovy(self, code):
+        with open("temp.groovy", "w") as f:
+            f.write(code)
+        result = subprocess.run(["groovy", "temp.groovy"], capture_output=True, text=True).stdout
+        os.remove("temp.groovy")
+        return result
+
+    def _execute_kotlin(self, code):
+        with open("temp.kt", "w") as f:
+            f.write(code)
+        subprocess.run(["kotlinc", "temp.kt", "-include-runtime", "-d", "temp.jar"], check=True)
+        result = subprocess.run(["java", "-jar", "temp.jar"], capture_output=True, text=True).stdout
+        os.remove("temp.kt")
+        os.remove("temp.jar")
+        return result
+
+    def _execute_scala(self, code):
+        with open("temp.scala", "w") as f:
+            f.write(code)
+        result = subprocess.run(["scala", "temp.scala"], capture_output=True, text=True).stdout
+        os.remove("temp.scala")
+        return result

@@ -34,3 +34,18 @@ RUN gem install bundler
 
 # Install Go tools
 RUN go install golang.org/x/tools/gopls@latest
+
+# Install Groovy
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends groovy
+
+# Install Kotlin
+RUN curl -s https://get.sdkman.io | bash \
+    && bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && sdk install kotlin"
+
+# Install Scala
+RUN curl -s https://get.sdkman.io | bash \
+    && bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && sdk install scala"
+
+# Add SDKMAN to PATH
+ENV PATH="/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/scala/current/bin:${PATH}"

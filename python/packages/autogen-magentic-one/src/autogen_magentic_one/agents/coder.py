@@ -20,7 +20,7 @@ from .base_worker import BaseWorker
 class Coder(BaseWorker):
     """An agent that can write code or text to solve tasks without additional tools."""
 
-    DEFAULT_DESCRIPTION = "A helpful and general-purpose AI assistant that has strong language skills and programming skills in various languages including Python, JavaScript, Java, C++, Ruby, Go, and shell scripting."
+    DEFAULT_DESCRIPTION = "A helpful and general-purpose AI assistant that has strong language skills and programming skills in various languages including Python, JavaScript, Java, C++, Ruby, Go, Groovy, Kotlin, Scala, and shell scripting."
 
     DEFAULT_SYSTEM_MESSAGES = [
         SystemMessage("""You are a helpful AI assistant with expertise in multiple programming languages.
@@ -37,6 +37,9 @@ When using code, you must indicate the script type in the code block. Use the fo
     - Ruby: ```ruby
     - Go: ```go
     - Shell: ```sh
+    - Groovy: ```groovy
+    - Kotlin: ```kotlin
+    - Scala: ```scala
 The user cannot provide any other feedback or perform any other action beyond executing the code you suggest. The user can't modify your code. So do not suggest incomplete code which requires users to modify. Don't use a code block if it's not intended to be executed by the user.
 If you want the user to save the code in a file before executing it, put # filename: <filename> inside the code block as the first line. Don't include multiple code blocks in one response. Do not ask users to copy and paste the result. Instead, use appropriate print or output functions for the language you're using. Check the execution result returned by the user.
 If the result indicates there is an error, fix the error and output the code again. Suggest the full code instead of partial code or code changes. If the error can't be fixed or if the task is not solved even after the code is executed successfully, analyze the problem, revisit your assumption, collect additional info you need, and think of a different approach to try.
@@ -159,5 +162,8 @@ class Executor(BaseWorker):
             "sh": "shell",
             "bash": "shell",
             "shell": "shell",
+            "groovy": "groovy",
+            "kotlin": "kotlin",
+            "scala": "scala",
         }
         return lang_map.get(lang.lower(), lang.lower())
