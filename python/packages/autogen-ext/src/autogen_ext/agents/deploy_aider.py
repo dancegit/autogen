@@ -1,11 +1,11 @@
 import modal
-from autogen_ext.agents.aider_modal import app
+from autogen_ext.agents.aider_modal import app as fastapi_app
 
 if __name__ == "__main__":
-    stub = modal.Stub("aider-agent")
-    stub.function(app.fastapi_app)
+    modal_app = modal.App("aider-agent")
+    modal_app.function(fastapi_app)
 
-    with stub.run():
+    with modal_app.run():
         print("Aider agent deployed successfully on Modal!")
         print("You can now use the Aider agent in your AutoGen workflows.")
         print("Available endpoints:")
