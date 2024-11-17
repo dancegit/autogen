@@ -3,7 +3,8 @@ from typing import Awaitable, Callable, List, Literal, Tuple, Union
 
 from autogen_core.base import CancellationToken
 from autogen_core.components import default_subscription
-from autogen_core.components.code_executor import CodeBlock, CodeExecutor
+from autogen_core.components.code_executor import CodeBlock
+from ..extended_code_executor import ExtendedCodeExecutor
 from autogen_core.components.models import (
     ChatCompletionClient,
     SystemMessage,
@@ -82,7 +83,7 @@ class Executor(BaseWorker):
         description: str = DEFAULT_DESCRIPTION,
         check_last_n_message: int = 5,
         *,
-        executor: CodeExecutor,
+        executor: ExtendedCodeExecutor,
         confirm_execution: ConfirmCode | Literal["ACCEPT_ALL"],
     ) -> None:
         super().__init__(description)
@@ -152,8 +153,11 @@ class Executor(BaseWorker):
             "cpp": "cpp",
             "c++": "cpp",
             "rb": "ruby",
+            "ruby": "ruby",
             "go": "go",
-            "sh": "sh",
-            "bash": "sh",
+            "golang": "go",
+            "sh": "shell",
+            "bash": "shell",
+            "shell": "shell",
         }
         return lang_map.get(lang.lower(), lang.lower())
