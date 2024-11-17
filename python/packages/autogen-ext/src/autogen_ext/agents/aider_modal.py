@@ -93,6 +93,3 @@ def fastapi_app():
         return {"success": success}
 
     return app
-
-if __name__ == "__main__":
-    modal.run(app)
