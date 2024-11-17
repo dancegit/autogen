@@ -143,3 +143,74 @@ This detailed context enables the LLM to make nuanced decisions, such as:
 - Deciding to replan if the current approach is not yielding results
 
 By providing this rich set of parameters, the LedgerOrchestrator ensures that the LLM can make well-informed decisions that adapt to the evolving needs of the task and the dynamics of the multi-agent system.
+
+## Detailed Agent Capabilities and Interfaces
+
+### 1. MultimodalWebSurfer
+
+Capabilities:
+- Web navigation: Can visit URLs, scroll pages, and navigate browser history.
+- Web interaction: Can click on elements, type into input fields, and perform searches.
+- Content extraction: Can read and summarize web page content, including text and metadata.
+- Visual processing: Can analyze screenshots of web pages to identify interactive elements.
+
+Interface:
+- Input: Receives instructions or queries about web interactions or content retrieval.
+- Output: Returns web page content, summaries, or results of interactions (e.g., search results, form submissions).
+
+### 2. FileSurfer
+
+Capabilities:
+- File system navigation: Can open and read local files.
+- Content viewing: Can display file contents and scroll through them.
+- Text search: Can find specific text within files.
+
+Interface:
+- Input: Receives instructions to open files, navigate file content, or search within files.
+- Output: Returns file content, search results, or confirmation of actions performed.
+
+### 3. LedgerOrchestrator
+
+Capabilities:
+- Task management: Coordinates multiple agents to solve complex tasks.
+- Planning: Creates and updates plans based on the current state of the task.
+- Decision making: Selects the most appropriate agent for each subtask.
+- Progress tracking: Monitors task progress and detects when replanning is necessary.
+
+Interface:
+- Input: Receives the initial task description and updates from other agents.
+- Output: Generates plans, selects agents, and provides instructions to agents.
+
+### 4. Coder
+
+Capabilities:
+- Code generation: Can write Python code or shell scripts to perform various operations.
+- Problem-solving: Can break down coding tasks into steps and implement solutions.
+- Code explanation: Can provide explanations for the code it generates.
+
+Interface:
+- Input: Receives coding tasks or problems to solve.
+- Output: Returns code snippets, explanations, or suggestions for further actions.
+
+### 5. Executor
+
+Capabilities:
+- Code execution: Can run Python scripts and shell commands.
+- Output capture: Captures and returns the output of executed code.
+- Error handling: Can report execution errors and exit codes.
+
+Interface:
+- Input: Receives code blocks (Python or shell) to execute.
+- Output: Returns execution results, including standard output and error messages.
+
+### 6. UserProxy
+
+Capabilities:
+- User interaction simulation: Acts as an interface between the AI system and a human user.
+- Input handling: Can receive and process user input.
+
+Interface:
+- Input: Receives prompts or questions to present to the user.
+- Output: Returns user responses or inputs to other agents in the system.
+
+These detailed capabilities and interfaces allow the agents to work together seamlessly, with the LedgerOrchestrator managing the overall workflow and delegating tasks to the most appropriate agent based on the current needs of the task at hand.
