@@ -94,3 +94,26 @@ Throughout this workflow, the LLM plays a crucial role in decision-making, plann
 - `markdown_browser.py`: Implements a text-based browser for handling Markdown content.
 
 This framework provides a flexible and extensible system for creating AI-powered automation workflows, combining web browsing, file handling, and code generation capabilities.
+
+## Agent Capabilities Presentation
+
+The LedgerOrchestrator plays a crucial role in presenting the capabilities of the agents to the LLM. Here's how it works:
+
+1. Team Description: The orchestrator maintains a team description that includes a brief overview of each agent's capabilities. This is generated in the `_get_team_description` method of the LedgerOrchestrator class.
+
+2. Initial Synthesis: When a new task is received, the orchestrator uses the `_get_synthesize_prompt` method to create a prompt that includes:
+   - The original task
+   - The team description (capabilities of all agents)
+   - The initial fact sheet
+   - The initial plan
+
+3. Ongoing Decision Making: Throughout the task, the orchestrator uses the `_get_ledger_prompt` method to create prompts for the LLM. This prompt includes:
+   - The original task
+   - The team description
+   - A list of available agent names
+
+4. Tool Descriptions: While the orchestrator doesn't directly describe the tools available to each agent, this information is implicitly contained in the agent descriptions and is used by the LLM when deciding which agent should act next.
+
+5. Dynamic Updates: The orchestrator can update its understanding of agent capabilities through the planning and replanning process, allowing it to adapt to new information or changing task requirements.
+
+This approach allows the LLM to make informed decisions about which agent to use for each subtask, based on a high-level understanding of each agent's capabilities, without needing to manage the low-level details of individual tools or functions available to each agent.
