@@ -51,11 +51,38 @@ Autogen-Magentic-One is a framework for creating and managing AI agents that can
 
 ## Workflow
 
-1. The LedgerOrchestrator initializes a task and creates a plan.
-2. It selects appropriate agents to work on subtasks.
-3. Agents use their specialized tools to perform actions (e.g., web browsing, file operations, coding).
-4. The orchestrator updates the ledger based on agent actions and progress.
-5. The process continues until the task is completed or requires replanning.
+1. The LedgerOrchestrator receives an incoming task message and initializes the process:
+   - It uses the LLM to analyze the task and generate an initial fact sheet and plan.
+   - The fact sheet includes given facts, facts to look up, facts to derive, and educated guesses.
+   - The plan outlines steps to accomplish the task using available agents.
+
+2. The orchestrator selects appropriate agents to work on subtasks:
+   - It uses the LLM to decide which agent should act next based on the current state and plan.
+   - The LLM generates specific instructions or questions for the chosen agent.
+
+3. Agents use their specialized tools to perform actions:
+   - Each agent (e.g., MultimodalWebSurfer, FileSurfer, Coder) has access to specific tools.
+   - Agents use the LLM to interpret instructions and decide which tools to use.
+   - For example, MultimodalWebSurfer can browse the web, click links, fill forms, etc.
+   - FileSurfer can navigate and read local files.
+   - Coder can generate and execute code to solve programming tasks.
+
+4. The orchestrator updates the ledger based on agent actions and progress:
+   - After each agent action, the LLM updates the ledger (a JSON structure).
+   - The ledger tracks whether the request is satisfied, if progress is being made, and if any loops are detected.
+   - It also determines the next speaker and provides instructions for them.
+
+5. The process continues iteratively:
+   - The orchestrator uses the updated ledger to select the next action or agent.
+   - If progress stalls or a loop is detected, the orchestrator may trigger a replan.
+   - Replanning involves updating the fact sheet and generating a new plan using the LLM.
+
+6. Task completion or termination:
+   - The process continues until the LLM determines the task is completed successfully.
+   - If the maximum number of rounds or replans is reached, the process terminates.
+   - Upon completion, the LLM may generate a final summary or answer based on the accumulated information.
+
+Throughout this workflow, the LLM plays a crucial role in decision-making, planning, and interpreting results. It acts as the "brain" of the system, guiding the orchestrator and agents to collaboratively solve complex tasks.
 
 ## Key Files and Their Roles
 
