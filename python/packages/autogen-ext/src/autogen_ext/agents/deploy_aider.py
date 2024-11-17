@@ -3,7 +3,9 @@ from autogen_ext.agents.aider_modal import app as fastapi_app
 
 if __name__ == "__main__":
     modal_app = modal.App("aider-agent")
-    modal_app.function(fastapi_app)
+    @modal_app.function()
+    def fastapi_endpoint():
+        return fastapi_app
 
     with modal_app.run():
         print("Aider agent deployed successfully on Modal!")
