@@ -36,7 +36,7 @@ def run_aider(message: str, config: dict) -> str:
     result = subprocess.run(cmd, capture_output=True, text=True)
     return result.stdout
 
-@stub.function(
+@app.function(
     image=aider_image,
     secrets=[modal.Secret.from_name("aider-secrets")],
     mounts=[modal.Mount.from_local_dir(".", remote_path="/root/workspace")]
@@ -45,7 +45,7 @@ def list_files() -> List[str]:
     import os
     return os.listdir("/root/workspace")
 
-@stub.function(
+@app.function(
     image=aider_image,
     secrets=[modal.Secret.from_name("aider-secrets")],
     mounts=[modal.Mount.from_local_dir(".", remote_path="/root/workspace")]
@@ -54,7 +54,7 @@ def read_file(file_path: str) -> str:
     with open(file_path, 'r') as file:
         return file.read()
 
-@stub.function(
+@app.function(
     image=aider_image,
     secrets=[modal.Secret.from_name("aider-secrets")],
     mounts=[modal.Mount.from_local_dir(".", remote_path="/root/workspace")]
@@ -95,4 +95,4 @@ def fastapi_app():
     return app
 
 if __name__ == "__main__":
-    stub.serve()
+    app.serve()
