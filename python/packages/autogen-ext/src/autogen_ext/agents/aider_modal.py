@@ -2,7 +2,7 @@ import modal
 from typing import List, Dict, Any
 from fastapi import FastAPI
 
-app = modal.App("aider-agent")
+app = modal.App()
 
 def create_aider_image():
     return (
@@ -95,4 +95,4 @@ def fastapi_app():
     return app
 
 if __name__ == "__main__":
-    app.serve()
+    modal.run(app)

@@ -1,9 +1,7 @@
 from .aider_modal import app
-from modal import Stub
 
 if __name__ == "__main__":
-    stub = Stub("aider-agent", app)
-    stub.deploy()
+    app.deploy()
     print("Aider agent deployed successfully on Modal!")
     print("You can now use the Aider agent in your AutoGen workflows.")
     print("Available endpoints:")
