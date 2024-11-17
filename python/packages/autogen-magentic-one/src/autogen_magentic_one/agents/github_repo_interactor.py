@@ -1,5 +1,5 @@
-import os
-from typing import List, Tuple, Any
+import re
+from typing import List, Tuple, Dict, Any
 from github import Github, GithubException
 from autogen_core.base import CancellationToken
 from autogen_core.components import default_subscription
@@ -45,51 +45,91 @@ Always provide clear and concise responses about the actions taken or informatio
         return False, result
 
     def _process_and_execute_github_operations(self, content: str) -> str:
-        # This method would parse the content and execute the appropriate GitHub operations
-        # For demonstration, we'll implement a few example operations
-        if "create_issue" in content.lower():
-            return self._create_issue(content)
-        elif "comment_on_pull_request" in content.lower():
-            return self._comment_on_pull_request(content)
-        elif "get_repo_info" in content.lower():
-            return self._get_repo_info(content)
-        else:
-            return f"Processed content: {content}\nNo specific GitHub operation was executed."
+        operations = {
+            "create_issue": self._create_issue,
+            "comment_on_pull_request": self._comment_on_pull_request,
+            "get_repo_info": self._get_repo_info,
+            "list_issues": self._list_issues,
+            "create_pull_request": self._create_pull_request,
+            "list_pull_requests": self._list_pull_requests,
+            "get_commit_info": self._get_commit_info,
+        }
+
+        for operation, func in operations.items():
+            if operation in content.lower():
+                return func(content)
+
+        return f"Processed content: {content}\nNo specific GitHub operation was executed."
+
+    def _extract_params(self, content: str, params: List[str]) -> Dict[str, str]:
+        extracted = {}
+        for param in params:
+            match = re.search(rf"{param}:\s*(.+?)(?:\n|$)", content, re.IGNORECASE)
+            if match:
+                extracted[param] = match.group(1).strip()
+        return extracted
 
     def _create_issue(self, content: str) -> str:
-        # Extract repository name, issue title, and body from the content
-        # This is a simplified example and would need more robust parsing in a real implementation
-        repo_name = "owner/repo"  # Extract this from content
-        issue_title = "New Issue"  # Extract this from content
-        issue_body = "Issue description"  # Extract this from content
-        
+        params = self._extract_params(content, ["repo_name", "issue_title", "issue_body"])
         try:
-            repo = self._github.get_repo(repo_name)
-            issue = repo.create_issue(title=issue_title, body=issue_body)
-            return f"Created issue #{issue.number} in {repo_name}: {issue.html_url}"
+            repo = self._github.get_repo(params["repo_name"])
+            issue = repo.create_issue(title=params["issue_title"], body=params["issue_body"])
+            return f"Created issue #{issue.number} in {params['repo_name']}: {issue.html_url}"
         except GithubException as e:
             return f"Failed to create issue: {str(e)}"
 
     def _comment_on_pull_request(self, content: str) -> str:
-        # Extract repository name, PR number, and comment from the content
-        repo_name = "owner/repo"  # Extract this from content
-        pr_number = 1  # Extract this from content
-        comment = "PR comment"  # Extract this from content
-        
+        params = self._extract_params(content, ["repo_name", "pr_number", "comment"])
         try:
-            repo = self._github.get_repo(repo_name)
-            pr = repo.get_pull(pr_number)
-            comment = pr.create_issue_comment(comment)
-            return f"Commented on PR #{pr_number} in {repo_name}: {comment.html_url}"
+            repo = self._github.get_repo(params["repo_name"])
+            pr = repo.get_pull(int(params["pr_number"]))
+            comment = pr.create_issue_comment(params["comment"])
+            return f"Commented on PR #{params['pr_number']} in {params['repo_name']}: {comment.html_url}"
         except GithubException as e:
             return f"Failed to comment on PR: {str(e)}"
 
     def _get_repo_info(self, content: str) -> str:
-        # Extract repository name from the content
-        repo_name = "owner/repo"  # Extract this from content
-        
+        params = self._extract_params(content, ["repo_name"])
         try:
-            repo = self._github.get_repo(repo_name)
+            repo = self._github.get_repo(params["repo_name"])
             return f"Repository: {repo.full_name}\nDescription: {repo.description}\nStars: {repo.stargazers_count}\nForks: {repo.forks_count}"
         except GithubException as e:
             return f"Failed to get repository info: {str(e)}"
+
+    def _list_issues(self, content: str) -> str:
+        params = self._extract_params(content, ["repo_name", "state"])
+        try:
+            repo = self._github.get_repo(params["repo_name"])
+            state = params.get("state", "open")
+            issues = repo.get_issues(state=state)
+            return "\n".join([f"#{issue.number}: {issue.title}" for issue in issues[:10]])
+        except GithubException as e:
+            return f"Failed to list issues: {str(e)}"
+
+    def _create_pull_request(self, content: str) -> str:
+        params = self._extract_params(content, ["repo_name", "title", "body", "head", "base"])
+        try:
+            repo = self._github.get_repo(params["repo_name"])
+            pr = repo.create_pull(title=params["title"], body=params["body"], head=params["head"], base=params["base"])
+            return f"Created PR #{pr.number} in {params['repo_name']}: {pr.html_url}"
+        except GithubException as e:
+            return f"Failed to create pull request: {str(e)}"
+
+    def _list_pull_requests(self, content: str) -> str:
+        params = self._extract_params(content, ["repo_name", "state"])
+        try:
+            repo = self._github.get_repo(params["repo_name"])
+            state = params.get("state", "open")
+            prs = repo.get_pulls(state=state)
+            return "\n".join([f"#{pr.number}: {pr.title}" for pr in prs[:10]])
+        except GithubException as e:
+            return f"Failed to list pull requests: {str(e)}"
+
+    def _get_commit_info(self, content: str) -> str:
+        params = self._extract_params(content, ["repo_name", "commit_sha"])
+        try:
+            repo = self._github.get_repo(params["repo_name"])
+            commit = repo.get_commit(params["commit_sha"])
+            return f"Commit: {commit.sha}\nAuthor: {commit.commit.author.name}\nMessage: {commit.commit.message}"
+        except GithubException as e:
+            return f"Failed to get commit info: {str(e)}"
