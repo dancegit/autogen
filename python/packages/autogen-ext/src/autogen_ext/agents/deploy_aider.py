@@ -2,7 +2,7 @@ import modal
 from autogen_ext.agents.aider_modal import app
 
 if __name__ == "__main__":
-    modal.serve(app)
+    modal.run(app.serve())
     print("Aider agent deployed successfully on Modal!")
     print("You can now use the Aider agent in your AutoGen workflows.")
     print("Available endpoints:")
