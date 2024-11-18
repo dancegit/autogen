@@ -79,43 +79,22 @@ RUN /usr/local/go/bin/go install golang.org/x/tools/gopls@latest
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends groovy
 
-# Install SDKMAN
-RUN curl -s "https://get.sdkman.io" | bash
+# Install SDKMAN and required tools
+RUN curl -s "https://get.sdkman.io" | bash && \
+    bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
+    sdk install kotlin && \
+    sdk install scala && \
+    sdk install groovy"
 
-# Set up SDKMAN environment variables
+# Set up environment variables
 ENV SDKMAN_DIR="/root/.sdkman"
-ENV PATH="${SDKMAN_DIR}/candidates/kotlin/current/bin:${SDKMAN_DIR}/candidates/scala/current/bin:${PATH}"
-
-# Ensure SDKMAN is properly initialized in all subsequent RUN commands
-SHELL ["/bin/bash", "-c"]
-
-# Source SDKMAN and install Kotlin and Scala
-RUN set -e; \
-    source "${SDKMAN_DIR}/bin/sdkman-init.sh"; \
-    sdk install kotlin; \
-    sdk install scala; \
-    echo 'source "${SDKMAN_DIR}/bin/sdkman-init.sh"' >> /root/.bashrc
-
-# Verify installations
-RUN set -e; \
-    source "${SDKMAN_DIR}/bin/sdkman-init.sh"; \
-    kotlin -version; \
-    scala -version
-
-# Ensure SDKMAN is properly initialized in all subsequent RUN commands
-SHELL ["/bin/bash", "-l", "-c"]
-
-# Ensure SDKMAN is properly initialized in all subsequent RUN commands
-SHELL ["/bin/bash", "-c", "source ${SDKMAN_DIR}/bin/sdkman-init.sh && exec bash"]
+ENV PATH="${SDKMAN_DIR}/candidates/kotlin/current/bin:${SDKMAN_DIR}/candidates/scala/current/bin:${SDKMAN_DIR}/candidates/groovy/current/bin:${PATH}"
 
 # Install TypeScript
 RUN npm install -g typescript
 
-# Add SDKMAN-installed binaries to PATH
-ENV PATH="${SDKMAN_DIR}/candidates/kotlin/current/bin:${SDKMAN_DIR}/candidates/scala/current/bin:${PATH}"
-
-# Source SDKMAN in .bashrc for interactive shells
+# Ensure SDKMAN is initialized in interactive shells
 RUN echo 'source "${SDKMAN_DIR}/bin/sdkman-init.sh"' >> /root/.bashrc
 
-# Set SHELL to bash and use login shell to ensure .bashrc is sourced
+# Set SHELL to bash and use login shell
 SHELL ["/bin/bash", "-l", "-c"]
