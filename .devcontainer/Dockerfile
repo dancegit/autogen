@@ -16,6 +16,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     golang \
     ruby \
     ruby-dev \
+    libssl-dev \
+    zlib1g-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -29,17 +31,14 @@ RUN pip3 install --no-cache-dir --upgrade pip \
     black \
     mypy
 
-# Install rbenv and ruby-build
+# Install Ruby using apt
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
-    rbenv \
-    && git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+    ruby-full \
+    ruby-bundler
 
-# Install Ruby 3.0.0 and set it as the global version
-RUN rbenv install 3.0.0 && rbenv global 3.0.0
-
-# Install bundler
-RUN eval "$(rbenv init -)" && gem install bundler
+# Set Ruby version and install bundler
+RUN ruby --version && gem install bundler
 
 # Install Go tools
 RUN go install golang.org/x/tools/gopls@latest
