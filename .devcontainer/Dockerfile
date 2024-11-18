@@ -53,14 +53,13 @@ RUN git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
     && git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
 
 ENV PATH /root/.rbenv/bin:$PATH
-RUN eval "$(rbenv init -)"
+RUN /bin/bash -c "source ~/.bashrc && rbenv init - && rbenv install 3.0.0 && rbenv global 3.0.0"
 
-RUN rbenv install 3.0.0 && rbenv global 3.0.0
 RUN echo 'gem: --no-document' > ~/.gemrc
-RUN gem install bundler
+RUN /bin/bash -c "source ~/.bashrc && gem install bundler"
 
 # Verify Ruby version and Bundler installation
-RUN ruby --version && bundler --version
+RUN /bin/bash -c "source ~/.bashrc && ruby --version && bundler --version"
 
 # Install Go tools
 RUN go install golang.org/x/tools/gopls@latest
