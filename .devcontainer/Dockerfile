@@ -31,14 +31,36 @@ RUN pip3 install --no-cache-dir --upgrade pip \
     black \
     mypy
 
-# Install Ruby using apt
+# Install Ruby 3.0 using rbenv
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
-    ruby-full \
-    ruby-bundler
+    git \
+    libssl-dev \
+    libreadline-dev \
+    zlib1g-dev \
+    autoconf \
+    bison \
+    build-essential \
+    libyaml-dev \
+    libreadline-dev \
+    libncurses5-dev \
+    libffi-dev \
+    libgdbm-dev
 
-# Set Ruby version and install bundler
-RUN ruby --version && gem install bundler
+RUN git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
+    && echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc \
+    && echo 'eval "$(rbenv init -)"' >> ~/.bashrc \
+    && git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+
+ENV PATH /root/.rbenv/bin:$PATH
+RUN eval "$(rbenv init -)"
+
+RUN rbenv install 3.0.0 && rbenv global 3.0.0
+RUN echo 'gem: --no-document' > ~/.gemrc
+RUN gem install bundler
+
+# Verify Ruby version and Bundler installation
+RUN ruby --version && bundler --version
 
 # Install Go tools
 RUN go install golang.org/x/tools/gopls@latest
