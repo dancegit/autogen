@@ -61,6 +61,15 @@ RUN /bin/bash -c "source ~/.bashrc && gem install bundler"
 # Verify Ruby version and Bundler installation
 RUN /bin/bash -c "source ~/.bashrc && ruby --version && bundler --version"
 
+# Install Go
+RUN wget https://golang.org/dl/go1.17.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.17.linux-amd64.tar.gz && \
+    rm go1.17.linux-amd64.tar.gz
+
+# Set Go environment variables
+ENV GOROOT=/usr/local/go
+ENV PATH=$PATH:/usr/local/go/bin
+
 # Install Go tools
 RUN go install golang.org/x/tools/gopls@latest
 
@@ -80,7 +89,7 @@ RUN bash -c "source /root/.sdkman/bin/sdkman-init.sh && \
 RUN npm install -g typescript
 
 # Add SDKMAN to PATH
-ENV PATH="/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/scala/current/bin:${PATH}"
+ENV PATH=/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/scala/current/bin:${PATH}
 
 # Source SDKMAN in .bashrc
 RUN echo "source /root/.sdkman/bin/sdkman-init.sh" >> /root/.bashrc
