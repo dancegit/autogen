@@ -89,7 +89,13 @@ ENV PATH="${SDKMAN_DIR}/bin:${PATH}"
 # Source SDKMAN and install Kotlin and Scala
 RUN bash -c "source ${SDKMAN_DIR}/bin/sdkman-init.sh && \
     sdk install kotlin && \
-    sdk install scala"
+    sdk install scala && \
+    echo 'source ${SDKMAN_DIR}/bin/sdkman-init.sh' >> /root/.bashrc"
+
+# Verify installations
+RUN bash -c "source ${SDKMAN_DIR}/bin/sdkman-init.sh && \
+    kotlin -version && \
+    scala -version"
 
 # Install TypeScript
 RUN npm install -g typescript
