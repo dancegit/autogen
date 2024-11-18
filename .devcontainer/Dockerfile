@@ -8,6 +8,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     cmake \
     git \
     wget \
+    zip \
     unzip \
     python3-pip \
     nodejs \
