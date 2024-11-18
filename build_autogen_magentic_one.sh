@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"
 
 # Build the Docker image
-docker build -t autogen_magentic_one -f Dockerfile .
+docker build -t autogen_magentic_one -f .devcontainer/Dockerfile .
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
