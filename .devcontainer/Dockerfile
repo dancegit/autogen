@@ -93,5 +93,10 @@ RUN npm install -g typescript
 # Add SDKMAN to PATH
 ENV PATH=/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/scala/current/bin:${PATH}
 
-# Source SDKMAN in .bashrc
-RUN echo "source /root/.sdkman/bin/sdkman-init.sh" >> /root/.bashrc
+# Source SDKMAN in .bashrc and make sure it's available in non-interactive shells
+RUN echo "source /root/.sdkman/bin/sdkman-init.sh" >> /root/.bashrc && \
+    echo "export SDKMAN_DIR=/root/.sdkman" >> /root/.bashrc && \
+    echo "[ -s /root/.sdkman/bin/sdkman-init.sh ] && . /root/.sdkman/bin/sdkman-init.sh" >> /root/.bashrc
+
+# Make sure the script is sourced in the RUN commands
+SHELL ["/bin/bash", "-c"]
