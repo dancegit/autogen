@@ -69,9 +69,11 @@ RUN wget https://golang.org/dl/go1.17.linux-amd64.tar.gz && \
 # Set Go environment variables
 ENV GOROOT=/usr/local/go
 ENV PATH=$PATH:/usr/local/go/bin
+ENV GOPATH=/root/go
+ENV PATH=$PATH:$GOPATH/bin
 
 # Install Go tools
-RUN go install golang.org/x/tools/gopls@latest
+RUN go get golang.org/x/tools/gopls
 
 # Install Groovy
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
