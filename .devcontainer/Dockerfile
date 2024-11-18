@@ -18,6 +18,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     ruby-dev \
     libssl-dev \
     zlib1g-dev \
+    curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
