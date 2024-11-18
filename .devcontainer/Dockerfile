@@ -97,6 +97,9 @@ RUN bash -c "source ${SDKMAN_DIR}/bin/sdkman-init.sh && \
     kotlin -version && \
     scala -version"
 
+# Ensure SDKMAN is properly initialized in all subsequent RUN commands
+SHELL ["/bin/bash", "-c", "source ${SDKMAN_DIR}/bin/sdkman-init.sh && exec bash"]
+
 # Install TypeScript
 RUN npm install -g typescript
 
