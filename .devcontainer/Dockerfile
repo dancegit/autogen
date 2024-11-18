@@ -73,7 +73,7 @@ ENV GOPATH=/root/go
 ENV PATH=$PATH:$GOPATH/bin
 
 # Install Go tools
-RUN go install golang.org/x/tools/gopls@latest
+RUN /usr/local/go/bin/go install golang.org/x/tools/gopls@latest
 
 # Install Groovy
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
