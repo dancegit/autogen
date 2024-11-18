@@ -1,5 +1,5 @@
-# Note: You can use any Debian/Ubuntu based image you want.
-FROM mcr.microsoft.com/devcontainers/universal:2
+# Use the official Debian-based Python image
+FROM python:3.9-slim-buster
 
 # Install additional OS packages.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
