@@ -82,21 +82,23 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Install SDKMAN
 RUN curl -s "https://get.sdkman.io" | bash
 
-# Install Kotlin and Scala
-RUN bash -c "source /root/.sdkman/bin/sdkman-init.sh && \
+# Set up SDKMAN environment variables
+ENV SDKMAN_DIR="/root/.sdkman"
+ENV PATH="${SDKMAN_DIR}/bin:${PATH}"
+
+# Source SDKMAN and install Kotlin and Scala
+RUN bash -c "source ${SDKMAN_DIR}/bin/sdkman-init.sh && \
     sdk install kotlin && \
     sdk install scala"
 
 # Install TypeScript
 RUN npm install -g typescript
 
-# Add SDKMAN to PATH
-ENV PATH=/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/scala/current/bin:${PATH}
+# Add SDKMAN-installed binaries to PATH
+ENV PATH="${SDKMAN_DIR}/candidates/kotlin/current/bin:${SDKMAN_DIR}/candidates/scala/current/bin:${PATH}"
 
-# Source SDKMAN in .bashrc and make sure it's available in non-interactive shells
-RUN echo "source /root/.sdkman/bin/sdkman-init.sh" >> /root/.bashrc && \
-    echo "export SDKMAN_DIR=/root/.sdkman" >> /root/.bashrc && \
-    echo "[ -s /root/.sdkman/bin/sdkman-init.sh ] && . /root/.sdkman/bin/sdkman-init.sh" >> /root/.bashrc
+# Source SDKMAN in .bashrc for interactive shells
+RUN echo 'source "${SDKMAN_DIR}/bin/sdkman-init.sh"' >> /root/.bashrc
 
-# Make sure the script is sourced in the RUN commands
-SHELL ["/bin/bash", "-c"]
+# Set SHELL to bash and use login shell to ensure .bashrc is sourced
+SHELL ["/bin/bash", "-l", "-c"]
