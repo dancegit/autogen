@@ -86,22 +86,24 @@ RUN curl -s "https://get.sdkman.io" | bash
 ENV SDKMAN_DIR="/root/.sdkman"
 ENV PATH="${SDKMAN_DIR}/candidates/kotlin/current/bin:${SDKMAN_DIR}/candidates/scala/current/bin:${PATH}"
 
+# Ensure SDKMAN is properly initialized in all subsequent RUN commands
+SHELL ["/bin/bash", "-c"]
+
 # Source SDKMAN and install Kotlin and Scala
-RUN bash -c "source ${SDKMAN_DIR}/bin/sdkman-init.sh && \
-    sdk install kotlin && \
-    sdk install scala && \
-    echo 'source ${SDKMAN_DIR}/bin/sdkman-init.sh' >> /root/.bashrc"
+RUN set -e; \
+    source "${SDKMAN_DIR}/bin/sdkman-init.sh"; \
+    sdk install kotlin; \
+    sdk install scala; \
+    echo 'source "${SDKMAN_DIR}/bin/sdkman-init.sh"' >> /root/.bashrc
 
 # Verify installations
-RUN bash -c "source ${SDKMAN_DIR}/bin/sdkman-init.sh && \
-    kotlin -version && \
-    scala -version"
+RUN set -e; \
+    source "${SDKMAN_DIR}/bin/sdkman-init.sh"; \
+    kotlin -version; \
+    scala -version
 
 # Ensure SDKMAN is properly initialized in all subsequent RUN commands
 SHELL ["/bin/bash", "-l", "-c"]
-
-# Source SDKMAN in .bashrc for interactive shells
-RUN echo 'source "${SDKMAN_DIR}/bin/sdkman-init.sh"' >> /root/.bashrc
 
 # Ensure SDKMAN is properly initialized in all subsequent RUN commands
 SHELL ["/bin/bash", "-c", "source ${SDKMAN_DIR}/bin/sdkman-init.sh && exec bash"]
