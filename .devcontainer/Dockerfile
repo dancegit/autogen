@@ -62,9 +62,9 @@ RUN /bin/bash -c "source ~/.bashrc && gem install bundler"
 RUN /bin/bash -c "source ~/.bashrc && ruby --version && bundler --version"
 
 # Install Go
-RUN wget https://golang.org/dl/go1.17.linux-amd64.tar.gz && \
-    tar -C /usr/local -xzf go1.17.linux-amd64.tar.gz && \
-    rm go1.17.linux-amd64.tar.gz
+RUN wget https://golang.org/dl/go1.21.5.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.21.5.linux-amd64.tar.gz && \
+    rm go1.21.5.linux-amd64.tar.gz
 
 # Set Go environment variables
 ENV GOROOT=/usr/local/go
@@ -73,7 +73,7 @@ ENV GOPATH=/root/go
 ENV PATH=$PATH:$GOPATH/bin
 
 # Install Go tools
-RUN go get golang.org/x/tools/gopls
+RUN go install golang.org/x/tools/gopls@latest
 
 # Install Groovy
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
