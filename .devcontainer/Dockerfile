@@ -52,7 +52,7 @@ RUN git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
     && echo 'eval "$(rbenv init -)"' >> ~/.bashrc \
     && git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
 
-ENV PATH /root/.rbenv/bin:$PATH
+ENV PATH=/root/.rbenv/bin:$PATH
 RUN /bin/bash -c "source ~/.bashrc && rbenv init - && rbenv install 3.0.0 && rbenv global 3.0.0"
 
 RUN echo 'gem: --no-document' > ~/.gemrc
