@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Set the working directory to the root of the project
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")"
 
 # Build the Docker image
-docker build -t autogen_magentic_one -f .devcontainer/Dockerfile .
+docker build -t autogen_magentic_one -f Dockerfile .
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
