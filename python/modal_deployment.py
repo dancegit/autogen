@@ -20,19 +20,13 @@ project_mounts = [python_mount, sandboxes_mount, devcontainer_mount, protos_moun
 # Install autogen-magentic-one from the local directory, playwright, and necessary browser dependencies
 image = (
     modal.Image.debian_slim()
-    .apt_install("curl")
-    .run_commands(
-        "curl -LsSf https://astral.sh/uv/install.sh | sh",
-        'export PATH="/root/.cargo/bin:$PATH"'
-    )
+    .pip_install("uv")
     .copy_mount(python_mount, remote_path="/root/autogen/python")
     .copy_mount(sandboxes_mount, remote_path="/root/autogen/submodules/modal_com_custom_sandboxes")
     .copy_mount(devcontainer_mount, remote_path="/root/autogen/.devcontainer")
     .copy_mount(protos_mount, remote_path="/root/autogen/protos")
     .copy_mount(build_script_mount, remote_path="/root/autogen/build_autogen_magentic_one.sh")
     .run_commands(
-        "curl -LsSf https://astral.sh/uv/install.sh | sh",
-        'export PATH="/root/.cargo/bin:$PATH"',
         "cd /root/autogen/python",
         "uv --version",  # Check if uv is installed correctly
         "uv sync --all-extras",
