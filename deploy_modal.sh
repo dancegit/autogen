@@ -8,20 +8,14 @@ then
     exit 1
 fi
 
-# Change to the autogen-magentic-one directory
-cd "$(dirname "$0")"
-
-# Set the path to the deployment file
-DEPLOYMENT_FILE="modal_deployment.py"
-
 # Check if the deployment file exists
-if [ ! -f "$DEPLOYMENT_FILE" ]; then
-    echo "$DEPLOYMENT_FILE not found."
+if [ ! -f "modal_deployment.py" ]; then
+    echo "modal_deployment.py not found in the current directory."
     exit 1
 fi
 
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
-modal deploy "$DEPLOYMENT_FILE"
+python modal_deployment.py
 
 echo "Deployment completed successfully!"
