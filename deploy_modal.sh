@@ -31,7 +31,13 @@ fi
 # Change to the directory containing pyproject.toml
 PACKAGE_DIR=$(dirname "$PYPROJECT_PATH")
 echo "Changing to directory: $PACKAGE_DIR"
-cd "$PACKAGE_DIR"
+cd "$PACKAGE_DIR" || { echo "Failed to change directory to $PACKAGE_DIR"; exit 1; }
+
+# Verify we're in the correct directory
+if [ ! -f "pyproject.toml" ]; then
+    echo "pyproject.toml not found in current directory. Current directory: $(pwd)"
+    exit 1
+fi
 
 # Run uv sync
 echo "Running uv sync..."
@@ -39,7 +45,13 @@ uv sync --all-extras
 
 # Change back to the directory containing modal_deployment.py
 echo "Changing back to: $SCRIPT_DIR/python"
-cd "$SCRIPT_DIR/python"
+cd "$SCRIPT_DIR/python" || { echo "Failed to change directory to $SCRIPT_DIR/python"; exit 1; }
+
+# Verify we're in the correct directory
+if [ ! -f "modal_deployment.py" ]; then
+    echo "modal_deployment.py not found in current directory. Current directory: $(pwd)"
+    exit 1
+fi
 
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
