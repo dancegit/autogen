@@ -51,7 +51,16 @@ else:
     for item in current_dir.parent.iterdir():
         print(f"  {item}")
     devcontainer_mount = None
-protos_mount = modal.Mount.from_local_dir(current_dir.parent.parent / "protos", remote_path="/root/autogen/protos")
+protos_path = current_dir.parent.parent / "protos"
+if protos_path.exists():
+    protos_mount = modal.Mount.from_local_dir(protos_path, remote_path="/root/autogen/protos")
+else:
+    print(f"Warning: protos directory not found at {protos_path}")
+    print("Contents of parent directory:")
+    for item in current_dir.parent.parent.iterdir():
+        print(f"  {item}")
+    protos_mount = None
+
 build_script_mount = modal.Mount.from_local_file(current_dir.parent.parent / "build_autogen_magentic_one.sh", remote_path="/root/autogen/build_autogen_magentic_one.sh")
 
 # Combine all mounts
