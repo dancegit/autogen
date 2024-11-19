@@ -51,4 +51,5 @@ def main(task: str):
     print(result)
 
 if __name__ == "__main__":
-    modal.runner.deploy_app(app)
+    print("To deploy this app, run the following command:")
+    print("modal deploy " + __file__)
