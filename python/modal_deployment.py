@@ -27,7 +27,7 @@ image = (
     .copy_mount(protos_mount, remote_path="/root/autogen/protos")
     .copy_mount(build_script_mount, remote_path="/root/autogen/build_autogen_magentic_one.sh")
     .run_commands(
-        "cd /root/autogen/python && pip install -e packages/autogen-magentic-one[all]",
+        "cd /root/autogen/python && pip install -e 'packages/autogen-magentic-one[all]'",
         "cd /root/autogen/python && pip install -e packages/autogen-magentic-one",
         "playwright install --with-deps chromium"
     )
