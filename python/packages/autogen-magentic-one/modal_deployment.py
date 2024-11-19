@@ -1,10 +1,8 @@
 import modal
 import os
+from modal_sandbox.images.base_image import base_image
 
 app = modal.App("autogen-magentic-one")
-
-# Use the base image from submodules/modal_com_custom_sandboxes
-base_image = modal.Image.from_registry("ghcr.io/modal-labs/example-modal-sandbox-base:latest")
 
 # Install autogen-magentic-one from the local directory, playwright, and necessary browser dependencies
 image = (
