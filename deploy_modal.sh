@@ -9,13 +9,13 @@ then
 fi
 
 # Check if the deployment file exists
-if [ ! -f "modal_deployment.py" ]; then
-    echo "modal_deployment.py not found in the current directory."
+if [ ! -f "python/modal_deployment.py" ]; then
+    echo "python/modal_deployment.py not found."
     exit 1
 fi
 
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
-python modal_deployment.py
+python python/modal_deployment.py
 
 echo "Deployment completed successfully!"
