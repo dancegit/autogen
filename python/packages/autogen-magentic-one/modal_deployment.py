@@ -1,9 +1,8 @@
 import modal
-from autogen_magentic_one import MagenticOneHelper
 
 app = modal.App("autogen-magentic-one")
 
-image = modal.Image.debian_slim().pip_install(["autogen-magentic-one", "playwright"])
+image = modal.Image.debian_slim().pip_install([".", "playwright"])
 
 @app.function(
     image=image,
@@ -13,6 +12,7 @@ image = modal.Image.debian_slim().pip_install(["autogen-magentic-one", "playwrig
     cpu=1
 )
 def run_magentic_one(task: str):
+    from autogen_magentic_one import MagenticOneHelper
     helper = MagenticOneHelper()
     result = helper.run(task)
     return result
