@@ -3,21 +3,21 @@ import os
 
 app = modal.App("autogen-magentic-one")
 
-# Create a mount for the package files
-package_mount = modal.Mount.from_local_dir("packages/autogen-magentic-one", remote_path="/root/autogen-magentic-one")
+# Create a mount for the entire project
+project_mount = modal.Mount.from_local_dir("../", remote_path="/root/autogen")
 
 # Install autogen-magentic-one from the local directory, playwright, and necessary browser dependencies
 image = (
     modal.Image.debian_slim()
     .pip_install("pip==23.2.1")  # Use a stable, recent version of pip
-    .copy_mount(package_mount, remote_path="/root/autogen-magentic-one")
+    .copy_mount(project_mount, remote_path="/root/autogen")
     .run_commands(
-        "cd /root/autogen-magentic-one && pip install -e .[all]",
-        "cd /root/autogen-magentic-one && pip install -e .",
+        "cd /root/autogen/packages/autogen-magentic-one && pip install -e .[all]",
+        "cd /root/autogen/packages/autogen-magentic-one && pip install -e .",
         "playwright install --with-deps chromium"
     )
     .run_commands(
-        "ls -R /root/autogen-magentic-one"  # Debug: List contents of the directory
+        "ls -R /root/autogen"  # Debug: List contents of the directory
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
@@ -32,7 +32,7 @@ image = (
     timeout=600,
     memory=1024,
     cpu=1,
-    mounts=[package_mount]
+    mounts=[project_mount]
 )
 def run_magentic_one(task: str):
     from autogen_magentic_one import MagenticOneHelper
@@ -40,7 +40,7 @@ def run_magentic_one(task: str):
     result = helper.run(task)
     return result
 
-@app.function(image=image, mounts=[package_mount])
+@app.function(image=image, mounts=[project_mount])
 @modal.asgi_app()
 def fastapi_app():
     from autogen_magentic_one.web_interface import app
