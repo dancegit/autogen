@@ -5,7 +5,7 @@ app = modal.App("autogen-magentic-one")
 
 # Create mounts for specific directories
 python_mount = modal.Mount.from_local_dir(".", remote_path="/root/autogen/python")
-sandboxes_mount = modal.Mount.from_local_dir("../submodules/modal_com_custom_sandboxes", remote_path="/root/autogen/submodules/modal_com_custom_sandboxes")
+sandboxes_mount = modal.Mount.from_local_dir("../submodules/modal_com_custom_sandboxes", remote_path="/root/autogen/submodules/modal_com_custom_sandboxes", condition=lambda _: os.path.exists("../submodules/modal_com_custom_sandboxes"))
 devcontainer_mount = modal.Mount.from_local_dir("../.devcontainer", remote_path="/root/autogen/.devcontainer")
 protos_mount = modal.Mount.from_local_dir("../protos", remote_path="/root/autogen/protos")
 build_script_mount = modal.Mount.from_local_file("../build_autogen_magentic_one.sh", remote_path="/root/autogen/build_autogen_magentic_one.sh")
