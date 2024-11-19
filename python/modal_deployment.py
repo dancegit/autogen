@@ -72,8 +72,16 @@ image = (
     .pip_install("uv")
     .copy_mount(python_mount, remote_path="/root/autogen/python")
     .copy_mount(sandboxes_mount, remote_path="/root/autogen/submodules/modal_com_custom_sandboxes")
-    .copy_mount(devcontainer_mount, remote_path="/root/autogen/.devcontainer")
-    .copy_mount(protos_mount, remote_path="/root/autogen/protos")
+)
+
+if devcontainer_mount:
+    image = image.copy_mount(devcontainer_mount, remote_path="/root/autogen/.devcontainer")
+
+if protos_mount:
+    image = image.copy_mount(protos_mount, remote_path="/root/autogen/protos")
+
+image = (
+    image
     .copy_mount(build_script_mount, remote_path="/root/autogen/build_autogen_magentic_one.sh")
     .run_commands(
         "cd /root/autogen/python",
