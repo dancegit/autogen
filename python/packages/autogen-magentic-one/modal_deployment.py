@@ -51,4 +51,4 @@ def main(task: str):
     print(result)
 
 if __name__ == "__main__":
-    modal.runner.deploy_app(app)
+    app.deploy()
