@@ -1,9 +1,15 @@
 import modal
 import os
 import pathlib
+import sys
 
 # Get the directory of this file
 current_dir = pathlib.Path(__file__).parent.resolve()
+
+# Add the submodules directory to the Python path
+sys.path.append(str(current_dir.parent / "submodules" / "modal_com_custom_sandboxes" / "src"))
+
+from modal_sandbox.images.base_image import base_image
 
 app = modal.App("autogen-magentic-one")
 
@@ -17,9 +23,9 @@ build_script_mount = modal.Mount.from_local_file(current_dir.parent / "build_aut
 # Combine all mounts
 project_mounts = [python_mount, sandboxes_mount, devcontainer_mount, protos_mount, build_script_mount]
 
-# Install autogen-magentic-one from the local directory, playwright, and necessary browser dependencies
+# Use the base_image and extend it with our specific requirements
 image = (
-    modal.Image.debian_slim()
+    base_image
     .pip_install("uv")
     .copy_mount(python_mount, remote_path="/root/autogen/python")
     .copy_mount(sandboxes_mount, remote_path="/root/autogen/submodules/modal_com_custom_sandboxes")
