@@ -6,7 +6,7 @@ app = modal.App("autogen-magentic-one")
 # Install autogen-magentic-one from the local directory, playwright, and necessary browser dependencies
 image = (
     modal.Image.debian_slim()
-    .pip_install(".", "playwright", "fastapi", "jinja2", "python-multipart")
+    .pip_install(".")
     .run_commands("playwright install --with-deps chromium")
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),

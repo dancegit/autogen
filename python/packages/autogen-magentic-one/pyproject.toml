@@ -6,16 +6,15 @@ build-backend = "hatchling.build"
 name = "autogen-magentic-one"
 version = "0.0.1"
 license = {file = "LICENSE-CODE"}
-description = ''
+description = "AutoGen Magentic-One package"
 readme = "README.md"
 requires-python = ">=3.10"
-keywords = []
+keywords = ["autogen", "magentic-one"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-
 dependencies = [
     "autogen-core",
     "autogen-ext[docker]",
@@ -36,10 +35,13 @@ dependencies = [
     "pathvalidate",
     "playwright",
     "pydantic<3.0.0,>=2.0.0",
+    "fastapi",
+    "jinja2",
+    "python-multipart",
 ]
 
-[tool.uv]
-dev-dependencies = [
+[project.optional-dependencies]
+dev = [
     "aiofiles",
     "types-aiofiles",
     "types-requests",
@@ -48,6 +50,11 @@ dev-dependencies = [
     "openpyxl",
 ]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/autogen_magentic_one"]
 
 [tool.poe]
 include = "../../shared_tasks.toml"
@@ -70,7 +77,6 @@ include = [
 
 [tool.ruff.lint.per-file-ignores]
 "src/autogen_magentic_one/utils.py" = ["T20"]
-
 
 [tool.pyright]
 extends = "../../pyproject.toml"
