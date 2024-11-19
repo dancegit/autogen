@@ -91,6 +91,9 @@ if protos_mount:
 image = image
 if build_script_mount:
     image = image.copy_mount(build_script_mount, remote_path="/root/autogen/build_autogen_magentic_one.sh")
+
+image = (
+    image
     .run_commands(
         "cd /root/autogen/python",
         "uv --version",  # Check if uv is installed correctly
