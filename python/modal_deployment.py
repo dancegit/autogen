@@ -9,7 +9,7 @@ current_dir = pathlib.Path(__file__).parent.resolve()
 # Add the submodules directory to the Python path
 sys.path.append(str(current_dir.parent / "submodules" / "modal_com_custom_sandboxes" / "src"))
 
-from modal_sandbox.images.base_image import base_image
+from modal_sandbox.images.base_image import get_base_image
 
 app = modal.App("autogen-magentic-one")
 
@@ -25,7 +25,7 @@ project_mounts = [python_mount, sandboxes_mount, devcontainer_mount, protos_moun
 
 # Use the base_image and extend it with our specific requirements
 image = (
-    base_image
+    get_base_image()
     .pip_install("uv")
     .copy_mount(python_mount, remote_path="/root/autogen/python")
     .copy_mount(sandboxes_mount, remote_path="/root/autogen/submodules/modal_com_custom_sandboxes")
