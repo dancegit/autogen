@@ -32,7 +32,7 @@ image = (
     .copy_mount(build_script_mount, remote_path="/root/autogen/build_autogen_magentic_one.sh")
     .run_commands(
         "curl -LsSf https://astral.sh/uv/install.sh | sh",
-        "export PATH="/root/.cargo/bin:$PATH"",
+        'export PATH="/root/.cargo/bin:$PATH"',
         "cd /root/autogen/python",
         "uv --version",  # Check if uv is installed correctly
         "uv sync --all-extras",
