@@ -14,19 +14,28 @@ for item in current_dir.iterdir():
 
 # Add the submodules directory to the Python path
 submodules_path = current_dir.parent.parent.parent / "submodules" / "modal_com_custom_sandboxes" / "src"
-sys.path.insert(0, str(submodules_path))
-
-print(f"Added to sys.path: {submodules_path}")
+if submodules_path.exists():
+    sys.path.insert(0, str(submodules_path))
+    print(f"Added to sys.path: {submodules_path}")
+else:
+    print(f"Warning: {submodules_path} does not exist")
 
 try:
     from modal_sandbox.images.base_image import get_base_image
 except ImportError as e:
     print(f"Error importing get_base_image: {e}")
     print(f"sys.path: {sys.path}")
-    print(f"Contents of {submodules_path}:")
-    for item in submodules_path.iterdir():
-        print(f"  {item}")
-    raise
+    print(f"Checking contents of {submodules_path.parent}:")
+    if submodules_path.parent.exists():
+        for item in submodules_path.parent.iterdir():
+            print(f"  {item}")
+    else:
+        print(f"  {submodules_path.parent} does not exist")
+    
+    # Fallback to a basic Modal image if get_base_image is not available
+    print("Using fallback Modal image")
+    def get_base_image():
+        return modal.Image.debian_slim().pip_install("modal")
 
 app = modal.App("autogen-magentic-one")
 
