@@ -23,7 +23,7 @@ image = (
     .apt_install("curl")
     .run_commands(
         "curl -LsSf https://astral.sh/uv/install.sh | sh",
-        "export PATH="/root/.cargo/bin:$PATH""
+        'export PATH="/root/.cargo/bin:$PATH"'
     )
     .copy_mount(python_mount, remote_path="/root/autogen/python")
     .copy_mount(sandboxes_mount, remote_path="/root/autogen/submodules/modal_com_custom_sandboxes")
