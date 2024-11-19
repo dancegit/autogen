@@ -10,10 +10,11 @@ package_mount = modal.Mount.from_local_dir(".", remote_path="/root/autogen-magen
 image = (
     modal.Image.debian_slim()
     .pip_install("pip==24.3.1")  # Upgrade pip to latest version
-    .copy_mount(package_mount)
-    .pip_install("/root/autogen-magentic-one")
-    .run_commands("cd /root/autogen-magentic-one && pip install .")
-    .run_commands("playwright install --with-deps chromium")
+    .copy_mount(package_mount, remote_path="/root/autogen-magentic-one")
+    .run_commands(
+        "cd /root/autogen-magentic-one && pip install -e .",
+        "playwright install --with-deps chromium"
+    )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
         "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
