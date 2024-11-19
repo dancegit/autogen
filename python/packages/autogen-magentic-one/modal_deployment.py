@@ -9,10 +9,10 @@ package_mount = modal.Mount.from_local_dir(".", remote_path="/root/autogen-magen
 # Install autogen-magentic-one from the local directory, playwright, and necessary browser dependencies
 image = (
     modal.Image.debian_slim()
-    .pip_install("pip==24.3.1")  # Upgrade pip to latest version
+    .pip_install("pip==23.2.1")  # Use a stable, recent version of pip
     .copy_mount(package_mount, remote_path="/root/autogen-magentic-one")
     .run_commands(
-        "cd /root/autogen-magentic-one && uv sync --all-extras",
+        "cd /root/autogen-magentic-one && pip install -e .[all]",
         "cd /root/autogen-magentic-one && pip install -e .",
         "playwright install --with-deps chromium"
     )
