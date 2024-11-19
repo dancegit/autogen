@@ -39,12 +39,8 @@ if [ ! -f "pyproject.toml" ]; then
     exit 1
 fi
 
-# Run uv sync
-echo "Running uv sync..."
-uv sync --all-extras || { echo "uv sync failed"; exit 1; }
-
-# Change back to the directory containing modal_deployment.py
-echo "Changing back to: $SCRIPT_DIR/python"
+# Change to the directory containing modal_deployment.py
+echo "Changing to: $SCRIPT_DIR/python"
 cd "$SCRIPT_DIR/python" || { echo "Failed to change directory to $SCRIPT_DIR/python"; exit 1; }
 
 # Verify we're in the correct directory
@@ -60,6 +56,6 @@ ls -la
 
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
-modal deploy modal_deployment.py
+modal deploy modal_deployment.py --requirements-file "$PACKAGE_DIR/requirements.txt"
 
 echo "Deployment completed successfully!"
