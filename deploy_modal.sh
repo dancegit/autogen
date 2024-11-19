@@ -17,11 +17,22 @@ if [ ! -f "$SCRIPT_DIR/python/modal_deployment.py" ]; then
     exit 1
 fi
 
-# Change to the python directory
-cd "$SCRIPT_DIR/python"
+# Change to the root autogen directory
+cd "$SCRIPT_DIR"
+
+# Find the correct pyproject.toml file
+PYPROJECT_PATH=$(find . -name pyproject.toml | grep "packages/autogen-magentic-one/pyproject.toml")
+
+if [ -z "$PYPROJECT_PATH" ]; then
+    echo "Could not find pyproject.toml for autogen-magentic-one"
+    exit 1
+fi
+
+# Change to the directory containing pyproject.toml
+cd "$(dirname "$PYPROJECT_PATH")"
 
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
-modal deploy modal_deployment.py
+modal deploy ../../modal_deployment.py
 
 echo "Deployment completed successfully!"
