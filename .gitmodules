@@ -1,3 +1,6 @@
 [submodule "submodules/aider"]
 	path = submodules/aider
 	url = git@github.com:dancegit/aider.git
+[submodule "submodules/modal_com_custom_sandboxes"]
+	path = submodules/modal_com_custom_sandboxes
+	url = git@github.com:dancegit/modal_com_custom_sandboxes.git
