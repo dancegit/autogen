@@ -6,19 +6,33 @@ import sys
 # Get the directory of this file
 current_dir = pathlib.Path(__file__).parent.resolve()
 
-# Add the submodules directory to the Python path
-sys.path.append(str(current_dir.parent / "submodules" / "modal_com_custom_sandboxes" / "src"))
+# Print current directory and its contents for debugging
+print(f"Current directory: {current_dir}")
+print("Contents of current directory:")
+for item in current_dir.iterdir():
+    print(f"  {item}")
 
-from modal_sandbox.images.base_image import get_base_image
+# Add the submodules directory to the Python path
+submodules_path = current_dir.parent.parent.parent / "submodules" / "modal_com_custom_sandboxes" / "src"
+sys.path.append(str(submodules_path))
+
+print(f"Added to sys.path: {submodules_path}")
+
+try:
+    from modal_sandbox.images.base_image import get_base_image
+except ImportError as e:
+    print(f"Error importing get_base_image: {e}")
+    print(f"sys.path: {sys.path}")
+    raise
 
 app = modal.App("autogen-magentic-one")
 
 # Create mounts for specific directories
-python_mount = modal.Mount.from_local_dir(current_dir, remote_path="/root/autogen/python")
-sandboxes_mount = modal.Mount.from_local_dir(current_dir.parent / "submodules" / "modal_com_custom_sandboxes", remote_path="/root/autogen/submodules/modal_com_custom_sandboxes", condition=lambda _: (current_dir.parent / "submodules" / "modal_com_custom_sandboxes").exists())
-devcontainer_mount = modal.Mount.from_local_dir(current_dir.parent / ".devcontainer", remote_path="/root/autogen/.devcontainer")
-protos_mount = modal.Mount.from_local_dir(current_dir.parent / "protos", remote_path="/root/autogen/protos")
-build_script_mount = modal.Mount.from_local_file(current_dir.parent / "build_autogen_magentic_one.sh", remote_path="/root/autogen/build_autogen_magentic_one.sh")
+python_mount = modal.Mount.from_local_dir(current_dir.parent.parent.parent, remote_path="/root/autogen/python")
+sandboxes_mount = modal.Mount.from_local_dir(submodules_path.parent.parent, remote_path="/root/autogen/submodules/modal_com_custom_sandboxes", condition=lambda _: submodules_path.parent.parent.exists())
+devcontainer_mount = modal.Mount.from_local_dir(current_dir.parent.parent.parent.parent / ".devcontainer", remote_path="/root/autogen/.devcontainer")
+protos_mount = modal.Mount.from_local_dir(current_dir.parent.parent.parent.parent / "protos", remote_path="/root/autogen/protos")
+build_script_mount = modal.Mount.from_local_file(current_dir.parent.parent.parent.parent / "build_autogen_magentic_one.sh", remote_path="/root/autogen/build_autogen_magentic_one.sh")
 
 # Combine all mounts
 project_mounts = [python_mount, sandboxes_mount, devcontainer_mount, protos_mount, build_script_mount]
@@ -36,6 +50,8 @@ image = (
         "cd /root/autogen/python",
         "uv --version",  # Check if uv is installed correctly
         "ls -la",  # List directory contents to debug
+        "pwd",  # Print working directory
+        "find /root/autogen -name pyproject.toml",  # Find pyproject.toml files
         "uv sync --all-extras",
         "source .venv/bin/activate",
         "cd packages/autogen-magentic-one",
@@ -79,5 +95,9 @@ def main(task: str):
     print(result)
 
 if __name__ == "__main__":
+    print("Current working directory:", os.getcwd())
+    print("Contents of current directory:")
+    for item in os.listdir():
+        print(f"  {item}")
     print("To deploy this app, run the following command:")
     print("modal deploy " + __file__)
