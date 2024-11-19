@@ -35,6 +35,7 @@ image = (
     .run_commands(
         "cd /root/autogen/python",
         "uv --version",  # Check if uv is installed correctly
+        "ls -la",  # List directory contents to debug
         "uv sync --all-extras",
         "source .venv/bin/activate",
         "cd packages/autogen-magentic-one",
