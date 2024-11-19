@@ -31,8 +31,15 @@ fi
 # Change to the directory containing pyproject.toml
 cd "$(dirname "$PYPROJECT_PATH")"
 
+# Run uv sync
+echo "Running uv sync..."
+uv sync --all-extras
+
+# Change back to the directory containing modal_deployment.py
+cd "$SCRIPT_DIR/python"
+
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
-modal deploy ../../modal_deployment.py
+modal deploy modal_deployment.py
 
 echo "Deployment completed successfully!"
