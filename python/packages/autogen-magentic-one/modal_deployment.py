@@ -10,6 +10,11 @@ image = (
     .pip_install(".")  # Install the current directory (autogen-magentic-one)
     .pip_install("playwright")
     .run_commands("playwright install --with-deps chromium")
+    .env({
+        "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
+        "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
+        "CHAT_COMPLETION_KWARGS_JSON": os.environ.get("CHAT_COMPLETION_KWARGS_JSON", "")
+    })
 )
 
 @app.function(
