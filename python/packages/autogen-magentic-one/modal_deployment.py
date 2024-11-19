@@ -15,6 +15,9 @@ image = (
         "cd /root/autogen-magentic-one && pip install -e .",
         "playwright install --with-deps chromium"
     )
+    .run_commands(
+        "ls -R /root/autogen-magentic-one"  # Debug: List contents of the directory
+    )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
         "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
