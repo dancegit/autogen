@@ -1,11 +1,16 @@
 import modal
+import os
 
 app = modal.App("autogen-magentic-one")
 
-# Install autogen-magentic-one, playwright, and necessary browser dependencies
+# Use the base image from submodules/modal_com_custom_sandboxes
+base_image = modal.Image.from_registry("ghcr.io/modal-labs/example-modal-sandbox-base:latest")
+
+# Install autogen-magentic-one from the local directory, playwright, and necessary browser dependencies
 image = (
-    modal.Image.debian_slim()
-    .pip_install(["autogen-magentic-one", "playwright"])
+    base_image
+    .pip_install(".")  # Install the current directory (autogen-magentic-one)
+    .pip_install("playwright")
     .run_commands("playwright install --with-deps chromium")
 )
 
