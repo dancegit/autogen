@@ -39,13 +39,14 @@ if [ ! -f "pyproject.toml" ]; then
     exit 1
 fi
 
-# Change to the directory containing modal_deployment.py
-echo "Changing to: $SCRIPT_DIR/python"
-cd "$SCRIPT_DIR/python" || { echo "Failed to change directory to $SCRIPT_DIR/python"; exit 1; }
+# Change to the autogen-magentic-one package directory
+MAGENTIC_ONE_DIR="$SCRIPT_DIR/python/packages/autogen-magentic-one"
+echo "Changing to: $MAGENTIC_ONE_DIR"
+cd "$MAGENTIC_ONE_DIR" || { echo "Failed to change directory to $MAGENTIC_ONE_DIR"; exit 1; }
 
 # Verify we're in the correct directory
-if [ ! -f "modal_deployment.py" ]; then
-    echo "modal_deployment.py not found in current directory. Current directory: $(pwd)"
+if [ ! -f "pyproject.toml" ]; then
+    echo "pyproject.toml not found in current directory. Current directory: $(pwd)"
     exit 1
 fi
 
@@ -54,9 +55,13 @@ echo "Current directory: $(pwd)"
 echo "Files in current directory:"
 ls -la
 
+# Install dependencies
+echo "Installing dependencies..."
+uv pip install -e .
+
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
-modal deploy modal_deployment.py
+modal deploy "$SCRIPT_DIR/python/modal_deployment.py"
 
 # Check if the deployment was successful
 if [ $? -eq 0 ]; then
