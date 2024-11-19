@@ -56,6 +56,12 @@ ls -la
 
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
-modal deploy modal_deployment.py --requirements-file "$PACKAGE_DIR/requirements.txt"
+modal deploy modal_deployment.py
 
-echo "Deployment completed successfully!"
+# Check if the deployment was successful
+if [ $? -eq 0 ]; then
+    echo "Deployment completed successfully!"
+else
+    echo "Deployment failed. Please check the error messages above."
+    exit 1
+fi
