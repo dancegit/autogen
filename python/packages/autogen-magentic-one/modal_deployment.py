@@ -2,7 +2,12 @@ import modal
 
 app = modal.App("autogen-magentic-one")
 
-image = modal.Image.debian_slim().pip_install(["autogen-magentic-one", "playwright"])
+# Install autogen-magentic-one, playwright, and necessary browser dependencies
+image = (
+    modal.Image.debian_slim()
+    .pip_install(["autogen-magentic-one", "playwright"])
+    .run_commands("playwright install --with-deps chromium")
+)
 
 @app.function(
     image=image,
