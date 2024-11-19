@@ -16,6 +16,6 @@ fi
 
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
-python python/modal_deployment.py
+modal deploy python/modal_deployment.py
 
 echo "Deployment completed successfully!"
