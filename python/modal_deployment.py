@@ -61,7 +61,15 @@ else:
         print(f"  {item}")
     protos_mount = None
 
-build_script_mount = modal.Mount.from_local_file(current_dir.parent.parent / "build_autogen_magentic_one.sh", remote_path="/root/autogen/build_autogen_magentic_one.sh")
+build_script_path = current_dir.parent / "build_autogen_magentic_one.sh"
+if build_script_path.exists():
+    build_script_mount = modal.Mount.from_local_file(build_script_path, remote_path="/root/autogen/build_autogen_magentic_one.sh")
+else:
+    print(f"Warning: build_autogen_magentic_one.sh not found at {build_script_path}")
+    print("Contents of parent directory:")
+    for item in current_dir.parent.iterdir():
+        print(f"  {item}")
+    build_script_mount = None
 
 # Combine all mounts
 project_mounts = [mount for mount in [python_mount, sandboxes_mount, devcontainer_mount, protos_mount, build_script_mount] if mount is not None]
@@ -80,9 +88,9 @@ if devcontainer_mount:
 if protos_mount:
     image = image.copy_mount(protos_mount, remote_path="/root/autogen/protos")
 
-image = (
-    image
-    .copy_mount(build_script_mount, remote_path="/root/autogen/build_autogen_magentic_one.sh")
+image = image
+if build_script_mount:
+    image = image.copy_mount(build_script_mount, remote_path="/root/autogen/build_autogen_magentic_one.sh")
     .run_commands(
         "cd /root/autogen/python",
         "uv --version",  # Check if uv is installed correctly
