@@ -29,13 +29,16 @@ if [ -z "$PYPROJECT_PATH" ]; then
 fi
 
 # Change to the directory containing pyproject.toml
-cd "$(dirname "$PYPROJECT_PATH")"
+PACKAGE_DIR=$(dirname "$PYPROJECT_PATH")
+echo "Changing to directory: $PACKAGE_DIR"
+cd "$PACKAGE_DIR"
 
 # Run uv sync
 echo "Running uv sync..."
 uv sync --all-extras
 
 # Change back to the directory containing modal_deployment.py
+echo "Changing back to: $SCRIPT_DIR/python"
 cd "$SCRIPT_DIR/python"
 
 # Deploy to Modal
