@@ -12,8 +12,8 @@ image = (
     .pip_install("pip==24.3.1")  # Upgrade pip to latest version
     .copy_mount(package_mount, remote_path="/root/autogen-magentic-one")
     .run_commands(
-        "cd /root/autogen/python && uv sync --all-extras",
-        "cd /root/autogen/python && . .venv/bin/activate && cd packages/autogen-magentic-one && pip install -e .",
+        "cd /root/autogen-magentic-one && uv sync --all-extras",
+        "cd /root/autogen-magentic-one && pip install -e .",
         "playwright install --with-deps chromium"
     )
     .run_commands(

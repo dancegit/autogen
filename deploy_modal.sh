@@ -8,15 +8,8 @@ then
     exit 1
 fi
 
-# Change to the python directory
-cd python
-
-# Run the setup commands
-echo "Setting up the environment..."
-uv sync --all-extras
-source .venv/bin/activate
-cd packages/autogen-magentic-one
-pip install -e .
+# Change to the autogen-magentic-one directory
+cd "$(dirname "$0")"
 
 # Set the path to the deployment file
 DEPLOYMENT_FILE="modal_deployment.py"
