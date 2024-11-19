@@ -13,7 +13,7 @@ for item in current_dir.iterdir():
     print(f"  {item}")
 
 # Add the submodules directory to the Python path
-submodules_path = current_dir.parent.parent.parent / "submodules" / "modal_com_custom_sandboxes" / "src"
+submodules_path = current_dir.parent.parent / "submodules" / "modal_com_custom_sandboxes" / "src"
 if submodules_path.exists():
     sys.path.insert(0, str(submodules_path))
     print(f"Added to sys.path: {submodules_path}")
@@ -41,7 +41,7 @@ app = modal.App("autogen-magentic-one")
 
 # Create mounts for specific directories
 python_mount = modal.Mount.from_local_dir(current_dir.parent.parent.parent, remote_path="/root/autogen/python")
-sandboxes_mount = modal.Mount.from_local_dir(submodules_path.parent.parent, remote_path="/root/autogen/submodules/modal_com_custom_sandboxes", condition=lambda _: submodules_path.parent.parent.exists())
+sandboxes_mount = modal.Mount.from_local_dir(submodules_path.parent, remote_path="/root/autogen/submodules/modal_com_custom_sandboxes", condition=lambda _: submodules_path.parent.exists())
 devcontainer_mount = modal.Mount.from_local_dir(current_dir.parent.parent.parent.parent / ".devcontainer", remote_path="/root/autogen/.devcontainer")
 protos_mount = modal.Mount.from_local_dir(current_dir.parent.parent.parent.parent / "protos", remote_path="/root/autogen/protos")
 build_script_mount = modal.Mount.from_local_file(current_dir.parent.parent.parent.parent / "build_autogen_magentic_one.sh", remote_path="/root/autogen/build_autogen_magentic_one.sh")
