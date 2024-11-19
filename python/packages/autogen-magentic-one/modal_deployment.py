@@ -8,7 +8,7 @@ app = modal.App("autogen-magentic-one")
 image = (
     base_image
     .pip_install(".")  # Install the current directory (autogen-magentic-one)
-    .pip_install("playwright")
+    .pip_install("playwright", "fastapi", "jinja2", "python-multipart")
     .run_commands("playwright install --with-deps chromium")
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
@@ -29,6 +29,12 @@ def run_magentic_one(task: str):
     helper = MagenticOneHelper()
     result = helper.run(task)
     return result
+
+@app.function(image=image)
+@modal.asgi_app()
+def fastapi_app():
+    from autogen_magentic_one.web_interface import app
+    return app
 
 @app.local_entrypoint()
 def main(task: str):
