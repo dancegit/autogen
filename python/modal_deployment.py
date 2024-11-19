@@ -37,6 +37,11 @@ image = (
         "playwright install --with-deps chromium"
     )
     .run_commands(
+        "cd /root/autogen/python",
+        "uv --version",  # Check if uv is installed correctly
+        "uv sync --all-extras"
+    )
+    .run_commands(
         "ls -R /root/autogen"  # Debug: List contents of the directory
     )
     .env({
