@@ -20,14 +20,23 @@ project_mounts = [python_mount, sandboxes_mount, devcontainer_mount, protos_moun
 # Install autogen-magentic-one from the local directory, playwright, and necessary browser dependencies
 image = (
     modal.Image.debian_slim()
-    .pip_install("pip==23.2.1")  # Use a stable, recent version of pip
+    .apt_install("curl")
+    .run_commands(
+        "curl -LsSf https://astral.sh/uv/install.sh | sh",
+        "export PATH="/root/.cargo/bin:$PATH""
+    )
     .copy_mount(python_mount, remote_path="/root/autogen/python")
     .copy_mount(sandboxes_mount, remote_path="/root/autogen/submodules/modal_com_custom_sandboxes")
     .copy_mount(devcontainer_mount, remote_path="/root/autogen/.devcontainer")
     .copy_mount(protos_mount, remote_path="/root/autogen/protos")
     .copy_mount(build_script_mount, remote_path="/root/autogen/build_autogen_magentic_one.sh")
     .run_commands(
-        "cd /root/autogen/python && pip install -e packages/autogen-magentic-one[all]",
+        "cd /root/autogen/python",
+        "uv sync --all-extras",
+        "source .venv/bin/activate",
+        "cd packages/autogen-magentic-one",
+        "pip install -e .",
+        "cd /root/autogen/python",
         "playwright install --with-deps chromium"
     )
     .run_commands(
