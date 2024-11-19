@@ -14,7 +14,7 @@ for item in current_dir.iterdir():
 
 # Add the submodules directory to the Python path
 submodules_path = current_dir.parent.parent.parent / "submodules" / "modal_com_custom_sandboxes" / "src"
-sys.path.append(str(submodules_path))
+sys.path.insert(0, str(submodules_path))
 
 print(f"Added to sys.path: {submodules_path}")
 
@@ -23,6 +23,9 @@ try:
 except ImportError as e:
     print(f"Error importing get_base_image: {e}")
     print(f"sys.path: {sys.path}")
+    print(f"Contents of {submodules_path}:")
+    for item in submodules_path.iterdir():
+        print(f"  {item}")
     raise
 
 app = modal.App("autogen-magentic-one")
