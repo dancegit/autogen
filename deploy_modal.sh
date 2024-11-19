@@ -41,7 +41,7 @@ fi
 
 # Run uv sync
 echo "Running uv sync..."
-uv sync --all-extras
+uv sync --all-extras || { echo "uv sync failed"; exit 1; }
 
 # Change back to the directory containing modal_deployment.py
 echo "Changing back to: $SCRIPT_DIR/python"
@@ -52,6 +52,11 @@ if [ ! -f "modal_deployment.py" ]; then
     echo "modal_deployment.py not found in current directory. Current directory: $(pwd)"
     exit 1
 fi
+
+# Print current directory and list files
+echo "Current directory: $(pwd)"
+echo "Files in current directory:"
+ls -la
 
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
