@@ -2,7 +2,7 @@ import modal
 
 app = modal.App("autogen-magentic-one")
 
-image = modal.Image.debian_slim().pip_install([".", "playwright"])
+image = modal.Image.debian_slim().pip_install(["autogen-magentic-one", "playwright"])
 
 @app.function(
     image=image,
