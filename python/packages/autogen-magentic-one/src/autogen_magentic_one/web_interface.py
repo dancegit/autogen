@@ -12,16 +12,14 @@ from autogen_magentic_one.agents.orchestrator import LedgerOrchestrator
 from autogen_magentic_one.agents.user_proxy import UserProxy
 from autogen_magentic_one.messages import RequestReplyMessage
 from autogen_magentic_one.utils import create_completion_client_from_env
-import modal
+from modal import Stub, asgi_app
+from modal_deployment import app as modal_app, image
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-stub = modal.Stub("autogen-magentic-one-web")
-image = modal.Image.debian_slim().pip_install("fastapi", "jinja2", "python-multipart")
-
-@stub.function(image=image)
-@modal.asgi_app()
+@modal_app.function(image=image)
+@asgi_app()
 def fastapi_app():
     return app
 

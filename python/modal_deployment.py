@@ -61,6 +61,7 @@ except ImportError as e:
         ]))
 
 app = modal.App("autogen-magentic-one")
+__all__ = ['app', 'image']
 
 # Create a single mount for the autogen folder
 autogen_mount = modal.Mount.from_local_dir(
