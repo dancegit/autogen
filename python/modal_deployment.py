@@ -33,12 +33,6 @@ try:
 except ImportError as e:
     print(f"Error importing get_base_image: {e}")
     print(f"sys.path: {sys.path}")
-    print(f"Checking contents of {submodules_path.parent}:")
-    if submodules_path.parent.exists():
-        for item in submodules_path.parent.iterdir():
-            print(f"  {item}")
-    else:
-        print(f"  {submodules_path.parent} does not exist")
 
     # Fallback to a basic Modal image if get_base_image is not available
     print("Using fallback Modal image")
