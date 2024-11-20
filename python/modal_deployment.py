@@ -2,6 +2,7 @@ import modal
 import os
 import pathlib
 import sys
+import subprocess
 
 # Get the directory of this file
 current_dir = pathlib.Path(__file__).parent.resolve()
@@ -14,7 +15,7 @@ for item in current_dir.iterdir():
 
 # Add the necessary paths to the Python path
 autogen_path = current_dir / "autogen"
-autogen_magentic_one_path = autogen_path / "python" / "packages" / "autogen-magentic-one" / "src"
+autogen_magentic_one_path = autogen_path / "python" / "packages" / "autogen-magentic-one"
 
 for path in [autogen_path, autogen_magentic_one_path]:
     if path.exists():
@@ -27,6 +28,14 @@ for path in [autogen_path, autogen_magentic_one_path]:
 print("Updated sys.path:")
 for path in sys.path:
     print(f"  {path}")
+
+# Install autogen_magentic_one package
+if autogen_magentic_one_path.exists():
+    print("Installing autogen_magentic_one package...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", str(autogen_magentic_one_path)])
+    print("autogen_magentic_one package installed successfully.")
+else:
+    print("Warning: autogen_magentic_one directory not found.")
 
 try:
     from modal_sandbox.images.base_image import get_base_image
@@ -136,12 +145,22 @@ def fastapi_app():
                 print("    Path does not exist")
         
         # Check if the autogen_magentic_one directory exists
-        autogen_magentic_one_dir = os.path.join(current_dir, "autogen", "python", "packages", "autogen-magentic-one", "src", "autogen_magentic_one")
+        autogen_magentic_one_dir = os.path.join(current_dir, "autogen", "python", "packages", "autogen-magentic-one")
         if os.path.exists(autogen_magentic_one_dir):
             print(f"autogen_magentic_one directory exists: {autogen_magentic_one_dir}")
             print("Contents:")
             for item in os.listdir(autogen_magentic_one_dir):
                 print(f"  {item}")
+            
+            # Try to install the package again
+            print("Attempting to install autogen_magentic_one package...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", autogen_magentic_one_dir])
+            print("autogen_magentic_one package installed successfully.")
+            
+            # Try importing again
+            import autogen_magentic_one
+            from autogen_magentic_one.web_interface import app
+            return app
         else:
             print(f"autogen_magentic_one directory does not exist: {autogen_magentic_one_dir}")
         
