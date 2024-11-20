@@ -82,4 +82,16 @@ async def run_task(task: str = Form(...)):
 
 if __name__ == "__main__":
     import uvicorn
+    import sys
+    import os
+
+    # Use the Python interpreter from the virtual environment
+    venv_python = os.path.join("/root/autogen/python/.venv", "bin", "python")
+    if os.path.exists(venv_python):
+        print(f"Using Python interpreter: {venv_python}")
+        os.execl(venv_python, venv_python, *sys.argv)
+    else:
+        print(f"Warning: Virtual environment Python not found at {venv_python}")
+        print("Falling back to system Python")
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

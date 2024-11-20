@@ -116,9 +116,22 @@ def run_magentic_one(task: str):
 @modal.asgi_app()
 def fastapi_app():
     import sys
+    import os
+    import subprocess
+
+    venv_path = "/root/autogen/python/.venv"
+    activate_this = os.path.join(venv_path, "bin", "activate_this.py")
+
+    if os.path.exists(activate_this):
+        exec(open(activate_this).read(), {'__file__': activate_this})
+        print(f"Activated virtual environment: {venv_path}")
+    else:
+        print(f"Warning: Virtual environment activation script not found at {activate_this}")
+
     print("Python sys.path:")
     for path in sys.path:
         print(f"  {path}")
+
     try:
         import autogen_magentic_one
         print(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
