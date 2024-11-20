@@ -115,7 +115,7 @@ def run_magentic_one(task: str):
 
 @app.function(image=image, mounts=project_mounts)
 @modal.asgi_app()
-def fastapi_app():
+def modal_fastapi_app():
     import sys
     import os
     import subprocess
@@ -183,9 +183,12 @@ if __name__ == "__main__":
     print("To deploy this app, run the following command:")
     print("modal deploy " + __file__)
 
-    # Check if the autogen_magentic_one package is installed
+    # Check if the autogen_magentic_one package is installed and print its location
     try:
         import autogen_magentic_one
         print(f"autogen_magentic_one is installed at: {autogen_magentic_one.__file__}")
-    except ImportError:
-        print("Warning: autogen_magentic_one is not installed")
+        print(f"autogen_magentic_one version: {autogen_magentic_one.__version__}")
+    except ImportError as e:
+        print(f"Warning: autogen_magentic_one is not installed. Error: {e}")
+    except AttributeError:
+        print("Warning: autogen_magentic_one is installed but __version__ is not available")
