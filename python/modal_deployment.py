@@ -13,16 +13,20 @@ for item in current_dir.iterdir():
     print(f"  {item}")
 
 # Add the necessary paths to the Python path
-autogen_path = current_dir / "packages"
-submodules_path = current_dir.parent / "submodules" / "modal_com_custom_sandboxes" / "src"
-autogen_magentic_one_path = current_dir / "packages" / "autogen-magentic-one" / "src"
+autogen_path = current_dir / "autogen"
+autogen_magentic_one_path = autogen_path / "python" / "packages" / "autogen-magentic-one" / "src"
 
-for path in [autogen_path, submodules_path, autogen_magentic_one_path]:
+for path in [autogen_path, autogen_magentic_one_path]:
     if path.exists():
         sys.path.insert(0, str(path))
         print(f"Added to sys.path: {path}")
     else:
         print(f"Warning: {path} does not exist")
+
+# Print the updated sys.path
+print("Updated sys.path:")
+for path in sys.path:
+    print(f"  {path}")
 
 try:
     from modal_sandbox.images.base_image import get_base_image
@@ -136,6 +140,17 @@ def fastapi_app():
                 print(f"    Contents: {os.listdir(path)}")
             else:
                 print("    Path does not exist")
+        
+        # Check if the autogen_magentic_one directory exists
+        autogen_magentic_one_dir = os.path.join(current_dir, "autogen", "python", "packages", "autogen-magentic-one", "src", "autogen_magentic_one")
+        if os.path.exists(autogen_magentic_one_dir):
+            print(f"autogen_magentic_one directory exists: {autogen_magentic_one_dir}")
+            print("Contents:")
+            for item in os.listdir(autogen_magentic_one_dir):
+                print(f"  {item}")
+        else:
+            print(f"autogen_magentic_one directory does not exist: {autogen_magentic_one_dir}")
+        
         raise
 
 @app.local_entrypoint()
