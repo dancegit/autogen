@@ -61,76 +61,33 @@ except ImportError as e:
 
 app = modal.App("autogen-magentic-one")
 
-# Create mounts for specific directories
-python_mount = modal.Mount.from_local_dir(current_dir.parent, remote_path="/root")
-sandboxes_mount = modal.Mount.from_local_dir(current_dir.parent / "submodules", remote_path="/root", condition=lambda _: (current_dir.parent / "submodules").exists())
-devcontainer_path = current_dir.parent / ".devcontainer"
-if devcontainer_path.exists():
-    devcontainer_mount = modal.Mount.from_local_dir(devcontainer_path, remote_path="/root")
-else:
-    print(f"Warning: .devcontainer directory not found at {devcontainer_path}")
-    print("Contents of parent directory:")
-    for item in current_dir.parent.iterdir():
-        print(f"  {item}")
-    devcontainer_mount = None
-protos_path = current_dir.parent / "protos"
-if protos_path.exists():
-    protos_mount = modal.Mount.from_local_dir(protos_path, remote_path="/root")
-else:
-    print(f"Warning: protos directory not found at {protos_path}")
-    print("Contents of parent directory:")
-    for item in current_dir.parent.iterdir():
-        print(f"  {item}")
-    protos_mount = None
-
-build_script_path = current_dir.parent / "build_autogen_magentic_one.sh"
-if build_script_path.exists():
-    build_script_mount = modal.Mount.from_local_file(build_script_path, remote_path="/root")
-else:
-    print(f"Warning: build_autogen_magentic_one.sh not found at {build_script_path}")
-    print("Contents of parent directory:")
-    for item in current_dir.parent.iterdir():
-        print(f"  {item}")
-    build_script_mount = None
+# Create a single mount for the autogen folder
+autogen_mount = modal.Mount.from_local_dir(
+    current_dir.parent,
+    remote_path="/root/autogen",
+    condition=lambda path: not any(excluded in path for excluded in [".github", "docs", "dotnet", "venv"])
+)
 
 # Combine all mounts
-project_mounts = [mount for mount in [python_mount, sandboxes_mount, devcontainer_mount, protos_mount, build_script_mount] if mount is not None]
+project_mounts = [autogen_mount]
 
 # Use the base_image and extend it with our specific requirements
 image = (
     get_base_image()
     .pip_install("uv")
-    .copy_mount(python_mount, remote_path="/root")
-    .copy_mount(sandboxes_mount, remote_path="/root")
-)
-
-if devcontainer_mount:
-    image = image.copy_mount(devcontainer_mount, remote_path="/root")
-
-if protos_mount:
-    image = image.copy_mount(protos_mount, remote_path="/root")
-
-image = image
-if build_script_mount:
-    image = image.copy_mount(build_script_mount, remote_path="/root")
-
-image = (
-    image
+    .copy_mount(autogen_mount, remote_path="/root/autogen")
     .run_commands(
         "cd /root/autogen/python",
         "uv --version",  # Check if uv is installed correctly
         "ls -la",  # List directory contents to debug
         "pwd",  # Print working directory
         "find /root/autogen -name pyproject.toml",  # Find pyproject.toml files
-       # "uv sync --all-extras",
+        "python3 -m venv .venv",
         "source .venv/bin/activate",
         "cd packages/autogen-magentic-one",
         "pip install -e .",
         "cd /root/autogen/python",
         "playwright install --with-deps chromium"
-    )
-    .run_commands(
-        "ls -R /root/autogen"  # Debug: List contents of the directory
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
