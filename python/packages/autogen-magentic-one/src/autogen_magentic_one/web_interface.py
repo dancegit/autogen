@@ -1,6 +1,5 @@
 import asyncio
 from fastapi import FastAPI, Request, Form
-from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from autogen_core.application import SingleThreadedAgentRuntime
 from autogen_core.base import AgentId, AgentProxy
@@ -16,7 +15,6 @@ from modal import Stub, asgi_app
 from modal_deployment import app as modal_app, image
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
 
 @modal_app.function(image=image)
 @asgi_app()
@@ -25,7 +23,23 @@ def fastapi_app():
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    html_content = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>AutoGen Magentic One</title>
+    </head>
+    <body>
+        <h1>Welcome to AutoGen Magentic One</h1>
+        <form action="/run_task" method="post">
+            <label for="task">Enter your task:</label><br>
+            <textarea id="task" name="task" rows="4" cols="50"></textarea><br>
+            <input type="submit" value="Run Task">
+        </form>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
 
 @app.post("/run_task")
 async def run_task(task: str = Form(...)):

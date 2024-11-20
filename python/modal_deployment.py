@@ -182,3 +182,10 @@ if __name__ == "__main__":
         print(f"  {item}")
     print("To deploy this app, run the following command:")
     print("modal deploy " + __file__)
+
+    # Check if the autogen_magentic_one package is installed
+    try:
+        import autogen_magentic_one
+        print(f"autogen_magentic_one is installed at: {autogen_magentic_one.__file__}")
+    except ImportError:
+        print("Warning: autogen_magentic_one is not installed")
