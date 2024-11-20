@@ -31,39 +31,61 @@ except ImportError as e:
             print(f"  {item}")
     else:
         print(f"  {submodules_path.parent} does not exist")
-    
+
     # Fallback to a basic Modal image if get_base_image is not available
     print("Using fallback Modal image")
     def get_base_image():
-        return modal.Image.debian_slim().pip_install("modal")
+        return (modal.Image
+        .debian_slim()
+        .apt_install([
+            "python3",
+            "python3-pip",
+            "gcc",
+            "g++",
+            "nodejs",
+            "npm",
+            "git",
+            "golang",
+        ])
+        .pip_install([
+            "pytest",
+            "pytest-asyncio",
+            "modal",
+            "uv",
+            "e2b",
+            "jupyter",
+            "notebook",
+            "jupyter_core",
+            "jupyterlab"
+        ]))
 
 app = modal.App("autogen-magentic-one")
 
 # Create mounts for specific directories
-python_mount = modal.Mount.from_local_dir(current_dir.parent, remote_path="/root/autogen/python")
-sandboxes_mount = modal.Mount.from_local_dir(current_dir.parent / "submodules", remote_path="/root/autogen/submodules", condition=lambda _: (current_dir.parent / "submodules").exists())
+python_mount = modal.Mount.from_local_dir(current_dir.parent, remote_path="/root")
+sandboxes_mount = modal.Mount.from_local_dir(current_dir.parent / "submodules", remote_path="/root", condition=lambda _: (current_dir.parent / "submodules").exists())
 devcontainer_path = current_dir.parent / ".devcontainer"
 if devcontainer_path.exists():
-    devcontainer_mount = modal.Mount.from_local_dir(devcontainer_path, remote_path="/root/autogen/.devcontainer")
+    devcontainer_mount = modal.Mount.from_local_dir(devcontainer_path, remote_path="/root")
 else:
     print(f"Warning: .devcontainer directory not found at {devcontainer_path}")
     print("Contents of parent directory:")
     for item in current_dir.parent.iterdir():
         print(f"  {item}")
     devcontainer_mount = None
-protos_path = current_dir.parent.parent / "protos"
+protos_path = current_dir.parent / "protos"
 if protos_path.exists():
-    protos_mount = modal.Mount.from_local_dir(protos_path, remote_path="/root/autogen/protos")
+    protos_mount = modal.Mount.from_local_dir(protos_path, remote_path="/root")
 else:
     print(f"Warning: protos directory not found at {protos_path}")
     print("Contents of parent directory:")
-    for item in current_dir.parent.parent.iterdir():
+    for item in current_dir.parent.iterdir():
         print(f"  {item}")
     protos_mount = None
 
 build_script_path = current_dir.parent / "build_autogen_magentic_one.sh"
 if build_script_path.exists():
-    build_script_mount = modal.Mount.from_local_file(build_script_path, remote_path="/root/autogen/build_autogen_magentic_one.sh")
+    build_script_mount = modal.Mount.from_local_file(build_script_path, remote_path="/root")
 else:
     print(f"Warning: build_autogen_magentic_one.sh not found at {build_script_path}")
     print("Contents of parent directory:")
@@ -78,19 +100,19 @@ project_mounts = [mount for mount in [python_mount, sandboxes_mount, devcontaine
 image = (
     get_base_image()
     .pip_install("uv")
-    .copy_mount(python_mount, remote_path="/root/autogen/python")
-    .copy_mount(sandboxes_mount, remote_path="/root/autogen/submodules/modal_com_custom_sandboxes")
+    .copy_mount(python_mount, remote_path="/root")
+    .copy_mount(sandboxes_mount, remote_path="/root")
 )
 
 if devcontainer_mount:
-    image = image.copy_mount(devcontainer_mount, remote_path="/root/autogen/.devcontainer")
+    image = image.copy_mount(devcontainer_mount, remote_path="/root")
 
 if protos_mount:
-    image = image.copy_mount(protos_mount, remote_path="/root/autogen/protos")
+    image = image.copy_mount(protos_mount, remote_path="/root")
 
 image = image
 if build_script_mount:
-    image = image.copy_mount(build_script_mount, remote_path="/root/autogen/build_autogen_magentic_one.sh")
+    image = image.copy_mount(build_script_mount, remote_path="/root")
 
 image = (
     image
@@ -100,7 +122,7 @@ image = (
         "ls -la",  # List directory contents to debug
         "pwd",  # Print working directory
         "find /root/autogen -name pyproject.toml",  # Find pyproject.toml files
-        "uv sync --all-extras",
+       # "uv sync --all-extras",
         "source .venv/bin/activate",
         "cd packages/autogen-magentic-one",
         "pip install -e .",
