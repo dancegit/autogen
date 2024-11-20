@@ -38,39 +38,31 @@ if autogen_magentic_one_path.exists():
 else:
     print("Warning: autogen_magentic_one directory not found.")
 
-try:
-    from modal_sandbox.images.base_image import get_base_image
-except ImportError as e:
-    print(f"Error importing get_base_image: {e}")
-    print(f"sys.path: {sys.path}")
-
-    # Fallback to a basic Modal image if get_base_image is not available
-    print("Using fallback Modal image")
-    def get_base_image():
-        return (modal.Image
-        .debian_slim()
-        .apt_install([
-            "python3",
-           # "source",
-            "python3-pip",
-            "gcc",
-            "g++",
-            "nodejs",
-            "npm",
-            "git",
-            "golang",
-        ])
-        .pip_install([
-            "pytest",
-            "pytest-asyncio",
-            "modal",
-            "uv",
-            "e2b",
-            "jupyter",
-            "notebook",
-            "jupyter_core",
-            "jupyterlab"
-        ]))
+# Define the base image directly
+def get_base_image():
+    return (modal.Image
+    .debian_slim()
+    .apt_install([
+        "python3",
+        "python3-pip",
+        "gcc",
+        "g++",
+        "nodejs",
+        "npm",
+        "git",
+        "golang",
+    ])
+    .pip_install([
+        "pytest",
+        "pytest-asyncio",
+        "modal",
+        "uv",
+        "e2b",
+        "jupyter",
+        "notebook",
+        "jupyter_core",
+        "jupyterlab"
+    ]))
 
 app = modal.App("autogen-magentic-one")
 __all__ = ['app', 'image']
@@ -86,18 +78,15 @@ autogen_mount = modal.Mount.from_local_dir(
 project_mounts = [autogen_mount]
 
 # Use the base_image and extend it with our specific requirements
-# CAREFUL CD INTO ANY DIRECTORY IS RESET ON THE NEXT COMMAND TO "/"
 image = (
     get_base_image()
     .pip_install("uv")
     .copy_mount(autogen_mount, remote_path="/")
     .run_commands(
-        "uv --version",  # Check if uv is installed correctly
+        "uv --version",
         "cd /root/autogen/python && uv sync --all-extras",
-        "ls -la ~",  # List /root directory contents to debug
-        #"pwd",  # Print working directory .. its /root
-        "find /root/autogen -name pyproject.toml",  # Find pyproject.toml files just to check
-        #"cd /root/autogen && python3 -m venv .venv",
+        "ls -la ~",
+        "find /root/autogen -name pyproject.toml",
         "ls -la /root/autogen/ && ls -la /root/autogen/python/",
         ". /root/autogen/python/.venv/bin/activate && cd /root/autogen/python/packages/autogen-magentic-one && pip install -e .",
         ". /root/autogen/python/.venv/bin/activate && cd /root/autogen/python && playwright install --with-deps chromium"
