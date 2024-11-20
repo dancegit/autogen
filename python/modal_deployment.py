@@ -61,7 +61,8 @@ def get_base_image():
         "jupyter",
         "notebook",
         "jupyter_core",
-        "jupyterlab"
+        "jupyterlab",
+        "PyGithub"
     ]))
 
 app = modal.App("autogen-magentic-one")
@@ -88,7 +89,7 @@ image = (
         "ls -la ~",
         "find /root/autogen -name pyproject.toml",
         "ls -la /root/autogen/ && ls -la /root/autogen/python/",
-        ". /root/autogen/python/.venv/bin/activate && cd /root/autogen/python/packages/autogen-magentic-one && pip install -e .",
+        ". /root/autogen/python/.venv/bin/activate && cd /root/autogen/python/packages/autogen-magentic-one && pip install -e .[all]",
         ". /root/autogen/python/.venv/bin/activate && cd /root/autogen/python && playwright install --with-deps chromium"
     )
     .env({
