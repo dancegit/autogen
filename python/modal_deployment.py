@@ -12,13 +12,16 @@ print("Contents of current directory:")
 for item in current_dir.iterdir():
     print(f"  {item}")
 
-# Add the submodules directory to the Python path
+# Add the necessary paths to the Python path
+autogen_path = current_dir / "packages"
 submodules_path = current_dir.parent / "submodules" / "modal_com_custom_sandboxes" / "src"
-if submodules_path.exists():
-    sys.path.insert(0, str(submodules_path))
-    print(f"Added to sys.path: {submodules_path}")
-else:
-    print(f"Warning: {submodules_path} does not exist")
+
+for path in [autogen_path, submodules_path]:
+    if path.exists():
+        sys.path.insert(0, str(path))
+        print(f"Added to sys.path: {path}")
+    else:
+        print(f"Warning: {path} does not exist")
 
 try:
     from modal_sandbox.images.base_image import get_base_image
@@ -114,8 +117,16 @@ def run_magentic_one(task: str):
 @app.function(image=image, mounts=project_mounts)
 @modal.asgi_app()
 def fastapi_app():
-    from autogen_magentic_one.web_interface import app
-    return app
+    import sys
+    print("Python sys.path:")
+    for path in sys.path:
+        print(f"  {path}")
+    try:
+        from autogen_magentic_one.web_interface import app
+        return app
+    except ImportError as e:
+        print(f"Error importing app: {e}")
+        raise
 
 @app.local_entrypoint()
 def main(task: str):
