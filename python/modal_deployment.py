@@ -39,6 +39,7 @@ except ImportError as e:
         .debian_slim()
         .apt_install([
             "python3",
+           # "source",
             "python3-pip",
             "gcc",
             "g++",
@@ -65,29 +66,28 @@ app = modal.App("autogen-magentic-one")
 autogen_mount = modal.Mount.from_local_dir(
     current_dir.parent,
     remote_path="/root/autogen",
-    condition=lambda path: not any(excluded in path for excluded in [".github", "docs", "dotnet", "venv"])
+    condition=lambda path: not any(excluded in path for excluded in [".github", "docs", "dotnet", "venv",".venv",".aider*"])
 )
 
 # Combine all mounts
 project_mounts = [autogen_mount]
 
 # Use the base_image and extend it with our specific requirements
+# CAREFUL CD INTO ANY DIRECTORY IS RESET ON THE NEXT COMMAND TO "/"
 image = (
     get_base_image()
     .pip_install("uv")
-    .copy_mount(autogen_mount, remote_path="/root/autogen")
+    .copy_mount(autogen_mount, remote_path="/")
     .run_commands(
-        "cd /root/autogen/python",
         "uv --version",  # Check if uv is installed correctly
-        "ls -la",  # List directory contents to debug
-        "pwd",  # Print working directory
-        "find /root/autogen -name pyproject.toml",  # Find pyproject.toml files
-        "python3 -m venv .venv",
-        "source .venv/bin/activate",
-        "cd packages/autogen-magentic-one",
-        "pip install -e .",
-        "cd /root/autogen/python",
-        "playwright install --with-deps chromium"
+        "cd /root/autogen/python && uv sync --all-extras",
+        "ls -la ~",  # List /root directory contents to debug
+        #"pwd",  # Print working directory .. its /root
+        "find /root/autogen -name pyproject.toml",  # Find pyproject.toml files just to check
+        #"cd /root/autogen && python3 -m venv .venv",
+        "ls -la /root/autogen/ && ls -la /root/autogen/python/",
+        ". /root/autogen/python/.venv/bin/activate && cd /root/autogen/python/packages/autogen-magentic-one && pip install -e .",
+        ". /root/autogen/python/.venv/bin/activate && cd /root/autogen/python && playwright install --with-deps chromium"
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
