@@ -15,8 +15,9 @@ for item in current_dir.iterdir():
 # Add the necessary paths to the Python path
 autogen_path = current_dir / "packages"
 submodules_path = current_dir.parent / "submodules" / "modal_com_custom_sandboxes" / "src"
+autogen_magentic_one_path = current_dir / "packages" / "autogen-magentic-one" / "src"
 
-for path in [autogen_path, submodules_path]:
+for path in [autogen_path, submodules_path, autogen_magentic_one_path]:
     if path.exists():
         sys.path.insert(0, str(path))
         print(f"Added to sys.path: {path}")
@@ -122,10 +123,19 @@ def fastapi_app():
     for path in sys.path:
         print(f"  {path}")
     try:
+        import autogen_magentic_one
+        print(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
         from autogen_magentic_one.web_interface import app
         return app
     except ImportError as e:
         print(f"Error importing app: {e}")
+        print("Detailed sys.path:")
+        for i, path in enumerate(sys.path):
+            print(f"  {i}: {path}")
+            if os.path.exists(path):
+                print(f"    Contents: {os.listdir(path)}")
+            else:
+                print("    Path does not exist")
         raise
 
 @app.local_entrypoint()
