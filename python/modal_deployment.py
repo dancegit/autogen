@@ -99,6 +99,12 @@ image = (
     })
 )
 
+# Print environment variables for debugging
+print("Environment variables:")
+print(f"BING_API_KEY: {'Set' if os.environ.get('BING_API_KEY') else 'Not set'}")
+print(f"OPENAI_API_KEY: {'Set' if os.environ.get('OPENAI_API_KEY') else 'Not set'}")
+print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
+
 @app.function(
     image=image,
     gpu="T4",
