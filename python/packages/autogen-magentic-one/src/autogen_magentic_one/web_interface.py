@@ -44,7 +44,8 @@ async def read_root(request: Request):
 @app.post("/run_task")
 async def run_task(task: str = Form(...)):
     runtime = SingleThreadedAgentRuntime()
-    client = create_completion_client_from_env(model="gpt-4o")
+    client = create_completion_client_from_env(model="gpt-4")
+    print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
 
     async with DockerCommandLineCodeExecutor(work_dir="/tmp") as code_executor:
         await Coder.register(runtime, "Coder", lambda: Coder(model_client=client))
