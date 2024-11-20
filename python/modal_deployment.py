@@ -14,10 +14,11 @@ for item in current_dir.iterdir():
     print(f"  {item}")
 
 # Add the necessary paths to the Python path
-autogen_path = current_dir / "autogen"
-autogen_magentic_one_path = autogen_path / "python" / "packages" / "autogen-magentic-one"
+autogen_path = current_dir.parent  # Go up one level to reach the autogen root
+packages_path = current_dir / "packages"
+autogen_magentic_one_path = packages_path / "autogen-magentic-one"
 
-for path in [autogen_path, autogen_magentic_one_path]:
+for path in [autogen_path, packages_path, autogen_magentic_one_path]:
     if path.exists():
         sys.path.insert(0, str(path))
         print(f"Added to sys.path: {path}")
@@ -145,7 +146,7 @@ def fastapi_app():
                 print("    Path does not exist")
         
         # Check if the autogen_magentic_one directory exists
-        autogen_magentic_one_dir = os.path.join(current_dir, "autogen", "python", "packages", "autogen-magentic-one")
+        autogen_magentic_one_dir = os.path.join(current_dir, "packages", "autogen-magentic-one")
         if os.path.exists(autogen_magentic_one_dir):
             print(f"autogen_magentic_one directory exists: {autogen_magentic_one_dir}")
             print("Contents:")
@@ -164,7 +165,7 @@ def fastapi_app():
         else:
             print(f"autogen_magentic_one directory does not exist: {autogen_magentic_one_dir}")
         
-        raise
+        raise ImportError("Failed to import autogen_magentic_one after attempted installation")
 
 @app.local_entrypoint()
 def main(task: str):
