@@ -206,7 +206,4 @@ if __name__ == "__main__":
         print(f"Warning: autogen_magentic_one is not installed. Error: {e}")
     except AttributeError:
         print("Warning: autogen_magentic_one is installed but __version__ is not available")
-@app.function(image=docker_image)
-def run_docker_compose():
-    import subprocess
-    subprocess.run(["docker-compose", "up", "-d"], cwd="/root/.devcontainer")
+# Docker-related function removed
