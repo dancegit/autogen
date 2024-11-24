@@ -38,9 +38,8 @@ if autogen_magentic_one_path.exists():
 else:
     print("Warning: autogen_magentic_one directory not found.")
 
-# Define the base image directly
-def get_base_image():
-    return (modal.Image
+# Define the base image
+base_image = (modal.Image
     .debian_slim()
     .apt_install([
         "python3",
@@ -90,16 +89,14 @@ project_mounts = [autogen_mount]
 
 # Use the base_image and extend it with our specific requirements
 image = (
-    get_base_image()
+    base_image
     .pip_install("uv")
     .copy_mount(autogen_mount, remote_path="/")
+    .workdir("/root/autogen/python")
+    .pip_install_from_pyproject("pyproject.toml")
     .run_commands(
-        "which python",
-        "ls -la ~",
-        "find /root/autogen -name pyproject.toml",
-        "ls -la /root/autogen/ && ls -la /root/autogen/python/",
-        "cd /root/autogen/python && uv sync --all-extras",
-        "pip install -e /root/autogen/python/packages/autogen-magentic-one[all]",
+        "uv sync --all-extras",
+        "pip install -e packages/autogen-magentic-one[all]",
         "pip install playwright",
         "pip install autogen-core",
         "playwright install --with-deps chromium",
@@ -112,7 +109,7 @@ image = (
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
         "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
-        "CHAT_COMPLETION_KWARGS_JSON": os.environ.get("CHAT_COMPLETION_KWARGS_JSON", "")
+        "CHAT_COMPLETION_KWARGS_JSON": '{"model": "gpt-4"}'
     })
 )
 
