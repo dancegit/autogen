@@ -51,7 +51,7 @@ def get_base_image():
         "npm",
         "git",
         "golang",
-        "docker.io",
+        "docker.io"
     ])
     .pip_install([
         "pytest",
