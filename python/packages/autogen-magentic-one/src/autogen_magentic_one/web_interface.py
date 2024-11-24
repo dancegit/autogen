@@ -90,25 +90,25 @@ async def run_task(task: str = Form(...)):
 
         runtime.start()
 
-            actual_surfer = await runtime.try_get_underlying_agent_instance(agent_list[0].id, type=MultimodalWebSurfer)
-            try:
-                await actual_surfer.init(
-                    model_client=client,
-                    downloads_folder="/tmp",
-                    start_page="https://www.bing.com",
-                    browser_channel="chromium",
-                    headless=True,
-                    debug_dir="/tmp",
-                    to_save_screenshots=False,
-                )
-            except Exception as e:
-                logging.error(f"Failed to initialize MultimodalWebSurfer: {e}")
-                logging.error("Falling back to text-only mode")
-                # Remove WebSurfer from agent_list
-                agent_list = [agent for agent in agent_list if agent.id.type != "WebSurfer"]
+        actual_surfer = await runtime.try_get_underlying_agent_instance(agent_list[0].id, type=MultimodalWebSurfer)
+        try:
+            await actual_surfer.init(
+                model_client=client,
+                downloads_folder="/tmp",
+                start_page="https://www.bing.com",
+                browser_channel="chromium",
+                headless=True,
+                debug_dir="/tmp",
+                to_save_screenshots=False,
+            )
+        except Exception as e:
+            logging.error(f"Failed to initialize MultimodalWebSurfer: {e}")
+            logging.error("Falling back to text-only mode")
+            # Remove WebSurfer from agent_list
+            agent_list = [agent for agent in agent_list if agent.id.type != "WebSurfer"]
 
-            response = await runtime.send_message(RequestReplyMessage(task), orchestrator.id)
-            await runtime.stop_when_idle()
+        response = await runtime.send_message(RequestReplyMessage(task), orchestrator.id)
+        await runtime.stop_when_idle()
 
             return {"result": response.content}
     except Exception as e:
