@@ -51,6 +51,7 @@ def get_base_image():
         "npm",
         "git",
         "golang",
+        "docker"
     ])
     .pip_install([
         "pytest",
@@ -153,7 +154,7 @@ def modal_fastapi_app():
                 print(f"    Contents: {os.listdir(path)}")
             else:
                 print("    Path does not exist")
-        
+
         # Check if the autogen_magentic_one directory exists
         autogen_magentic_one_dir = os.path.join(current_dir, "packages", "autogen-magentic-one")
         if os.path.exists(autogen_magentic_one_dir):
@@ -161,19 +162,19 @@ def modal_fastapi_app():
             print("Contents:")
             for item in os.listdir(autogen_magentic_one_dir):
                 print(f"  {item}")
-            
+
             # Try to install the package again
             print("Attempting to install autogen_magentic_one package...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", autogen_magentic_one_dir])
             print("autogen_magentic_one package installed successfully.")
-            
+
             # Try importing again
             import autogen_magentic_one
             from autogen_magentic_one.web_interface import app
             return app
         else:
             print(f"autogen_magentic_one directory does not exist: {autogen_magentic_one_dir}")
-        
+
         raise ImportError("Failed to import autogen_magentic_one after attempted installation")
 
 @app.local_entrypoint()
