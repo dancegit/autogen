@@ -39,13 +39,19 @@ autogen_magentic_one_path = packages_path / "autogen-magentic-one"
 #else:
 #    print("Warning: autogen_magentic_one directory not found.")
 
-# Define the base image
-base_image = (modal.Image
+# Define the Docker image
+docker_image = (modal.Image
     .debian_slim()
     .apt_install(["docker.io", "docker-compose"])
     .copy_local_dir(".devcontainer", "/root/.devcontainer")
     .run_commands(
-        "cd /root/.devcontainer && docker-compose up -d",
+        "cd /root/.devcontainer && docker-compose up -d"
+    ))
+
+# Define the base image
+base_image = (modal.Image
+    .debian_slim()
+    .run_commands(
         "wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -",
         "echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google-chrome.list",
         "apt-get update",
@@ -53,7 +59,7 @@ base_image = (modal.Image
     ))
 
 app = modal.App("autogen-magentic-one")
-__all__ = ['app', 'image']
+__all__ = ['app', 'image', 'docker_image']
 
 # Create a single mount for the autogen folder
 autogen_mount = modal.Mount.from_local_dir(
@@ -199,3 +205,7 @@ if __name__ == "__main__":
         print(f"Warning: autogen_magentic_one is not installed. Error: {e}")
     except AttributeError:
         print("Warning: autogen_magentic_one is installed but __version__ is not available")
+@app.function(image=docker_image)
+def run_docker_compose():
+    import subprocess
+    subprocess.run(["docker-compose", "up", "-d"], cwd="/root/.devcontainer")
