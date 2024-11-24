@@ -68,7 +68,7 @@ project_mounts = [autogen_mount]
 # Use the base_image and extend it with our specific requirements
 image = (
     base_image
-    .copy_mount(autogen_mount, remote_path="/root/autogen")
+    .copy_mount(autogen_mount, remote_path="/")
     .workdir("/root/autogen/python")
     .run_commands(
         "python3 -m venv .venv",
