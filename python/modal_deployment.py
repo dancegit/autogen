@@ -82,8 +82,10 @@ image = (
     .workdir("/root/autogen/python")
     .run_commands(
         "python3 -m venv .venv",
-        "echo 'export PATH=/root/autogen/python/.venv/bin:$PATH' >> ~/.bashrc",
-        "source ~/.bashrc",
+        "echo 'export PATH=/root/autogen/python/.venv/bin:$PATH' >> /root/.bashrc",
+        "echo 'alias python=/root/autogen/python/.venv/bin/python' >> /root/.bashrc",
+        "echo 'alias pip=/root/autogen/python/.venv/bin/pip' >> /root/.bashrc",
+        "source /root/.bashrc",
         "/root/autogen/python/.venv/bin/pip install --upgrade pip",
         "/root/autogen/python/.venv/bin/pip install uv",
         "/root/autogen/python/.venv/bin/uv pip install -e .[all]",
@@ -96,6 +98,7 @@ image = (
         "/root/autogen/python/.venv/bin/python -m playwright install-deps",
         "/root/autogen/python/.venv/bin/python -m playwright install chromium"
     )
+    .shell("/bin/bash")
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
         "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
