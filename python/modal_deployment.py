@@ -83,7 +83,7 @@ image = (
         "/root/autogen/python/.venv/bin/pip install -e /root/autogen/python/packages/autogen-core",
         "/root/autogen/python/.venv/bin/pip install -e /root/autogen/python/packages/autogen-ext",
         "/root/autogen/python/.venv/bin/pip install -e /root/autogen/python/packages/autogen-magentic-one",
-        "/root/autogen/python/.venv/bin/pip install grpclib",
+        "/root/autogen/python/.venv/bin/pip install grpclib PyGithub",
         "/root/autogen/python/.venv/bin/pip install /root/autogen/python/packages/autogen-agentchat",
         "/root/autogen/python/.venv/bin/pip install /root/autogen/python/packages/agbench",
         "/root/autogen/python/.venv/bin/pip install /root/autogen/python/packages/autogen-studio",
