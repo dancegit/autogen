@@ -41,10 +41,10 @@ else:
 # Define the base image
 base_image = (modal.Image
     .debian_slim()
-    .apt_install(["docker.io"])
-    .run_commands("cp /root/docker-compose.yml /tmp/docker-compose.yml")
-    .install_from_dockercompose("/tmp/docker-compose.yml", service="devcontainer")
+    .apt_install(["docker.io", "docker-compose"])
+    .copy_local_dir(".devcontainer", "/root/.devcontainer")
     .run_commands(
+        "cd /root/.devcontainer && docker-compose up -d",
         "wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -",
         "echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google-chrome.list",
         "apt-get update",
@@ -67,7 +67,7 @@ project_mounts = [autogen_mount]
 # Use the base_image and extend it with our specific requirements
 image = (
     base_image
-    .copy_mount(autogen_mount, remote_path="/")
+    .copy_mount(autogen_mount, remote_path="/root/autogen")
     .workdir("/root/autogen/python")
     .run_commands(
         "python3 -m venv .venv",
@@ -82,9 +82,7 @@ image = (
         "/root/autogen/python/.venv/bin/pip install -e /root/autogen/python/packages/autogen-agentchat",
         "/root/autogen/python/.venv/bin/pip install -e /root/autogen/python/packages/autogen-core",
         "/root/autogen/python/.venv/bin/pip install -e /root/autogen/python/packages/autogen-ext",
-        # "/root/autogen/python/.venv/bin/pip install -r /root/autogen/python/requirements.txt",
         "/root/autogen/python/.venv/bin/pip install playwright",
-        # "/root/autogen/python/.venv/bin/pip install autogen-core",
         "/root/autogen/python/.venv/bin/playwright install --with-deps chromium",
         "/root/autogen/python/.venv/bin/playwright install-deps",
         "/root/autogen/python/.venv/bin/playwright install chromium",

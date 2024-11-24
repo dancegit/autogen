@@ -121,7 +121,7 @@ if __name__ == "__main__":
     import os
 
     # Activate the virtual environment
-    venv_path = "/root/autogen/python/.venv"
+    venv_path = "/root/.devcontainer/workspaces/autogen/python/.venv"
     activate_this = os.path.join(venv_path, "bin", "activate_this.py")
     if os.path.exists(activate_this):
         exec(open(activate_this).read(), {'__file__': activate_this})
