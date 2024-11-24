@@ -110,7 +110,7 @@ async def run_task(task: str = Form(...)):
         response = await runtime.send_message(RequestReplyMessage(task), orchestrator.id)
         await runtime.stop_when_idle()
 
-            return {"result": response.content}
+        return {"result": response.content}
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return {"error": str(e)}
