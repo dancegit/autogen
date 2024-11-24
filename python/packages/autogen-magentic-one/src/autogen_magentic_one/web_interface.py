@@ -69,26 +69,26 @@ async def run_task(task: str = Form(...)):
         await FileSurfer.register(runtime, "file_surfer", lambda: FileSurfer(model_client=client))
 
         agent_list = [
-                AgentProxy(AgentId("WebSurfer", "default"), runtime),
-                AgentProxy(AgentId("Coder", "default"), runtime),
-                AgentProxy(AgentId("Executor", "default"), runtime),
-                AgentProxy(AgentId("file_surfer", "default"), runtime),
-            ]
+            AgentProxy(AgentId("WebSurfer", "default"), runtime),
+            AgentProxy(AgentId("Coder", "default"), runtime),
+            AgentProxy(AgentId("Executor", "default"), runtime),
+            AgentProxy(AgentId("file_surfer", "default"), runtime),
+        ]
 
-            await LedgerOrchestrator.register(
-                runtime,
-                "Orchestrator",
-                lambda: LedgerOrchestrator(
-                    agents=agent_list,
-                    model_client=client,
-                    max_rounds=30,
-                    max_time=25 * 60,
-                    return_final_answer=True,
-                ),
-            )
-            orchestrator = AgentProxy(AgentId("Orchestrator", "default"), runtime)
+        await LedgerOrchestrator.register(
+            runtime,
+            "Orchestrator",
+            lambda: LedgerOrchestrator(
+                agents=agent_list,
+                model_client=client,
+                max_rounds=30,
+                max_time=25 * 60,
+                return_final_answer=True,
+            ),
+        )
+        orchestrator = AgentProxy(AgentId("Orchestrator", "default"), runtime)
 
-            runtime.start()
+        runtime.start()
 
             actual_surfer = await runtime.try_get_underlying_agent_instance(agent_list[0].id, type=MultimodalWebSurfer)
             try:
