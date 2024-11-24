@@ -13,6 +13,8 @@ from autogen_magentic_one.messages import RequestReplyMessage
 from autogen_magentic_one.utils import create_completion_client_from_env
 from modal import Stub, asgi_app
 from modal_deployment import app as modal_app, image
+import os
+
 
 app = FastAPI()
 
