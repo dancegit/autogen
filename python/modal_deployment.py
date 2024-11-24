@@ -106,12 +106,13 @@ image = (
         "playwright install-deps",
         "playwright install chromium",
         "python -m playwright install",
-        "python -m playwright install-deps"
+        "python -m playwright install-deps",
+        "python -m playwright install chromium"
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
         "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
-        "CHAT_COMPLETION_KWARGS_JSON": os.environ.get("CHAT_COMPLETION_KWARGS_JSON", "")
+        "CHAT_COMPLETION_KWARGS_JSON": '{"model": "gpt-4"}'
     })
 )
 
