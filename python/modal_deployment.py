@@ -44,6 +44,7 @@ base_image = (modal.Image
     .apt_install([
         "python3",
         "python3-pip",
+        "python3-venv",
         "gcc",
         "g++",
         "nodejs",
@@ -59,20 +60,7 @@ base_image = (modal.Image
         "echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google-chrome.list",
         "apt-get update",
         "apt-get install -y google-chrome-stable"
-    )
-    .pip_install([
-        "pytest",
-        "pytest-asyncio",
-        "modal",
-        "uv",
-        "e2b",
-        "jupyter",
-        "notebook",
-        "jupyter_core",
-        "jupyterlab",
-        "PyGithub",
-        "docker",
-    ]))
+    ))
 
 app = modal.App("autogen-magentic-one")
 __all__ = ['app', 'image']
@@ -90,26 +78,29 @@ project_mounts = [autogen_mount]
 # Use the base_image and extend it with our specific requirements
 image = (
     base_image
-    .pip_install("uv")
     .copy_mount(autogen_mount, remote_path="/")
     .workdir("/root/autogen/python")
-    .pip_install_from_pyproject("pyproject.toml")
     .run_commands(
-        "uv sync --all-extras",
-        "pip install -e packages/autogen-magentic-one[all]",
-        "pip install playwright",
-        "pip install autogen-core",
-        "playwright install --with-deps chromium",
-        "playwright install-deps",
-        "playwright install chromium",
-        "python -m playwright install",
-        "python -m playwright install-deps",
-        "python -m playwright install chromium"
+        "python3 -m venv .venv",
+        "echo 'export PATH=/root/autogen/python/.venv/bin:$PATH' >> ~/.bashrc",
+        "source ~/.bashrc",
+        "/root/autogen/python/.venv/bin/pip install --upgrade pip",
+        "/root/autogen/python/.venv/bin/pip install uv",
+        "/root/autogen/python/.venv/bin/uv pip install -e .[all]",
+        "/root/autogen/python/.venv/bin/pip install playwright",
+        "/root/autogen/python/.venv/bin/pip install autogen-core",
+        "/root/autogen/python/.venv/bin/playwright install --with-deps chromium",
+        "/root/autogen/python/.venv/bin/playwright install-deps",
+        "/root/autogen/python/.venv/bin/playwright install chromium",
+        "/root/autogen/python/.venv/bin/python -m playwright install",
+        "/root/autogen/python/.venv/bin/python -m playwright install-deps",
+        "/root/autogen/python/.venv/bin/python -m playwright install chromium"
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
         "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
-        "CHAT_COMPLETION_KWARGS_JSON": '{"model": "gpt-4"}'
+        "CHAT_COMPLETION_KWARGS_JSON": '{"model": "gpt-4"}',
+        "PATH": "/root/autogen/python/.venv/bin:${PATH}"
     })
 )
 
