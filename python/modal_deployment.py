@@ -50,7 +50,8 @@ def get_base_image():
         "nodejs",
         "npm",
         "git",
-        "golang"
+        "golang",
+        "docker.io"
     ])
     .pip_install([
         "pytest",
@@ -63,6 +64,7 @@ def get_base_image():
         "jupyter_core",
         "jupyterlab",
         "PyGithub",
+        "docker",
     ]))
 
 app = modal.App("autogen-magentic-one")
