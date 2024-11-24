@@ -112,7 +112,7 @@ image = (
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
         "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
-        "CHAT_COMPLETION_KWARGS_JSON": '{"model": "gpt-4"}'
+        "CHAT_COMPLETION_KWARGS_JSON": os.environ.get("CHAT_COMPLETION_KWARGS_JSON", "")
     })
 )
 
