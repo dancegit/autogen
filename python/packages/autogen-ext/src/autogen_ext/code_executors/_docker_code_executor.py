@@ -14,6 +14,7 @@ from hashlib import sha256
 from pathlib import Path
 from types import TracebackType
 from typing import Any, Callable, ClassVar, List, Optional, ParamSpec, Type, Union, Sequence
+P = ParamSpec("P")
 
 from autogen_core.base import CancellationToken
 from autogen_core.components.code_executor import (
@@ -114,7 +115,7 @@ $functions"""
         stop_container: bool = True,
         functions: Sequence[
             Union[
-                FunctionWithRequirements[Any, ParamSpec("P")],
+                FunctionWithRequirements[Any, ParamSpec(P)],
                 Callable[..., Any],
             ]
         ] = [],
