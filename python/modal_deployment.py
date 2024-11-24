@@ -39,25 +39,18 @@ autogen_magentic_one_path = packages_path / "autogen-magentic-one"
 #else:
 #    print("Warning: autogen_magentic_one directory not found.")
 
-# Define the Docker image
-docker_image = (modal.Image
-    .debian_slim()
-    .apt_install(["docker.io", "docker-compose"])
-    .copy_local_dir(".devcontainer", "/root/.devcontainer")
-    .run_commands(
-        "cd /root/.devcontainer && docker-compose up -d"
-    ))
-
 # Define the base image
 base_image = (modal.Image
     .debian_slim()
-    .apt_install(["wget"])
+    .apt_install(["wget", "gnupg"])
     .run_commands(
         "wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -",
         "echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google-chrome.list",
         "apt-get update",
         "apt-get install -y google-chrome-stable"
     ))
+
+# Remove the Docker image definition as it's not needed for now
 
 app = modal.App("autogen-magentic-one")
 __all__ = ['app', 'image', 'docker_image']
