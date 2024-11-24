@@ -32,8 +32,10 @@ async def run_task_in_modal(task: str):
 
 @modal_app.function(image=image)
 async def run_task(task: str):
-    # Placeholder implementation
-    return await run_task_in_modal(task)
+    code_executor = Function.from_name("modal_deployment", "run_code")
+    return await _run_task(task, code_executor)
+
+async def _run_task(task: str, code_executor: Function):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
@@ -64,19 +66,16 @@ async def handle_run_task(task: str = Form(...)):
         logging.error(f"An error occurred: {e}")
         return {"error": str(e)}
 
-@modal_app.function(image=image)
-async def run_task_in_modal(task: str):
+async def _run_task(task: str, code_executor: Function):
     runtime = SingleThreadedAgentRuntime()
     client = create_completion_client_from_env(model="gpt-4")
     print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
-
-    code_executor = Function.lookup("modal_deployment", "run_code", create_if_missing=True)
 
     await Coder.register(runtime, "Coder", lambda: Coder(model_client=client))
     await Executor.register(
         runtime,
         "Executor",
-        lambda: Executor("An agent for executing code", executor=code_executor, image=image),
+        lambda: Executor("An agent for executing code", executor=code_executor, confirm_execution="ACCEPT_ALL"),
     )
     await MultimodalWebSurfer.register(runtime, "WebSurfer", MultimodalWebSurfer)
     await FileSurfer.register(runtime, "file_surfer", lambda: FileSurfer(model_client=client))
