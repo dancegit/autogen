@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from autogen_core.application import SingleThreadedAgentRuntime
 from autogen_core.base import AgentId, AgentProxy
-from autogen_ext.code_executors import DockerCommandLineCodeExecutor
+from autogen_ext.code_executors import ModalCommandLineCodeExecutor
 from autogen_magentic_one.agents.coder import Coder, Executor
 from autogen_magentic_one.agents.file_surfer import FileSurfer
 from autogen_magentic_one.agents.multimodal_web_surfer import MultimodalWebSurfer
@@ -65,8 +65,7 @@ async def run_task_in_modal(task: str):
     client = create_completion_client_from_env(model="gpt-4")
     print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
 
-    code_executor = DockerCommandLineCodeExecutor(work_dir="/tmp")
-    await code_executor.start()
+    code_executor = ModalCommandLineCodeExecutor(image=image, work_dir="/tmp")
 
     await Coder.register(runtime, "Coder", lambda: Coder(model_client=client))
     await Executor.register(
