@@ -90,9 +90,11 @@ image = (
         "ls -la ~",
         "find /root/autogen -name pyproject.toml",
         "ls -la /root/autogen/ && ls -la /root/autogen/python/",
-        "cd /root/autogen/python && uv sync  --all-extras",
+        "cd /root/autogen/python && uv sync --all-extras",
         "pip install -e /root/autogen/python/packages/autogen-magentic-one[all]",
-        "cd /root/autogen/python && playwright install --with-deps chromium"
+        "pip install playwright",
+        "playwright install --with-deps chromium",
+        "pip install autogen-core"
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),

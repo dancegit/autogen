@@ -102,13 +102,19 @@ if __name__ == "__main__":
     import sys
     import os
 
-    # Use the Python interpreter from the virtual environment
-    venv_python = os.path.join("/root/autogen/python/.venv", "bin", "python")
-    if os.path.exists(venv_python):
-        print(f"Using Python interpreter: {venv_python}")
-        os.execl(venv_python, venv_python, *sys.argv)
+    # Activate the virtual environment
+    venv_path = "/root/autogen/python/.venv"
+    activate_this = os.path.join(venv_path, "bin", "activate_this.py")
+    if os.path.exists(activate_this):
+        exec(open(activate_this).read(), {'__file__': activate_this})
+        print(f"Activated virtual environment: {venv_path}")
     else:
-        print(f"Warning: Virtual environment Python not found at {venv_python}")
+        print(f"Warning: Virtual environment activation script not found at {activate_this}")
         print("Falling back to system Python")
+
+    # Print Python path for debugging
+    print("Python sys.path:")
+    for path in sys.path:
+        print(f"  {path}")
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
