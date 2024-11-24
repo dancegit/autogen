@@ -82,10 +82,11 @@ image = (
     .workdir("/root/autogen/python")
     .run_commands(
         "python3 -m venv .venv",
+        "touch /root/.bashrc",
         "echo 'export PATH=/root/autogen/python/.venv/bin:$PATH' >> /root/.bashrc",
         "echo 'alias python=/root/autogen/python/.venv/bin/python' >> /root/.bashrc",
         "echo 'alias pip=/root/autogen/python/.venv/bin/pip' >> /root/.bashrc",
-        "source /root/.bashrc",
+        ". /root/.bashrc",
         "/root/autogen/python/.venv/bin/pip install --upgrade pip",
         "/root/autogen/python/.venv/bin/pip install uv",
         "/root/autogen/python/.venv/bin/uv pip install -e .[all]",
