@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from autogen_core.application import SingleThreadedAgentRuntime
 from autogen_core.base import AgentId, AgentProxy
-from autogen_ext.code_executors import ModalCommandLineCodeExecutor
+from modal import Function
 from autogen_magentic_one.agents.coder import Coder, Executor
 from autogen_magentic_one.agents.file_surfer import FileSurfer
 from autogen_magentic_one.agents.multimodal_web_surfer import MultimodalWebSurfer
@@ -65,13 +65,13 @@ async def run_task_in_modal(task: str):
     client = create_completion_client_from_env(model="gpt-4")
     print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
 
-    code_executor = ModalCommandLineCodeExecutor(image=image, work_dir="/tmp")
+    code_executor = Function.lookup("modal_deployment", "run_code", create_if_missing=True)
 
     await Coder.register(runtime, "Coder", lambda: Coder(model_client=client))
     await Executor.register(
         runtime,
         "Executor",
-        lambda: Executor("An agent for executing code", executor=code_executor),
+        lambda: Executor("An agent for executing code", executor=code_executor, image=image),
     )
     await MultimodalWebSurfer.register(runtime, "WebSurfer", MultimodalWebSurfer)
     await FileSurfer.register(runtime, "file_surfer", lambda: FileSurfer(model_client=client))
