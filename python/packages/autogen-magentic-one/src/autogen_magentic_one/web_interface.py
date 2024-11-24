@@ -12,7 +12,8 @@ from autogen_magentic_one.agents.orchestrator import LedgerOrchestrator
 from autogen_magentic_one.agents.user_proxy import UserProxy
 from autogen_magentic_one.messages import RequestReplyMessage
 from autogen_magentic_one.utils import create_completion_client_from_env
-from modal import Stub, asgi_app
+from modal import Stub, asgi_app, Function
+from modal_deployment import app as modal_app, image
 from modal_deployment import app as modal_app, image
 import os
 import sys
@@ -24,6 +25,10 @@ app = FastAPI()
 @asgi_app()
 def fastapi_app():
     return app
+
+@modal_app.function(image=image)
+async def run_task_in_modal(task: str):
+    return await run_task(task)
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
@@ -47,73 +52,74 @@ async def read_root(request: Request):
 
 @app.post("/run_task")
 async def run_task(task: str = Form(...)):
+    try:
+        result = await run_task_in_modal.remote(task)
+        return result
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        return {"error": str(e)}
+
+@modal_app.function(image=image)
+async def run_task_in_modal(task: str):
     runtime = SingleThreadedAgentRuntime()
     client = create_completion_client_from_env(model="gpt-4")
     print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
 
+    code_executor = DockerCommandLineCodeExecutor(work_dir="/tmp")
+    await code_executor.start()
+
+    await Coder.register(runtime, "Coder", lambda: Coder(model_client=client))
+    await Executor.register(
+        runtime,
+        "Executor",
+        lambda: Executor("An agent for executing code", executor=code_executor),
+    )
+    await MultimodalWebSurfer.register(runtime, "WebSurfer", MultimodalWebSurfer)
+    await FileSurfer.register(runtime, "file_surfer", lambda: FileSurfer(model_client=client))
+
+    agent_list = [
+        AgentProxy(AgentId("WebSurfer", "default"), runtime),
+        AgentProxy(AgentId("Coder", "default"), runtime),
+        AgentProxy(AgentId("Executor", "default"), runtime),
+        AgentProxy(AgentId("file_surfer", "default"), runtime),
+    ]
+
+    await LedgerOrchestrator.register(
+        runtime,
+        "Orchestrator",
+        lambda: LedgerOrchestrator(
+            agents=agent_list,
+            model_client=client,
+            max_rounds=30,
+            max_time=25 * 60,
+            return_final_answer=True,
+        ),
+    )
+    orchestrator = AgentProxy(AgentId("Orchestrator", "default"), runtime)
+
+    runtime.start()
+
     try:
-        code_executor = None
-        try:
-            code_executor = DockerCommandLineCodeExecutor(work_dir="/tmp")
-            await code_executor.start()
-        except Exception as e:
-            logging.warning(f"Failed to start Docker executor: {e}. Falling back to local execution.")
-
-        await Coder.register(runtime, "Coder", lambda: Coder(model_client=client))
-        await Executor.register(
-            runtime,
-            "Executor",
-            lambda: Executor("An agent for executing code", executor=code_executor),
+        actual_surfer = await runtime.try_get_underlying_agent_instance(agent_list[0].id, type=MultimodalWebSurfer)
+        await actual_surfer.init(
+            model_client=client,
+            downloads_folder="/tmp",
+            start_page="https://www.bing.com",
+            browser_channel="chromium",
+            headless=True,
+            debug_dir="/tmp",
+            to_save_screenshots=False,
         )
-        await MultimodalWebSurfer.register(runtime, "WebSurfer", MultimodalWebSurfer)
-        await FileSurfer.register(runtime, "file_surfer", lambda: FileSurfer(model_client=client))
-
-        agent_list = [
-            AgentProxy(AgentId("WebSurfer", "default"), runtime),
-            AgentProxy(AgentId("Coder", "default"), runtime),
-            AgentProxy(AgentId("Executor", "default"), runtime),
-            AgentProxy(AgentId("file_surfer", "default"), runtime),
-        ]
-
-        await LedgerOrchestrator.register(
-            runtime,
-            "Orchestrator",
-            lambda: LedgerOrchestrator(
-                agents=agent_list,
-                model_client=client,
-                max_rounds=30,
-                max_time=25 * 60,
-                return_final_answer=True,
-            ),
-        )
-        orchestrator = AgentProxy(AgentId("Orchestrator", "default"), runtime)
-
-        runtime.start()
-
-        try:
-            actual_surfer = await runtime.try_get_underlying_agent_instance(agent_list[0].id, type=MultimodalWebSurfer)
-            await actual_surfer.init(
-                model_client=client,
-                downloads_folder="/tmp",
-                start_page="https://www.bing.com",
-                browser_channel="chromium",
-                headless=True,
-                debug_dir="/tmp",
-                to_save_screenshots=False,
-            )
-        except Exception as e:
-            logging.error(f"Failed to initialize MultimodalWebSurfer: {e}")
-            logging.error("Falling back to text-only mode")
-            # Remove WebSurfer from agent_list
-            agent_list = [agent for agent in agent_list if agent.id.type != "WebSurfer"]
-
-        response = await runtime.send_message(RequestReplyMessage(content=task), orchestrator.id)
-        await runtime.stop_when_idle()
-
-        return {"result": response.content}
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        return {"error": str(e)}
+        logging.error(f"Failed to initialize MultimodalWebSurfer: {e}")
+        logging.error("Falling back to text-only mode")
+        # Remove WebSurfer from agent_list
+        agent_list = [agent for agent in agent_list if agent.id.type != "WebSurfer"]
+
+    response = await runtime.send_message(RequestReplyMessage(content=task), orchestrator.id)
+    await runtime.stop_when_idle()
+
+    return {"result": response.content}
 
 if __name__ == "__main__":
     import uvicorn
