@@ -41,7 +41,7 @@ else:
 # Define the base image directly
 def get_base_image():
     return (modal.Image
-    .debian_slim().
+    .debian_slim()
     .apt_install([
         "python3",
         "python3-pip",
