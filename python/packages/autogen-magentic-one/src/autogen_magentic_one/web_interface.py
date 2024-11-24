@@ -32,6 +32,8 @@ async def run_task_in_modal(task: str):
 
 @modal_app.function(image=image)
 async def run_task(task: str):
+    # Placeholder implementation
+    return await run_task_in_modal(task)
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
