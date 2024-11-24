@@ -52,13 +52,19 @@ async def run_task(task: str = Form(...)):
     print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
 
     try:
-        async with DockerCommandLineCodeExecutor(work_dir="/tmp") as code_executor:
-            await Coder.register(runtime, "Coder", lambda: Coder(model_client=client))
-            await Executor.register(
-                runtime,
-                "Executor",
-                lambda: Executor("An agent for executing code", executor=code_executor),
-            )
+        try:
+            code_executor = DockerCommandLineCodeExecutor(work_dir="/tmp")
+            await code_executor.start()
+        except Exception as e:
+            logging.warning(f"Failed to start Docker executor: {e}. Falling back to local execution.")
+            code_executor = None
+
+        await Coder.register(runtime, "Coder", lambda: Coder(model_client=client))
+        await Executor.register(
+            runtime,
+            "Executor",
+            lambda: Executor("An agent for executing code", executor=code_executor),
+        )
             await MultimodalWebSurfer.register(runtime, "WebSurfer", MultimodalWebSurfer)
             await FileSurfer.register(runtime, "file_surfer", lambda: FileSurfer(model_client=client))
 
@@ -101,7 +107,7 @@ async def run_task(task: str = Form(...)):
                 # Remove WebSurfer from agent_list
                 agent_list = [agent for agent in agent_list if agent.id.type != "WebSurfer"]
 
-            response = await runtime.send_message(RequestReplyMessage(content=task), orchestrator.id)
+            response = await runtime.send_message(RequestReplyMessage(task), orchestrator.id)
             await runtime.stop_when_idle()
 
             return {"result": response.content}

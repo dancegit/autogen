@@ -101,10 +101,12 @@ image = (
         "cd /root/autogen/python && uv sync --all-extras",
         "pip install -e /root/autogen/python/packages/autogen-magentic-one[all]",
         "pip install playwright",
-        "playwright install --with-deps chromium",
         "pip install autogen-core",
+        "playwright install --with-deps chromium",
         "playwright install-deps",
-        "playwright install chromium"
+        "playwright install chromium",
+        "python -m playwright install",
+        "python -m playwright install-deps"
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
