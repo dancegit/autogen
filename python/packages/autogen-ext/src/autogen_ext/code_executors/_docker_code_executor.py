@@ -115,7 +115,6 @@ $functions"""
             Union[
                 FunctionWithRequirements[Any, A],
                 Callable[..., Any],
-                FunctionWithRequirementsStr,
             ]
         ] = [],
         functions_module: str = "functions",
