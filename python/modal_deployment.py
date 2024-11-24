@@ -51,8 +51,16 @@ def get_base_image():
         "npm",
         "git",
         "golang",
-        "docker.io"
+        "docker.io",
+        "wget",
+        "gnupg"
     ])
+    .run_commands(
+        "wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -",
+        "echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google-chrome.list",
+        "apt-get update",
+        "apt-get install -y google-chrome-stable"
+    )
     .pip_install([
         "pytest",
         "pytest-asyncio",
