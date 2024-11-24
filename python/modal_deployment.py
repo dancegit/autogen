@@ -41,7 +41,7 @@ else:
 # Define the base image directly
 def get_base_image():
     return (modal.Image
-    .debian_slim()
+    .debian_slim().
     .apt_install([
         "python3",
         "python3-pip",
@@ -51,6 +51,7 @@ def get_base_image():
         "npm",
         "git",
         "golang"
+        "docker.io"
     ])
     .pip_install([
         "pytest",
@@ -85,13 +86,14 @@ image = (
     .pip_install("uv")
     .copy_mount(autogen_mount, remote_path="/")
     .run_commands(
-        "uv --version",
-        "cd /root/autogen/python && uv sync --all-extras",
+        #"uv --version",
+       # "cd /root/autogen/python && uv sync --all-extras",
+        "which python"
         "ls -la ~",
         "find /root/autogen -name pyproject.toml",
         "ls -la /root/autogen/ && ls -la /root/autogen/python/",
-        ". /root/autogen/python/.venv/bin/activate && cd /root/autogen/python/packages/autogen-magentic-one && pip install -e .[all]",
-        ". /root/autogen/python/.venv/bin/activate && cd /root/autogen/python && playwright install --with-deps chromium"
+        "/root/autogen/python/packages/autogen-magentic-one && pip install -e .[all]",
+        "cd /root/autogen/python && playwright install --with-deps chromium"
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
