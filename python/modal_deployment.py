@@ -41,20 +41,9 @@ else:
 # Define the base image
 base_image = (modal.Image
     .debian_slim()
-    .apt_install([
-        "python3",
-        "python3-pip",
-        "python3-venv",
-        "gcc",
-        "g++",
-        "nodejs",
-        "npm",
-        "git",
-        "golang",
-        "docker.io",
-        "wget",
-        "gnupg"
-    ])
+    .apt_install(["docker.io"])
+    .run_commands("cp /root/docker-compose.yml /tmp/docker-compose.yml")
+    .install_from_dockercompose("/tmp/docker-compose.yml", service="devcontainer")
     .run_commands(
         "wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -",
         "echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google-chrome.list",
