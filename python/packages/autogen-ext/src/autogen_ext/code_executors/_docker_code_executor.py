@@ -8,6 +8,7 @@ import logging
 import shlex
 import sys
 import uuid
+import subprocess
 from collections.abc import Sequence
 from hashlib import sha256
 from pathlib import Path
@@ -164,6 +165,7 @@ $functions"""
 
         self._container: Container | None = None
         self._running = False
+        self._fallback_to_local = False
 
     @property
     def timeout(self) -> int:
@@ -280,7 +282,42 @@ $functions"""
         if not self._setup_functions_complete:
             await self._setup_functions(cancellation_token)
 
-        return await self._execute_code_dont_check_setup(code_blocks, cancellation_token)
+        if self._fallback_to_local:
+            return await self._execute_code_locally(code_blocks)
+        else:
+            return await self._execute_code_dont_check_setup(code_blocks, cancellation_token)
+
+    async def _execute_code_locally(self, code_blocks: List[CodeBlock]) -> CommandLineCodeResult:
+        outputs: List[str] = []
+        last_exit_code = 0
+        code_file = None
+
+        for code_block in code_blocks:
+            lang = code_block.language.lower()
+            code = silence_pip(code_block.code, lang)
+
+            if lang == "python":
+                cmd = [sys.executable, "-c", code]
+            elif lang in ["bash", "shell", "sh"]:
+                cmd = ["bash", "-c", code]
+            else:
+                outputs.append(f"Unsupported language: {lang}")
+                last_exit_code = 1
+                break
+
+            try:
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=self._timeout)
+                outputs.append(result.stdout)
+                outputs.append(result.stderr)
+                last_exit_code = result.returncode
+                if last_exit_code != 0:
+                    break
+            except subprocess.TimeoutExpired:
+                outputs.append("Execution timed out")
+                last_exit_code = 124
+                break
+
+        return CommandLineCodeResult(exit_code=last_exit_code, output="".join(outputs), code_file=code_file)
 
     async def restart(self) -> None:
         if self._container is None or not self._running:
@@ -316,33 +353,39 @@ $functions"""
         finally:
             self._running = False
 
-    async def _check_docker_available(self) -> None:
+    async def _check_docker_available(self) -> bool:
         try:
             import docker
         except ImportError:
-            raise RuntimeError(
-                "Docker Python package is not installed. Please ensure the autogen-ext package was installed with the 'docker' extra."
-            )
+            logging.warning("Docker Python package is not installed. Falling back to local execution.")
+            self._fallback_to_local = True
+            return False
 
         try:
             client = docker.from_env()
             await asyncio.to_thread(client.ping)
+            return True
         except docker.errors.DockerException as e:
-            raise RuntimeError(
-                "Failed to connect to Docker daemon. Please ensure Docker is installed and running, "
-                "and that you have the necessary permissions to access it."
-            ) from e
+            logging.warning(f"Failed to connect to Docker daemon: {e}. Falling back to local execution.")
+            self._fallback_to_local = True
+            return False
 
     async def start(self) -> None:
-        await self._check_docker_available()
+        docker_available = await self._check_docker_available()
+        if not docker_available:
+            logging.info("Docker is not available. Using local execution.")
+            self._running = True
+            return
+
         try:
             import asyncio_atexit
             import docker
             from docker.errors import ImageNotFound, DockerException
         except ImportError as e:
-            raise RuntimeError(
-                "Missing dependencies for DockerCommandLineCodeExecutor. Please ensure the autogen-ext package was installed with the 'docker' extra."
-            ) from e
+            logging.warning(f"Missing Docker dependencies: {e}. Falling back to local execution.")
+            self._fallback_to_local = True
+            self._running = True
+            return
 
         try:
             # Start a container from the image, ready to exec commands later
@@ -385,13 +428,9 @@ $functions"""
             self._running = True
 
         except DockerException as e:
-            error_message = str(e)
-            if "Error while fetching server API version" in error_message:
-                raise RuntimeError(
-                    "Failed to connect to Docker daemon. Please ensure Docker is installed and running, "
-                    "and that you have the necessary permissions to access it."
-                ) from e
-            raise RuntimeError(f"An error occurred while starting the Docker container: {error_message}") from e
+            logging.warning(f"An error occurred while starting the Docker container: {e}. Falling back to local execution.")
+            self._fallback_to_local = True
+            self._running = True
 
     async def __aenter__(self) -> Self:
         await self.start()
