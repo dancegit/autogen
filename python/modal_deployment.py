@@ -90,6 +90,7 @@ image = (
         "ls -la ~",
         "find /root/autogen -name pyproject.toml",
         "ls -la /root/autogen/ && ls -la /root/autogen/python/",
+        "cd /root/autogen/python && uv sync  --all-extras",
         "pip install -e /root/autogen/python/packages/autogen-magentic-one[all]",
         "cd /root/autogen/python && playwright install --with-deps chromium"
     )
