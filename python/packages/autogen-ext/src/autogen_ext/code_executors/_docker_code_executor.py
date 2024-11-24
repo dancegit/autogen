@@ -13,7 +13,8 @@ from collections.abc import Sequence
 from hashlib import sha256
 from pathlib import Path
 from types import TracebackType
-from typing import Any, Callable, ClassVar, List, Optional, ParamSpec, Type, Union, Sequence
+from typing import Any, ClassVar, List, Optional, ParamSpec, Type, Union, Sequence
+from collections.abc import Callable
 
 from autogen_core.base import CancellationToken
 from autogen_core.components.code_executor import (
@@ -117,7 +118,7 @@ $functions"""
                 FunctionWithRequirements[Any, Any],
                 Callable[..., Any],
             ]
-        ] = [],
+        ] = (),
         functions_module: str = "functions",
     ):
         if timeout < 1:
