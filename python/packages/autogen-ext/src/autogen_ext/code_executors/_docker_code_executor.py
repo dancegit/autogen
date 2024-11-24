@@ -317,56 +317,82 @@ $functions"""
         finally:
             self._running = False
 
+    async def _check_docker_available(self) -> None:
+        try:
+            import docker
+        except ImportError:
+            raise RuntimeError(
+                "Docker Python package is not installed. Please ensure the autogen-ext package was installed with the 'docker' extra."
+            )
+
+        try:
+            client = docker.from_env()
+            await asyncio.to_thread(client.ping)
+        except docker.errors.DockerException as e:
+            raise RuntimeError(
+                "Failed to connect to Docker daemon. Please ensure Docker is installed and running, "
+                "and that you have the necessary permissions to access it."
+            ) from e
+
     async def start(self) -> None:
+        await self._check_docker_available()
         try:
             import asyncio_atexit
             import docker
-            from docker.errors import ImageNotFound
+            from docker.errors import ImageNotFound, DockerException
         except ImportError as e:
             raise RuntimeError(
-                "Missing dependecies for DockerCommandLineCodeExecutor. Please ensure the autogen-ext package was installed with the 'docker' extra."
+                "Missing dependencies for DockerCommandLineCodeExecutor. Please ensure the autogen-ext package was installed with the 'docker' extra."
             ) from e
 
-        # Start a container from the image, read to exec commands later
-        client = docker.from_env()
-
-        # Check if the image exists
         try:
-            await asyncio.to_thread(client.images.get, self._image)
-        except ImageNotFound:
-            # TODO logger
-            logging.info(f"Pulling image {self._image}...")
-            # Let the docker exception escape if this fails.
-            await asyncio.to_thread(client.images.pull, self._image)
+            # Start a container from the image, ready to exec commands later
+            client = docker.from_env()
 
-        self._container = await asyncio.to_thread(
-            client.containers.create,
-            self._image,
-            name=self.container_name,
-            entrypoint="/bin/sh",
-            tty=True,
-            detach=True,
-            auto_remove=self._auto_remove,
-            volumes={str(self._bind_dir.resolve()): {"bind": "/workspace", "mode": "rw"}},
-            working_dir="/workspace",
-        )
-        await asyncio.to_thread(self._container.start)
+            # Check if the image exists
+            try:
+                await asyncio.to_thread(client.images.get, self._image)
+            except ImageNotFound:
+                logging.info(f"Pulling image {self._image}...")
+                await asyncio.to_thread(client.images.pull, self._image)
 
-        await _wait_for_ready(self._container)
+            self._container = await asyncio.to_thread(
+                client.containers.create,
+                self._image,
+                name=self.container_name,
+                entrypoint="/bin/sh",
+                tty=True,
+                detach=True,
+                auto_remove=self._auto_remove,
+                volumes={str(self._bind_dir.resolve()): {"bind": "/workspace", "mode": "rw"}},
+                working_dir="/workspace",
+            )
+            await asyncio.to_thread(self._container.start)
 
-        async def cleanup() -> None:
-            await self.stop()
-            asyncio_atexit.unregister(cleanup)  # type: ignore
+            await _wait_for_ready(self._container)
 
-        if self._stop_container:
-            asyncio_atexit.register(cleanup)  # type: ignore
+            async def cleanup() -> None:
+                await self.stop()
+                asyncio_atexit.unregister(cleanup)  # type: ignore
 
-        # Check if the container is running
-        if self._container.status != "running":
-            logs_str = self._container.logs().decode("utf-8")
-            raise ValueError(f"Failed to start container from image {self._image}. Logs: {logs_str}")
+            if self._stop_container:
+                asyncio_atexit.register(cleanup)  # type: ignore
 
-        self._running = True
+            # Check if the container is running
+            if self._container.status != "running":
+                logs_str = self._container.logs().decode("utf-8")
+                raise ValueError(f"Failed to start container from image {self._image}. Logs: {logs_str}")
+
+            self._running = True
+
+        except DockerException as e:
+            error_message = str(e)
+            if "Error while fetching server API version" in error_message:
+                raise RuntimeError(
+                    "Failed to connect to Docker daemon. Please ensure Docker is installed and running, "
+                    "and that you have the necessary permissions to access it."
+                ) from e
+            raise RuntimeError(f"An error occurred while starting the Docker container: {error_message}") from e
 
     async def __aenter__(self) -> Self:
         await self.start()
