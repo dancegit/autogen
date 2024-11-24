@@ -86,13 +86,11 @@ image = (
     .pip_install("uv")
     .copy_mount(autogen_mount, remote_path="/")
     .run_commands(
-        #"uv --version",
-       # "cd /root/autogen/python && uv sync --all-extras",
         "which python",
         "ls -la ~",
         "find /root/autogen -name pyproject.toml",
         "ls -la /root/autogen/ && ls -la /root/autogen/python/",
-        "/root/autogen/python/packages/autogen-magentic-one && pip install -e .[all]",
+        "pip install -e /root/autogen/python/packages/autogen-magentic-one[all]",
         "cd /root/autogen/python && playwright install --with-deps chromium"
     )
     .env({
