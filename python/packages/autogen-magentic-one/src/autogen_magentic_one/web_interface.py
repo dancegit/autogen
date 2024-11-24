@@ -92,7 +92,7 @@ async def run_task(task: str = Form(...)):
             to_save_screenshots=False,
         )
 
-        response = await runtime.send_message(RequestReplyMessage(task=task), orchestrator.id)
+        response = await runtime.send_message(RequestReplyMessage(content=task), orchestrator.id)
         await runtime.stop_when_idle()
 
         return {"result": response.content}

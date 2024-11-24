@@ -336,20 +336,27 @@ $functions"""
         if not self._running:
             return
 
+        if self._fallback_to_local:
+            self._running = False
+            return
+
         try:
             import docker
-            from docker.errors import NotFound
+            from docker.errors import NotFound, DockerException
         except ImportError as e:
-            raise RuntimeError(
-                "Missing dependecies for DockerCommandLineCodeExecutor. Please ensure the autogen-ext package was installed with the 'docker' extra."
-            ) from e
+            logging.warning(f"Docker not available: {e}. Stopping local execution.")
+            self._running = False
+            return
 
-        client = docker.from_env()
         try:
-            container = await asyncio.to_thread(client.containers.get, self.container_name)
-            await asyncio.to_thread(container.stop)
-        except NotFound:
-            pass
+            client = docker.from_env()
+            try:
+                container = await asyncio.to_thread(client.containers.get, self.container_name)
+                await asyncio.to_thread(container.stop)
+            except NotFound:
+                pass
+        except DockerException as e:
+            logging.warning(f"Error stopping Docker container: {e}. Stopping local execution.")
         finally:
             self._running = False
 

@@ -50,8 +50,7 @@ def get_base_image():
         "nodejs",
         "npm",
         "git",
-        "golang",
-        "docker.io"
+        "golang"
     ])
     .pip_install([
         "pytest",
