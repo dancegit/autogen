@@ -30,6 +30,9 @@ def fastapi_app():
 async def run_task_in_modal(task: str):
     return await run_task(task)
 
+@modal_app.function(image=image)
+async def run_task(task: str):
+
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     html_content = """
@@ -51,9 +54,9 @@ async def read_root(request: Request):
     return HTMLResponse(content=html_content)
 
 @app.post("/run_task")
-async def run_task(task: str = Form(...)):
+async def handle_run_task(task: str = Form(...)):
     try:
-        result = await run_task_in_modal.remote(task)
+        result = await run_task.remote(task)
         return result
     except Exception as e:
         logging.error(f"An error occurred: {e}")
