@@ -65,10 +65,10 @@ async def run_task(task: str = Form(...)):
             "Executor",
             lambda: Executor("An agent for executing code", executor=code_executor),
         )
-            await MultimodalWebSurfer.register(runtime, "WebSurfer", MultimodalWebSurfer)
-            await FileSurfer.register(runtime, "file_surfer", lambda: FileSurfer(model_client=client))
+        await MultimodalWebSurfer.register(runtime, "WebSurfer", MultimodalWebSurfer)
+        await FileSurfer.register(runtime, "file_surfer", lambda: FileSurfer(model_client=client))
 
-            agent_list = [
+        agent_list = [
                 AgentProxy(AgentId("WebSurfer", "default"), runtime),
                 AgentProxy(AgentId("Coder", "default"), runtime),
                 AgentProxy(AgentId("Executor", "default"), runtime),
