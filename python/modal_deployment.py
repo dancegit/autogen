@@ -88,7 +88,7 @@ image = (
     .run_commands(
         #"uv --version",
        # "cd /root/autogen/python && uv sync --all-extras",
-        "which python"
+        "which python",
         "ls -la ~",
         "find /root/autogen -name pyproject.toml",
         "ls -la /root/autogen/ && ls -la /root/autogen/python/",
