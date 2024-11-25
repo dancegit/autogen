@@ -33,9 +33,9 @@ def fastapi_app():
     cpu=1,
     mounts=project_mounts
 )
-def run_task_in_modal(task: str):
+async def run_task_in_modal(task: str):
     code_executor = Function.from_name("modal_deployment", "run_code")
-    return _run_task(task, code_executor)
+    return await _run_task(task, code_executor)
 
 
 @modal_app.function(
@@ -140,7 +140,7 @@ async def read_root(request: Request):
 @app.post("/run_task")
 async def handle_run_task(task: str = Form(...)):
     try:
-        result = await run_task_in_modal.remote(task)
+        result = await run_task_in_modal.remote.aio(task)
         return result
     except Exception as e:
         logging.error(f"An error occurred: {e}")
