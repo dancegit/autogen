@@ -33,9 +33,9 @@ def fastapi_app():
     cpu=1,
     mounts=project_mounts
 )
-async def run_task_in_modal(task: str):
+def run_task_in_modal(task: str):
     code_executor = Function.from_name("modal_deployment", "run_code")
-    return await _run_task(task, code_executor)
+    return _run_task(task, code_executor)
 
 
 @modal_app.function(
@@ -59,19 +59,19 @@ async def run_task(task: str):
     cpu=1,
     mounts=project_mounts
 )
-async def _run_task(task: str, code_executor: Function):
+def _run_task(task: str, code_executor: Function):
     runtime = SingleThreadedAgentRuntime()
     client = create_completion_client_from_env(model="gpt-4")
     print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
 
-    await Coder.register(runtime, "Coder", lambda: Coder(model_client=client))
-    await Executor.register(
+    Coder.register(runtime, "Coder", lambda: Coder(model_client=client))
+    Executor.register(
         runtime,
         "Executor",
         lambda: Executor("An agent for executing code", executor=code_executor, confirm_execution="ACCEPT_ALL"),
     )
-    await MultimodalWebSurfer.register(runtime, "WebSurfer", MultimodalWebSurfer)
-    await FileSurfer.register(runtime, "file_surfer", lambda: FileSurfer(model_client=client))
+    MultimodalWebSurfer.register(runtime, "WebSurfer", MultimodalWebSurfer)
+    FileSurfer.register(runtime, "file_surfer", lambda: FileSurfer(model_client=client))
 
     agent_list = [
         AgentProxy(AgentId("WebSurfer", "default"), runtime),
@@ -80,7 +80,7 @@ async def _run_task(task: str, code_executor: Function):
         AgentProxy(AgentId("file_surfer", "default"), runtime),
     ]
 
-    await LedgerOrchestrator.register(
+    LedgerOrchestrator.register(
         runtime,
         "Orchestrator",
         lambda: LedgerOrchestrator(
@@ -96,8 +96,8 @@ async def _run_task(task: str, code_executor: Function):
     runtime.start()
 
     try:
-        actual_surfer = await runtime.try_get_underlying_agent_instance(agent_list[0].id, type=MultimodalWebSurfer)
-        await actual_surfer.init(
+        actual_surfer = runtime.try_get_underlying_agent_instance(agent_list[0].id, type=MultimodalWebSurfer)
+        actual_surfer.init(
             model_client=client,
             downloads_folder="/tmp",
             start_page="https://www.bing.com",
@@ -112,8 +112,8 @@ async def _run_task(task: str, code_executor: Function):
         # Remove WebSurfer from agent_list
         agent_list = [agent for agent in agent_list if agent.id.type != "WebSurfer"]
 
-    response = await runtime.send_message(RequestReplyMessage(content=task), orchestrator.id)
-    await runtime.stop_when_idle()
+    response = runtime.send_message(RequestReplyMessage(content=task), orchestrator.id)
+    runtime.stop_when_idle()
 
     return {"result": response.content}
 
@@ -140,7 +140,7 @@ async def read_root(request: Request):
 @app.post("/run_task")
 async def handle_run_task(task: str = Form(...)):
     try:
-        result = await run_task_in_modal(task)
+        result = await run_task_in_modal.remote(task)
         return result
     except Exception as e:
         logging.error(f"An error occurred: {e}")
