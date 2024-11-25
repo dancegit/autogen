@@ -37,9 +37,6 @@ async def run_task_in_modal(task: str):
     code_executor = Function.from_name("modal_deployment", "run_code")
     return await _run_task(task, code_executor)
 
-# Ensure the function is properly hydrated with metadata
-run_task_in_modal = modal_app.function()(run_task_in_modal)
-
 
 @modal_app.function(
     image=image,
@@ -143,7 +140,7 @@ async def read_root(request: Request):
 @app.post("/run_task")
 async def handle_run_task(task: str = Form(...)):
     try:
-        result = await run_task_in_modal.remote(task)
+        result = await run_task_in_modal(task)
         return result
     except Exception as e:
         logging.error(f"An error occurred: {e}")
