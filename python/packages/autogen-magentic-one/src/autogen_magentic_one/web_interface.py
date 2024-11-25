@@ -34,7 +34,7 @@ def fastapi_app():
     cpu=1,
     mounts=project_mounts
 )
-def _run_task(task: str, code_executor: Function):
+async def _run_task(task: str, code_executor: Function):
     runtime = SingleThreadedAgentRuntime()
     client = create_completion_client_from_env(model="gpt-4")
     print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
@@ -117,7 +117,7 @@ async def read_root(request: Request):
 async def handle_run_task(task: str = Form(...)):
     try:
         code_executor = Function.from_name("modal_deployment", "run_code")
-        result = _run_task(task, code_executor)
+        result = await _run_task.remote(task, code_executor)
         return result
 
     except Exception as e:
