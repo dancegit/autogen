@@ -25,31 +25,6 @@ app = FastAPI()
 def fastapi_app():
     return app
 
-@modal_app.function(
-    image=image,
-    gpu="T4",
-    timeout=600,
-    memory=1024,
-    cpu=1,
-    mounts=project_mounts
-)
-def run_task_in_modal(task: str):
-    code_executor = Function.from_name("modal_deployment", "run_code")
-    return _run_task(task, code_executor)
-
-
-@modal_app.function(
-    image=image,
-    gpu="T4",
-    timeout=600,
-    memory=1024,
-    cpu=1,
-    mounts=project_mounts
-)
-async def run_task(task: str):
-    code_executor = Function.from_name("modal_deployment", "run_code")
-    return await _run_task(task, code_executor)
-
 
 @modal_app.function(
     image=image,
@@ -137,80 +112,18 @@ async def read_root(request: Request):
     """
     return HTMLResponse(content=html_content)
 
+@modal_app.function()
 @app.post("/run_task")
 async def handle_run_task(task: str = Form(...)):
     try:
-        result = run_task_in_modal.remote(task)
+        code_executor = Function.from_name("modal_deployment", "run_code")
+        result = _run_task(task, code_executor)
         return result
+
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return {"error": str(e)}
 
-@modal_app.function(
-    image=image,
-    gpu="T4",
-    timeout=600,
-    memory=1024,
-    cpu=1,
-    mounts=project_mounts
-)
-async def _run_task(task: str, code_executor: Function):
-    runtime = SingleThreadedAgentRuntime()
-    client = create_completion_client_from_env(model="gpt-4")
-    print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
-
-    await Coder.register(runtime, "Coder", lambda: Coder(model_client=client))
-    await Executor.register(
-        runtime,
-        "Executor",
-        lambda: Executor("An agent for executing code", executor=code_executor, confirm_execution="ACCEPT_ALL"),
-    )
-    await MultimodalWebSurfer.register(runtime, "WebSurfer", MultimodalWebSurfer)
-    await FileSurfer.register(runtime, "file_surfer", lambda: FileSurfer(model_client=client))
-
-    agent_list = [
-        AgentProxy(AgentId("WebSurfer", "default"), runtime),
-        AgentProxy(AgentId("Coder", "default"), runtime),
-        AgentProxy(AgentId("Executor", "default"), runtime),
-        AgentProxy(AgentId("file_surfer", "default"), runtime),
-    ]
-
-    await LedgerOrchestrator.register(
-        runtime,
-        "Orchestrator",
-        lambda: LedgerOrchestrator(
-            agents=agent_list,
-            model_client=client,
-            max_rounds=30,
-            max_time=25 * 60,
-            return_final_answer=True,
-        ),
-    )
-    orchestrator = AgentProxy(AgentId("Orchestrator", "default"), runtime)
-
-    runtime.start()
-
-    try:
-        actual_surfer = await runtime.try_get_underlying_agent_instance(agent_list[0].id, type=MultimodalWebSurfer)
-        await actual_surfer.init(
-            model_client=client,
-            downloads_folder="/tmp",
-            start_page="https://www.bing.com",
-            browser_channel="chromium",
-            headless=True,
-            debug_dir="/tmp",
-            to_save_screenshots=False,
-        )
-    except Exception as e:
-        logging.error(f"Failed to initialize MultimodalWebSurfer: {e}")
-        logging.error("Falling back to text-only mode")
-        # Remove WebSurfer from agent_list
-        agent_list = [agent for agent in agent_list if agent.id.type != "WebSurfer"]
-
-    response = await runtime.send_message(RequestReplyMessage(content=task), orchestrator.id)
-    await runtime.stop_when_idle()
-
-    return {"result": response.content}
 
 if __name__ == "__main__":
     import uvicorn
