@@ -31,6 +31,8 @@ async def run_task_in_modal(task: str):
     code_executor = Function.from_name("modal_deployment", "run_code")
     return await _run_task(task, code_executor)
 
+run_task_in_modal = modal_app.function()(run_task_in_modal)
+
 @modal_app.function(image=image)
 async def run_task(task: str):
     code_executor = Function.from_name("modal_deployment", "run_code")
