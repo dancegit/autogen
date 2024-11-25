@@ -9,7 +9,7 @@ from modal_deployment import app as modal_app, image, project_mounts
 import os
 import sys
 import json
-from autogen_magentic_one.interface.magentic_one_helper import MagenticOneHelper
+from autogen_magentic_one.magentic_one_helper import MagenticOneHelper
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
