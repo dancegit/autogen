@@ -13,8 +13,7 @@ from autogen_magentic_one.agents.user_proxy import UserProxy
 from autogen_magentic_one.messages import RequestReplyMessage
 from autogen_magentic_one.utils import create_completion_client_from_env
 from modal import Stub, asgi_app, Function
-from modal_deployment import app as modal_app, image
-from modal_deployment import app as modal_app, image
+from modal_deployment import app as modal_app, image, project_mounts
 import os
 import sys
 
@@ -26,7 +25,14 @@ app = FastAPI()
 def fastapi_app():
     return app
 
-@modal_app.function(image=image)
+@modal_app.function(
+    image=image,
+    gpu="T4",
+    timeout=600,
+    memory=1024,
+    cpu=1,
+    mounts=project_mounts
+)
 async def run_task_in_modal(task: str):
     code_executor = Function.from_name("modal_deployment", "run_code")
     return await _run_task(task, code_executor)
@@ -34,11 +40,28 @@ async def run_task_in_modal(task: str):
 # Ensure the function is properly hydrated with metadata
 run_task_in_modal = modal_app.function()(run_task_in_modal)
 
-@modal_app.function(image=image)
+
+@modal_app.function(
+    image=image,
+    gpu="T4",
+    timeout=600,
+    memory=1024,
+    cpu=1,
+    mounts=project_mounts
+)
 async def run_task(task: str):
     code_executor = Function.from_name("modal_deployment", "run_code")
     return await _run_task(task, code_executor)
 
+
+@modal_app.function(
+    image=image,
+    gpu="T4",
+    timeout=600,
+    memory=1024,
+    cpu=1,
+    mounts=project_mounts
+)
 async def _run_task(task: str, code_executor: Function):
     runtime = SingleThreadedAgentRuntime()
     client = create_completion_client_from_env(model="gpt-4")
@@ -126,6 +149,14 @@ async def handle_run_task(task: str = Form(...)):
         logging.error(f"An error occurred: {e}")
         return {"error": str(e)}
 
+@modal_app.function(
+    image=image,
+    gpu="T4",
+    timeout=600,
+    memory=1024,
+    cpu=1,
+    mounts=project_mounts
+)
 async def _run_task(task: str, code_executor: Function):
     runtime = SingleThreadedAgentRuntime()
     client = create_completion_client_from_env(model="gpt-4")
