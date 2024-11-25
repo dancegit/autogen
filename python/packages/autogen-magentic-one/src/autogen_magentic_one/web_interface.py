@@ -12,11 +12,11 @@ from autogen_magentic_one.agents.orchestrator import LedgerOrchestrator
 from autogen_magentic_one.agents.user_proxy import UserProxy
 from autogen_magentic_one.messages import RequestReplyMessage
 from autogen_magentic_one.utils import create_completion_client_from_env
-from modal import Stub, asgi_app, Function
+from modal import asgi_app, Function
 from modal_deployment import app as modal_app, image, project_mounts
 import os
 import sys
-
+import modal
 
 app = FastAPI()
 
@@ -116,9 +116,10 @@ async def read_root(request: Request):
 @app.post("/run_task")
 async def handle_run_task(task: str = Form(...)):
     try:
-        code_executor = Function.from_name("modal_deployment", "run_code")
-        result = await _run_task.remote(task, code_executor)
-        return result
+        with modal_app.run():
+            code_executor = Function.from_name("modal_deployment", "run_code")
+            result = await _run_task.remote(task, code_executor)
+            return result
 
     except Exception as e:
         logging.error(f"An error occurred: {e}")
