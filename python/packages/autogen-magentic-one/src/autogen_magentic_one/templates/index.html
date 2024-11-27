@@ -62,29 +62,6 @@
         <div id="result"></div>
     </div>
 
-    <script>
-        document.getElementById('taskForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const task = document.getElementById('taskInput').value;
-            const resultDiv = document.getElementById('result');
-            resultDiv.textContent = 'Processing...';
-
-            try {
-                const response = await fetch('/run_task', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        'task': task
-                    })
-                });
-                const data = await response.json();
-                resultDiv.textContent = data.result;
-            } catch (error) {
-                resultDiv.textContent = 'An error occurred: ' + error.message;
-            }
-        });
-    </script>
+    <script src="/static/main.js"></script>
 </body>
 </html>
