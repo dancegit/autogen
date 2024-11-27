@@ -15,26 +15,25 @@ app = FastAPI()
 import os
 import shutil
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-static_dir = os.path.join(current_dir, "static")
-templates_dir = os.path.join(current_dir, "templates")
+# Get the path to the autogen-magentic-one directory
+base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+static_dir = os.path.join(base_dir, "static")
+templates_dir = os.path.join(base_dir, "templates")
 
 if not os.path.exists(static_dir):
     os.makedirs(static_dir)
 if not os.path.exists(templates_dir):
     os.makedirs(templates_dir)
 
-# Check and copy main.js if it doesn't exist in the static directory
-main_js_src = os.path.join(current_dir, "main.js")
+# Check if main.js exists in the static directory
 main_js_dest = os.path.join(static_dir, "main.js")
-if os.path.exists(main_js_src) and not os.path.exists(main_js_dest):
-    shutil.copy2(main_js_src, main_js_dest)
+if not os.path.exists(main_js_dest):
+    print(f"Warning: main.js not found in {static_dir}")
 
-# Check and copy index.html if it doesn't exist in the templates directory
-index_html_src = os.path.join(current_dir, "index.html")
+# Check if index.html exists in the templates directory
 index_html_dest = os.path.join(templates_dir, "index.html")
-if os.path.exists(index_html_src) and not os.path.exists(index_html_dest):
-    shutil.copy2(index_html_src, index_html_dest)
+if not os.path.exists(index_html_dest):
+    print(f"Warning: index.html not found in {templates_dir}")
 
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 templates = Jinja2Templates(directory=templates_dir)
