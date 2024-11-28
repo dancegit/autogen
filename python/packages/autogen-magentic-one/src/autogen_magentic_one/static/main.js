@@ -34,28 +34,33 @@ document.addEventListener('DOMContentLoaded', (event) => {
         
         socket.onmessage = function(event) {
             console.log("Received message:", event.data);
-            const data = JSON.parse(event.data);
-            
-            switch(data.type) {
-                case 'status':
-                    appendMessage(orchestratorOutput, data.message, 'status');
-                    break;
-                case 'final_answer':
-                    appendMessage(orchestratorOutput, `Final Answer: ${data.message}`, 'status');
-                    break;
-                case 'error':
-                    appendMessage(orchestratorOutput, `Error: ${data.message}`, 'error');
-                    break;
-                case 'log':
-                    if (data.data.agent === 'Orchestrator') {
-                        appendMessage(orchestratorOutput, JSON.stringify(data.data, null, 2));
-                    } else {
-                        appendMessage(agentsOutput, `Agent ${data.data.agent}: ${data.data.message}`);
-                    }
-                    break;
-                default:
-                    console.warn("Unknown message type:", data.type);
-                    appendMessage(orchestratorOutput, `Unknown message type: ${data.type}`, 'error');
+            try {
+                const data = JSON.parse(event.data);
+                
+                switch(data.type) {
+                    case 'status':
+                        appendMessage(orchestratorOutput, data.message, 'status');
+                        break;
+                    case 'final_answer':
+                        appendMessage(orchestratorOutput, `Final Answer: ${data.message}`, 'status');
+                        break;
+                    case 'error':
+                        appendMessage(orchestratorOutput, `Error: ${data.message}`, 'error');
+                        break;
+                    case 'log':
+                        if (data.data.agent === 'Orchestrator') {
+                            appendMessage(orchestratorOutput, JSON.stringify(data.data, null, 2));
+                        } else {
+                            appendMessage(agentsOutput, `Agent ${data.data.agent}: ${data.data.message}`);
+                        }
+                        break;
+                    default:
+                        console.warn("Unknown message type:", data.type);
+                        appendMessage(orchestratorOutput, `Unknown message type: ${data.type}`, 'error');
+                }
+            } catch (error) {
+                console.error("Error parsing message:", error);
+                appendMessage(orchestratorOutput, `Error parsing message: ${error.message}`, 'error');
             }
         };
         
@@ -63,12 +68,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
             if (event.wasClean) {
                 appendMessage(orchestratorOutput, `Connection closed cleanly, code=${event.code} reason=${event.reason}`, 'status');
             } else {
-                appendMessage(orchestratorOutput, 'Connection died', 'error');
+                appendMessage(orchestratorOutput, 'Connection died unexpectedly', 'error');
             }
         };
         
         socket.onerror = function(error) {
-            appendMessage(orchestratorOutput, `Error: ${error.message}`, 'error');
+            console.error("WebSocket error:", error);
+            appendMessage(orchestratorOutput, `WebSocket error: ${error.message}`, 'error');
         };
     });
 });
