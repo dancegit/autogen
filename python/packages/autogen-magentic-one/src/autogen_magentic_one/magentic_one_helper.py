@@ -148,8 +148,13 @@ class MagenticOneHelper:
 
         task_message = BroadcastMessage(content=UserMessage(content=task, source="UserProxy"))
 
-        await self.runtime.publish_message(task_message, topic_id=DefaultTopicId())
-        await self.runtime.stop_when_idle()
+        try:
+            if not self.runtime._run_context:
+                self.runtime.start()
+            await self.runtime.publish_message(task_message, topic_id=DefaultTopicId())
+            await self.runtime.stop_when_idle()
+        except Exception as e:
+            raise RuntimeError(f"Error during task execution: {str(e)}") from e
 
     def get_final_answer(self) -> Optional[str]:
         """

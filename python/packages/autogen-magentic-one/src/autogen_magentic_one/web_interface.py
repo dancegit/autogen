@@ -158,9 +158,14 @@ async def _run_task(task: str, websocket: WebSocket):
     except Exception as e:
         logger.error(f"Error in _run_task: {str(e)}", exc_info=True)
         error_details = traceback.format_exc()
+        error_message = str(e)
+        if "Error during task execution" in error_message:
+            error_message = f"Task execution error: {error_message}"
+        elif "RetryError" in error_message:
+            error_message = "Failed to execute task after multiple attempts. Please try again."
         await websocket.send_text(json.dumps({
             "type": "error",
-            "message": f"An error occurred in _run_task: {str(e)}",
+            "message": error_message,
             "details": error_details
         }))
 
