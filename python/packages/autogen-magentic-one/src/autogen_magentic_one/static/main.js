@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             appendMessage(orchestratorOutput, `WebSocket error: ${error.message}`, 'error');
         };
     });
-});
+}
 
 // Add a ping function to keep the connection alive
 function ping() {
