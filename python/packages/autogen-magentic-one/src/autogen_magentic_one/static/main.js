@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const agentsOutput = document.getElementById('agentsOutput');
     let socket;
 
+    const loadedAgentsList = document.getElementById('loadedAgents');
+    const activeAgentElement = document.getElementById('activeAgent');
+
     function appendMessage(element, message, className = '') {
         console.log(`Appending message: ${message}`);
         const messageElement = document.createElement('div');
@@ -21,6 +24,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
         detailsElement.textContent = details;
         element.appendChild(detailsElement);
         element.scrollTop = element.scrollHeight;
+    }
+
+    function updateLoadedAgents(agents) {
+        loadedAgentsList.innerHTML = '';
+        agents.forEach(agent => {
+            const li = document.createElement('li');
+            li.textContent = agent;
+            loadedAgentsList.appendChild(li);
+        });
+    }
+
+    function updateActiveAgent(agent) {
+        activeAgentElement.textContent = agent;
     }
 
     if (!form) {
@@ -88,6 +104,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
                             } else {
                                 appendMessage(agentsOutput, `Agent ${data.data.agent}: ${data.data.message}`);
                             }
+                            break;
+                        case 'agents_loaded':
+                            updateLoadedAgents(data.agents);
+                            break;
+                        case 'agent_called':
+                            updateActiveAgent(data.agent);
                             break;
                         default:
                             console.warn("Unknown message type:", data.type);

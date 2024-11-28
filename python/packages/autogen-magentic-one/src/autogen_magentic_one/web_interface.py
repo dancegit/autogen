@@ -89,6 +89,8 @@ async def _run_task(task: str, websocket: WebSocket):
     logger.info(f"Starting task: {task}")
     try:
         magnetic_one = app.state.magnetic_one
+        loaded_agents = magnetic_one.get_loaded_agents()
+        await websocket.send_text(json.dumps({"type": "agents_loaded", "agents": loaded_agents}))
         await websocket.send_text(json.dumps({"type": "status", "message": "MagenticOne initialized."}))
         logger.info("Using pre-initialized MagenticOne")
 
@@ -98,6 +100,8 @@ async def _run_task(task: str, websocket: WebSocket):
             logger.debug(f"Log entry: {log_entry}")
             try:
                 await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
+                if log_entry.get('event') == 'agent_called':
+                    await websocket.send_text(json.dumps({"type": "agent_called", "agent": log_entry.get('agent')}))
             except Exception as e:
                 logger.error(f"Error sending log entry: {str(e)}")
 
