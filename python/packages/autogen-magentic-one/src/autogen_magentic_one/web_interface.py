@@ -82,7 +82,7 @@ async def read_root(request: Request):
 async def _run_task(task: str, websocket: WebSocket):
     logs_dir = "/tmp/magentic_one_logs"
     os.makedirs(logs_dir, exist_ok=True)
-    
+
     logger.info(f"Starting task: {task}")
     try:
         magnetic_one = app.state.magnetic_one
@@ -120,18 +120,26 @@ async def _run_task(task: str, websocket: WebSocket):
         }))
 
 @app.websocket("/ws")
+@modal_app.function(
+    image=image,
+    gpu="T4",
+    timeout=600,
+    memory=1024,
+    cpu=1,
+    mounts=project_mounts
+)
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     logger.info("WebSocket connection established")
     logger.info(f"WebSocket connection details: {websocket.client}")
-    
+
     try:
         task = await websocket.receive_text()
         logger.info(f"Received task: {task}")
-        
+
         try:
             logger.debug("Calling _run_task.remote")
-            await _run_task.remote(task, websocket)
+            await _run_task(task, websocket)
             logger.debug("_run_task.remote completed")
         except Exception as e:
             logger.error(f"An error occurred in _run_task: {e}", exc_info=True)
