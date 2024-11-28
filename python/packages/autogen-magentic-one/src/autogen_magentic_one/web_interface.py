@@ -78,14 +78,6 @@ def fastapi_app():
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@modal_app.function(
-    image=image,
-    gpu="T4",
-    timeout=600,
-    memory=1024,
-    cpu=1,
-    mounts=project_mounts
-)
 async def _run_task(task: str, websocket: WebSocket):
     logs_dir = "/tmp/magentic_one_logs"
     os.makedirs(logs_dir, exist_ok=True)
@@ -137,9 +129,9 @@ async def websocket_endpoint(websocket: WebSocket):
         logger.info(f"Received task: {task}")
 
         try:
-            logger.debug("Calling _run_task.remote")
+            logger.debug("Calling _run_task")
             await _run_task(task, websocket)
-            logger.debug("_run_task.remote completed")
+            logger.debug("_run_task completed")
         except Exception as e:
             logger.error(f"An error occurred in _run_task: {e}", exc_info=True)
             error_details = traceback.format_exc()
