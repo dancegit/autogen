@@ -12,10 +12,11 @@ import json
 from autogen_magentic_one.magentic_one_helper import MagenticOneHelper
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)  # Change to DEBUG for more detailed logs
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+logger.info("FastAPI app initialized")
 
 # Get the path to the autogen_magentic_one directory
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -94,17 +95,21 @@ async def websocket_endpoint(websocket: WebSocket):
         logger.info(f"Received task: {task}")
         
         try:
+            logger.debug("Calling _run_task.remote")
             await _run_task.remote(task, websocket)
+            logger.debug("_run_task.remote completed")
         except Exception as e:
-            logger.error(f"An error occurred in _run_task: {e}")
+            logger.error(f"An error occurred in _run_task: {e}", exc_info=True)
             await websocket.send_text(json.dumps({"type": "error", "message": f"An error occurred: {str(e)}"}))
     except WebSocketDisconnect:
         logger.info("WebSocket disconnected")
     except Exception as e:
-        logger.error(f"An unexpected error occurred: {e}")
+        logger.error(f"An unexpected error occurred: {e}", exc_info=True)
     finally:
         logger.info("Closing WebSocket connection")
         await websocket.close()
+
+logger.info("WebSocket endpoint registered")
 
 if __name__ == "__main__":
     import uvicorn
