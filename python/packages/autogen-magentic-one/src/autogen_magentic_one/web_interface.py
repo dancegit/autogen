@@ -216,17 +216,17 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.on_event("startup")
 async def startup_event():
     logger.info("Application startup: Initializing MagenticOne")
-    magnetic_one = MagenticOneHelper(logs_dir="/tmp/magentic_one_logs")
-    await magnetic_one.initialize()
-    if magnetic_one.initialization_error:
-        logger.error(f"Failed to initialize MagenticOne: {magnetic_one.initialization_error}")
-        app.state.magnetic_one = None
-        app.state.initialization_error = magnetic_one.initialization_error
-    else:
+    try:
+        magnetic_one = MagenticOneHelper(logs_dir="/tmp/magentic_one_logs")
+        await magnetic_one.initialize()
         logger.info("MagenticOne initialized successfully")
         app.state.magnetic_one = magnetic_one
         loaded_agents = magnetic_one.get_loaded_agents()
         logger.info(f"Loaded agents: {loaded_agents}")
+    except Exception as e:
+        logger.error(f"Failed to initialize MagenticOne: {str(e)}")
+        app.state.magnetic_one = None
+        app.state.initialization_error = str(e)
 
 logger.info("WebSocket endpoint registered")
 
