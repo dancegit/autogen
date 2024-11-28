@@ -60,6 +60,9 @@ def create_completion_client_from_env(env: Dict[str, str] | None = None, **kwarg
             json_output=_kwargs["model_capabilities"].get("json_output"),
         )
 
+    # Remove 'proxies' if present
+    _kwargs.pop('proxies', None)
+
     # Figure out what provider we are using. Default to OpenAI
     _provider = env.get(ENVIRON_KEY_CHAT_COMPLETION_PROVIDER, "openai").lower().strip()
 
