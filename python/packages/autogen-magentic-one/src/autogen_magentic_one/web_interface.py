@@ -32,6 +32,13 @@ if not os.path.exists(templates_dir):
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 templates = Jinja2Templates(directory=templates_dir)
 
+# Ensure static files are included in the deployment
+static_mount = modal.Mount.from_local_dir(
+    static_dir,
+    remote_path="/root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static"
+)
+project_mounts.append(static_mount)
+
 # Print the actual paths for debugging
 print(f"Static directory: {static_dir}")
 print(f"Templates directory: {templates_dir}")

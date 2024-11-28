@@ -113,7 +113,7 @@
             </div>
         </div>
 
-        <script src="../static/main.js"></script>
+        <script src="{{ url_for('static', path='main.js') }}"></script>
         <script>
             window.onerror = function (message, source, lineno, colno, error) {
                 console.error(
