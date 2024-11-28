@@ -35,29 +35,35 @@ document.addEventListener('DOMContentLoaded', (event) => {
             // Log all form elements
             console.log('Form elements:', form.elements);
             
-            const taskInput = document.getElementById('taskInput');
-            console.log('taskInput element (by ID):', taskInput);
-            
-            // Try getting the input by name
-            const taskInputByName = form.elements['taskInput'];
-            console.log('taskInput element (by name):', taskInputByName);
-            
-            if (!taskInput && !taskInputByName) {
-                console.error('taskInput element not found by ID or name');
-                appendMessage(orchestratorOutput, 'Error: Task input not found', 'error');
+            let inputElement;
+            let task = '';
+
+            try {
+                // Try multiple methods to get the input element
+                inputElement = document.getElementById('taskInput') || 
+                               form.elements['taskInput'] || 
+                               form.querySelector('textarea[name="taskInput"]') ||
+                               form.querySelector('textarea');
+
+                if (!inputElement) {
+                    throw new Error('Task input element not found');
+                }
+
+                console.log('Input element:', inputElement);
+                console.log('Input element value:', inputElement.value);
+
+                task = inputElement.value ? inputElement.value.trim() : '';
+
+                if (!task) {
+                    throw new Error('Task input is empty');
+                }
+            } catch (error) {
+                console.error('Error retrieving task:', error);
+                appendMessage(orchestratorOutput, `Error: ${error.message}`, 'error');
                 return;
             }
-            
-            const inputElement = taskInput || taskInputByName;
-            console.log('Input element:', inputElement);
-            console.log('Input element value:', inputElement.value);
-            
-            const task = inputElement.value ? inputElement.value.trim() : '';
-            if (!task) {
-                console.error('Task input is empty');
-                appendMessage(orchestratorOutput, 'Error: Please enter a task', 'error');
-                return;
-            }
+
+            console.log('Task to be sent:', task);
         
             orchestratorOutput.innerHTML = '';
             agentsOutput.innerHTML = '';
