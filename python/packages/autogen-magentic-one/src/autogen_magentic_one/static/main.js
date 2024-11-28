@@ -1,6 +1,6 @@
 // FlowChart component using ReactFlow
 const FlowChart = function({ agents, messages }) {
-    const [nodes, setNodes, onNodesChange] = ReactFlow.useNodesState(
+    const [nodes, setNodes] = React.useState(
         agents.map(function(agent, index) {
             return {
                 id: agent,
@@ -10,7 +10,7 @@ const FlowChart = function({ agents, messages }) {
         })
     );
 
-    const [edges, setEdges, onEdgesChange] = ReactFlow.useEdgesState(
+    const [edges, setEdges] = React.useState(
         messages.map(function(msg, index) {
             return {
                 id: 'e' + index,
@@ -22,11 +22,20 @@ const FlowChart = function({ agents, messages }) {
         })
     );
 
-    const onConnect = React.useCallback(function(params) {
-        return setEdges(function(eds) {
-            return ReactFlow.addEdge(params, eds);
-        });
-    }, [setEdges]);
+    const onNodesChange = React.useCallback(
+        (changes) => setNodes((nds) => ReactFlow.applyNodeChanges(changes, nds)),
+        [setNodes]
+    );
+
+    const onEdgesChange = React.useCallback(
+        (changes) => setEdges((eds) => ReactFlow.applyEdgeChanges(changes, eds)),
+        [setEdges]
+    );
+
+    const onConnect = React.useCallback(
+        (params) => setEdges((eds) => ReactFlow.addEdge(params, eds)),
+        [setEdges]
+    );
 
     return React.createElement(
         ReactFlow.ReactFlowProvider,
@@ -58,9 +67,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let flowChartInstance;
 
     function updateGraphicalView() {
-        ReactDOM.render(
-            React.createElement(FlowChart, { agents: agents, messages: messages }),
-            graphicalView
+        if (!flowChartInstance) {
+            flowChartInstance = ReactDOM.createRoot(graphicalView);
+        }
+        flowChartInstance.render(
+            React.createElement(FlowChart, { agents: agents, messages: messages })
         );
     }
 
