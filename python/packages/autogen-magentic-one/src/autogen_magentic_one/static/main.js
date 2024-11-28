@@ -67,11 +67,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let flowChartInstance;
 
     function updateGraphicalView() {
-        if (!flowChartInstance) {
-            flowChartInstance = ReactDOM.createRoot(graphicalView);
-        }
-        flowChartInstance.render(
-            React.createElement(FlowChart, { agents: agents, messages: messages })
+        ReactDOM.render(
+            React.createElement(FlowChart, { agents: agents, messages: messages }),
+            graphicalView
         );
     }
 
