@@ -48,11 +48,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             if (!task) {
                 throw new Error('Task input is empty');
             }
-            } catch (error) {
-                console.error('Error retrieving task:', error);
-                appendMessage(orchestratorOutput, `Error: ${error.message}`, 'error');
-                return;
-            }
 
             console.log('Task to be sent:', task);
         
