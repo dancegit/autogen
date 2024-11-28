@@ -42,9 +42,19 @@ class MagenticOneHelper:
         self.runtime: Optional[SingleThreadedAgentRuntime] = None
         self.log_handler: Optional[LogHandler] = None
         self.save_screenshots = save_screenshots
+        self.loaded_agents: List[str] = []
 
         if not os.path.exists(self.logs_dir):
             os.makedirs(self.logs_dir)
+
+    def get_loaded_agents(self) -> List[str]:
+        """
+        Get the list of loaded agents.
+
+        Returns:
+            A list of agent names.
+        """
+        return self.loaded_agents
 
     async def initialize(self) -> None:
         """
@@ -110,6 +120,10 @@ class MagenticOneHelper:
             debug_dir=self.logs_dir,
             to_save_screenshots=self.save_screenshots,
         )
+
+        # Populate the loaded_agents list
+        self.loaded_agents = [agent.id.name for agent in agent_list]
+        self.loaded_agents.append("Orchestrator")
 
     async def __aexit__(self, exc_type, exc_value, traceback) -> None:
         """
