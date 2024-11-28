@@ -1,6 +1,6 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import ReactFlow from 'react-flow-renderer';
+import React from 'https://esm.sh/react@17';
+import ReactDOM from 'https://esm.sh/react-dom@17';
+import ReactFlow from 'https://esm.sh/react-flow-renderer@11.7.0';
 
 // FlowChart function using ReactFlow
 function FlowChart(container, agents, messages) {
