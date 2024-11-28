@@ -1,13 +1,24 @@
 document.addEventListener('DOMContentLoaded', (event) => {
     const form = document.getElementById('taskForm');
-    const output = document.getElementById('result');
+    const orchestratorOutput = document.getElementById('orchestratorOutput');
+    const agentsOutput = document.getElementById('agentsOutput');
     let socket;
+
+    function appendMessage(element, message, className = '') {
+        const messageElement = document.createElement('div');
+        messageElement.className = `agent-message ${className}`;
+        messageElement.textContent = message;
+        element.appendChild(messageElement);
+        element.scrollTop = element.scrollHeight;
+    }
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         const task = document.getElementById('taskInput').value;
         
-        output.innerHTML = 'Processing...';
+        orchestratorOutput.innerHTML = '';
+        agentsOutput.innerHTML = '';
+        appendMessage(orchestratorOutput, 'Processing...', 'status');
         
         socket = new WebSocket(`ws://${window.location.host}/ws`);
         
@@ -20,28 +31,34 @@ document.addEventListener('DOMContentLoaded', (event) => {
             
             switch(data.type) {
                 case 'status':
+                    appendMessage(orchestratorOutput, data.message, 'status');
+                    break;
                 case 'final_answer':
+                    appendMessage(orchestratorOutput, `Final Answer: ${data.message}`, 'status');
+                    break;
                 case 'error':
-                    output.innerHTML += `<p><strong>${data.type}:</strong> ${data.message}</p>`;
+                    appendMessage(orchestratorOutput, `Error: ${data.message}`, 'error');
                     break;
                 case 'log':
-                    output.innerHTML += `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+                    if (data.data.agent === 'Orchestrator') {
+                        appendMessage(orchestratorOutput, JSON.stringify(data.data, null, 2));
+                    } else {
+                        appendMessage(agentsOutput, `Agent ${data.data.agent}: ${data.data.message}`);
+                    }
                     break;
             }
-            
-            output.scrollTop = output.scrollHeight;
         };
         
         socket.onclose = function(event) {
             if (event.wasClean) {
-                console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                appendMessage(orchestratorOutput, `Connection closed cleanly, code=${event.code} reason=${event.reason}`, 'status');
             } else {
-                console.log('[close] Connection died');
+                appendMessage(orchestratorOutput, 'Connection died', 'error');
             }
         };
         
         socket.onerror = function(error) {
-            console.log(`[error] ${error.message}`);
+            appendMessage(orchestratorOutput, `Error: ${error.message}`, 'error');
         };
     });
 });
