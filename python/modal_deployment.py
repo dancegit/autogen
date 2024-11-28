@@ -73,6 +73,7 @@ image = (
         "/root/autogen/python/.venv/bin/pip install /root/autogen/python/packages/autogen-studio",
         "/root/autogen/python/.venv/bin/pip install tenacity",
         "/root/autogen/python/.venv/bin/pip install playwright",
+        "/root/autogen/python/.venv/bin/pip install uvicorn",
         "/root/autogen/python/.venv/bin/playwright install --with-deps chromium",
         "/root/autogen/python/.venv/bin/playwright install-deps",
         "/root/autogen/python/.venv/bin/playwright install chromium",
@@ -114,6 +115,7 @@ def modal_fastapi_app():
     import sys
     import os
     import subprocess
+    import uvicorn
 
     venv_path = "/root/autogen/python/.venv"
     activate_this = os.path.join(venv_path, "bin", "activate_this.py")
@@ -132,7 +134,11 @@ def modal_fastapi_app():
         import autogen_magentic_one
         print(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
         from autogen_magentic_one.web_interface import app
-        return app
+
+        if __name__ == "__main__":
+            uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+        else:
+            return app
     except ImportError as e:
         print(f"Error importing app: {e}")
         print("Detailed sys.path:")
@@ -159,7 +165,11 @@ def modal_fastapi_app():
             # Try importing again
             import autogen_magentic_one
             from autogen_magentic_one.web_interface import app
-            return app
+
+            if __name__ == "__main__":
+                uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+            else:
+                return app
         else:
             print(f"autogen_magentic_one directory does not exist: {autogen_magentic_one_dir}")
 
