@@ -111,6 +111,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
                         case 'agent_called':
                             updateActiveAgent(data.agent);
                             break;
+                        case 'warning':
+                            appendMessage(orchestratorOutput, `Warning: ${data.message}`, 'warning');
+                            break;
                         default:
                             console.warn("Unknown message type:", data.type);
                             appendMessage(orchestratorOutput, `Unknown message type: ${data.type}`, 'error');

@@ -90,7 +90,11 @@ async def _run_task(task: str, websocket: WebSocket):
     try:
         magnetic_one = app.state.magnetic_one
         loaded_agents = magnetic_one.get_loaded_agents()
-        await websocket.send_text(json.dumps({"type": "agents_loaded", "agents": loaded_agents}))
+        if loaded_agents:
+            await websocket.send_text(json.dumps({"type": "agents_loaded", "agents": loaded_agents}))
+        else:
+            logger.warning("No agents loaded")
+            await websocket.send_text(json.dumps({"type": "warning", "message": "No agents loaded"}))
         await websocket.send_text(json.dumps({"type": "status", "message": "MagenticOne initialized."}))
         logger.info("Using pre-initialized MagenticOne")
 
