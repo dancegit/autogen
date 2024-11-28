@@ -134,6 +134,28 @@ async def _run_task(task: str, websocket: WebSocket):
                         await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
                         if log_entry.get('event') == 'agent_called':
                             await websocket.send_text(json.dumps({"type": "agent_called", "agent": agent_name}))
+                        
+                        # Send orchestrator output
+                        if log_entry.get('event') == 'orchestrator_output':
+                            await websocket.send_text(json.dumps({
+                                "type": "orchestrator_output",
+                                "message": log_entry.get('message', '')
+                            }))
+                        
+                        # Send agent output
+                        if log_entry.get('event') == 'agent_output':
+                            await websocket.send_text(json.dumps({
+                                "type": "agent_output",
+                                "agent": agent_name,
+                                "message": log_entry.get('message', '')
+                            }))
+                        
+                        # Send currently active agents
+                        if log_entry.get('event') == 'active_agents_update':
+                            await websocket.send_text(json.dumps({
+                                "type": "active_agents",
+                                "agents": log_entry.get('active_agents', [])
+                            }))
                     except Exception as e:
                         logger.error(f"Error sending log entry: {str(e)}")
 
@@ -193,6 +215,12 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.close()
         return
 
+    # Send loaded agents information
+    await websocket.send_text(json.dumps({
+        "type": "loaded_agents",
+        "agents": app.state.loaded_agents
+    }))
+
     try:
         while True:
             task = await websocket.receive_text()
@@ -237,6 +265,7 @@ async def startup_event():
         logger.info("MagenticOne initialized successfully")
         app.state.magnetic_one = magnetic_one
         loaded_agents = magnetic_one.get_loaded_agents()
+        app.state.loaded_agents = loaded_agents
         logger.info(f"Loaded agents: {loaded_agents}")
     except Exception as e:
         logger.error(f"Failed to initialize MagenticOne: {str(e)}", exc_info=True)
