@@ -22,7 +22,7 @@ autogen_magentic_one_path = packages_path / "autogen-magentic-one"
 # Define the base image
 base_image = (modal.Image
     .debian_slim()
-    .apt_install(["wget", "gnupg"])
+    .apt_install(["wget", "gnupg", "ffmpeg"])
     .run_commands(
         "wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -",
         "echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google-chrome.list",
