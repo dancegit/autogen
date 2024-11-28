@@ -152,4 +152,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
     setInterval(ping, 30000);
 
     console.log('JavaScript initialization complete');
+
+    // Additional debugging: Log the form and input element after a short delay
+    setTimeout(() => {
+        console.log('Delayed logging:');
+        console.log('Form element:', document.getElementById('taskForm'));
+        console.log('Input element:', document.getElementById('taskInput'));
+        if (document.getElementById('taskInput')) {
+            console.log('Input element value:', document.getElementById('taskInput').value);
+        } else {
+            console.log('Input element not found in delayed logging');
+        }
+    }, 1000);
 });
