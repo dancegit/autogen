@@ -14,6 +14,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
         element.scrollTop = element.scrollHeight;
     }
 
+    function appendErrorDetails(element, details) {
+        console.log(`Appending error details: ${details}`);
+        const detailsElement = document.createElement('pre');
+        detailsElement.className = 'error-details';
+        detailsElement.textContent = details;
+        element.appendChild(detailsElement);
+        element.scrollTop = element.scrollHeight;
+    }
+
     form.addEventListener('submit', function(e) {
         console.log('Form submitted');
         e.preventDefault();
@@ -46,6 +55,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
                         break;
                     case 'error':
                         appendMessage(orchestratorOutput, `Error: ${data.message}`, 'error');
+                        if (data.details) {
+                            appendErrorDetails(orchestratorOutput, data.details);
+                        }
                         break;
                     case 'log':
                         if (data.data.agent === 'Orchestrator') {

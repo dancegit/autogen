@@ -9,10 +9,11 @@ from modal_deployment import app as modal_app, image, project_mounts
 import os
 import sys
 import json
+import traceback
 from autogen_magentic_one.magentic_one_helper import MagenticOneHelper
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)  # Change to DEBUG for more detailed logs
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
@@ -100,12 +101,22 @@ async def websocket_endpoint(websocket: WebSocket):
             logger.debug("_run_task.remote completed")
         except Exception as e:
             logger.error(f"An error occurred in _run_task: {e}", exc_info=True)
-            await websocket.send_text(json.dumps({"type": "error", "message": f"An error occurred in _run_task: {str(e)}"}))
+            error_details = traceback.format_exc()
+            await websocket.send_text(json.dumps({
+                "type": "error",
+                "message": f"An error occurred in _run_task: {str(e)}",
+                "details": error_details
+            }))
     except WebSocketDisconnect:
         logger.info("WebSocket disconnected")
     except Exception as e:
         logger.error(f"An unexpected error occurred in websocket_endpoint: {e}", exc_info=True)
-        await websocket.send_text(json.dumps({"type": "error", "message": f"An unexpected error occurred: {str(e)}"}))
+        error_details = traceback.format_exc()
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": f"An unexpected error occurred: {str(e)}",
+            "details": error_details
+        }))
     finally:
         logger.info("Closing WebSocket connection")
         await websocket.close()
@@ -132,8 +143,11 @@ async def _run_task(task: str, websocket: WebSocket):
         task_future = asyncio.create_task(magnetic_one.run_task(task))
 
         async for log_entry in magnetic_one.stream_logs():
-            logger.info(f"Log entry: {log_entry}")
-            await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
+            logger.debug(f"Log entry: {log_entry}")
+            try:
+                await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
+            except Exception as e:
+                logger.error(f"Error sending log entry: {str(e)}")
 
         await task_future
 
@@ -144,9 +158,17 @@ async def _run_task(task: str, websocket: WebSocket):
         else:
             logger.warning("No final answer found in logs")
             await websocket.send_text(json.dumps({"type": "error", "message": "No final answer found in logs."}))
+    except asyncio.CancelledError:
+        logger.info("Task was cancelled")
+        await websocket.send_text(json.dumps({"type": "error", "message": "Task was cancelled."}))
     except Exception as e:
         logger.error(f"Error in _run_task: {str(e)}", exc_info=True)
-        await websocket.send_text(json.dumps({"type": "error", "message": f"An error occurred in _run_task: {str(e)}"}))
+        error_details = traceback.format_exc()
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": f"An error occurred in _run_task: {str(e)}",
+            "details": error_details
+        }))
 
 logger.info("WebSocket endpoint registered")
 
