@@ -227,19 +227,26 @@ async def websocket_endpoint(websocket: WebSocket):
             }))
             return
 
-        if not hasattr(app.state, 'loaded_agents'):
-            logger.error("Loaded agents not found in app state")
+        if not hasattr(app.state, 'magnetic_one'):
+            logger.error("MagenticOne not initialized in app state")
             await websocket.send_text(json.dumps({
                 "type": "error",
-                "message": "Loaded agents not found"
+                "message": "MagenticOne not initialized"
             }))
             return
 
-        # Send loaded agents information
-        await websocket.send_text(json.dumps({
-            "type": "loaded_agents",
-            "agents": app.state.loaded_agents
-        }))
+        loaded_agents = app.state.magnetic_one.get_loaded_agents()
+        if loaded_agents:
+            await websocket.send_text(json.dumps({
+                "type": "loaded_agents",
+                "agents": loaded_agents
+            }))
+        else:
+            logger.warning("No agents loaded")
+            await websocket.send_text(json.dumps({
+                "type": "warning",
+                "message": "No agents loaded"
+            }))
 
         while True:
             try:
@@ -290,7 +297,6 @@ async def startup_event():
         logger.info("MagenticOne initialized successfully")
         app.state.magnetic_one = magnetic_one
         loaded_agents = magnetic_one.get_loaded_agents()
-        app.state.loaded_agents = loaded_agents
         logger.info(f"Loaded agents: {loaded_agents}")
     except Exception as e:
         logger.error(f"Failed to initialize MagenticOne: {str(e)}", exc_info=True)
@@ -301,6 +307,9 @@ async def startup_event():
         }
         # Log the full traceback
         logger.error(f"Full traceback:\n{traceback.format_exc()}")
+    
+    if not app.state.magnetic_one or 'WebSurfer' not in app.state.magnetic_one.get_loaded_agents():
+        logger.warning("WebSurfer agent not initialized. Some functionality may be limited.")
 
 logger.info("WebSocket endpoint registered")
 
