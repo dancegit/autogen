@@ -31,6 +31,8 @@ base_image = (modal.Image
         "apt-get install -y nodejs npm",
         "npm init -y || echo 'npm init failed' >&2",
         "npm install --force react react-dom react-flow-renderer || echo 'npm install failed' >&2",
+        "npm install reactflow || echo 'npm install reactflow failed' >&2",
+        "yarn add reactflow || echo 'yarn add reactflow failed' >&2",
         "npm list || echo 'npm list failed' >&2"
     ))
 
