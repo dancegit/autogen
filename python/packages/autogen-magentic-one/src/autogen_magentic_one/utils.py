@@ -62,8 +62,7 @@ def create_completion_client_from_env(env: Dict[str, str] | None = None, **kwarg
 
     # Remove potentially problematic arguments
     problematic_args = ['proxies', 'http_client', 'max_retries', 'timeout']
-    for arg in problematic_args:
-        _kwargs.pop(arg, None)
+    _kwargs = {k: v for k, v in _kwargs.items() if k not in problematic_args}
 
     # Figure out what provider we are using. Default to OpenAI
     _provider = env.get(ENVIRON_KEY_CHAT_COMPLETION_PROVIDER, "openai").lower().strip()

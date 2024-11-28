@@ -71,10 +71,15 @@ class MagenticOneHelper:
             logger.handlers = [self.log_handler]
 
             # Create client
-            client = create_completion_client_from_env(model="gpt-4")
+            try:
+                client = create_completion_client_from_env(model="gpt-4")
+            except TypeError as e:
+                logger.warning(f"Error creating client with gpt-4: {str(e)}. Falling back to default model.")
+                client = create_completion_client_from_env()
         except Exception as e:
             logger.error(f"Error during initialization: {str(e)}")
-            raise
+            self.initialization_error = str(e)
+            return
 
         # Set up code executor
         self.code_executor = DockerCommandLineCodeExecutor(work_dir=self.logs_dir)
