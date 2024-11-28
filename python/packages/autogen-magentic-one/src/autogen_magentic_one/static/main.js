@@ -1,4 +1,4 @@
-// FlowChart function using vanilla JavaScript and ReactFlow
+// FlowChart function using ReactFlow
 function FlowChart(container, agents, messages) {
     const elements = [];
 
@@ -7,7 +7,6 @@ function FlowChart(container, agents, messages) {
             id: agent,
             data: { label: agent },
             position: { x: (index + 1) * 200, y: 20 },
-            type: 'default'
         });
     });
 
@@ -17,16 +16,14 @@ function FlowChart(container, agents, messages) {
             source: msg.from,
             target: msg.to,
             label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
-            type: 'smoothstep'
+            type: 'smoothstep',
         });
     });
 
-    const rfInstance = new ReactFlow.ReactFlowRenderer({
+    ReactFlow.default({
         elements: elements,
-        onConnect: (params) => rfInstance.addEdge(params),
-    });
-
-    rfInstance.setContainer(container);
+        onConnect: (params) => console.log('Edge connected', params),
+    }, container);
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
