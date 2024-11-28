@@ -1,8 +1,6 @@
 // FlowChart component using ReactFlow
 const FlowChart = React.memo(function FlowChart({ agents, messages }) {
-    const { ReactFlowProvider, useNodesState, useEdgesState, addEdge, applyNodeChanges, applyEdgeChanges } = ReactFlow;
-    
-    const [nodes, setNodes] = useNodesState(
+    const [nodes, setNodes] = React.useState(
         agents.map((agent, index) => ({
             id: agent,
             data: { label: agent },
@@ -10,7 +8,7 @@ const FlowChart = React.memo(function FlowChart({ agents, messages }) {
         }))
     );
 
-    const [edges, setEdges] = useEdgesState(
+    const [edges, setEdges] = React.useState(
         messages.map((msg, index) => ({
             id: `e${index}`,
             source: msg.from,
@@ -21,24 +19,24 @@ const FlowChart = React.memo(function FlowChart({ agents, messages }) {
     );
 
     const onNodesChange = React.useCallback(
-        (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+        (changes) => setNodes((nds) => ReactFlow.applyNodeChanges(changes, nds)),
         []
     );
 
     const onEdgesChange = React.useCallback(
-        (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+        (changes) => setEdges((eds) => ReactFlow.applyEdgeChanges(changes, eds)),
         []
     );
 
     const onConnect = React.useCallback(
-        (params) => setEdges((eds) => addEdge(params, eds)),
+        (params) => setEdges((eds) => ReactFlow.addEdge(params, eds)),
         []
     );
 
     return React.createElement(
-        ReactFlowProvider,
+        ReactFlow.ReactFlowProvider,
         null,
-        React.createElement(ReactFlow, {
+        React.createElement(ReactFlow.default, {
             nodes: nodes,
             edges: edges,
             onNodesChange: onNodesChange,
@@ -78,7 +76,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 
     // Initial render
-    window.addEventListener('load', updateGraphicalView);
+    window.addEventListener('load', () => {
+        console.log('Window loaded, updating graphical view');
+        updateGraphicalView();
+    });
+
+    // Update graphical view whenever agents or messages change
+    React.useEffect(() => {
+        console.log('Agents or messages changed, updating graphical view');
+        updateGraphicalView();
+    }, [agents, messages]);
 
     function appendMessage(element, message, className = '') {
         console.log(`Appending message: ${message}`);
