@@ -23,24 +23,24 @@ const FlowChart = function({ agents, messages }) {
     );
 
     const onNodesChange = React.useCallback(
-        (changes) => setNodes((nds) => ReactFlow.applyNodeChanges(changes, nds)),
+        (changes) => setNodes((nds) => ReactFlowRenderer.applyNodeChanges(changes, nds)),
         [setNodes]
     );
 
     const onEdgesChange = React.useCallback(
-        (changes) => setEdges((eds) => ReactFlow.applyEdgeChanges(changes, eds)),
+        (changes) => setEdges((eds) => ReactFlowRenderer.applyEdgeChanges(changes, eds)),
         [setEdges]
     );
 
     const onConnect = React.useCallback(
-        (params) => setEdges((eds) => ReactFlow.addEdge(params, eds)),
+        (params) => setEdges((eds) => ReactFlowRenderer.addEdge(params, eds)),
         [setEdges]
     );
 
     return React.createElement(
-        ReactFlow.ReactFlowProvider,
+        ReactFlowRenderer.ReactFlowProvider,
         null,
-        React.createElement(ReactFlow.default, {
+        React.createElement(ReactFlowRenderer.default, {
             nodes: nodes,
             edges: edges,
             onNodesChange: onNodesChange,
@@ -67,9 +67,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let flowChartInstance;
 
     function updateGraphicalView() {
-        ReactDOM.render(
-            React.createElement(FlowChart, { agents: agents, messages: messages }),
-            graphicalView
+        if (!flowChartInstance) {
+            flowChartInstance = ReactDOM.createRoot(graphicalView);
+        }
+        flowChartInstance.render(
+            React.createElement(FlowChart, { agents: agents, messages: messages })
         );
     }
 
