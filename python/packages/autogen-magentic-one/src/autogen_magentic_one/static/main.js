@@ -1,3 +1,7 @@
+// Import React and ReactDOM
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 // Import ReactFlow
 import ReactFlow, { 
     ReactFlowProvider, 
