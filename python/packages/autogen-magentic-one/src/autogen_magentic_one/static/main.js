@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', (event) => {
     const form = document.getElementById('taskForm');
-    const output = document.getElementById('output');
+    const output = document.getElementById('result');
     let socket;
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        const task = document.getElementById('task').value;
+        const task = document.getElementById('taskInput').value;
         
-        output.innerHTML = '';
+        output.innerHTML = 'Processing...';
         
         socket = new WebSocket(`ws://${window.location.host}/ws`);
         
