@@ -62,16 +62,18 @@ async def _run_task(task: str, websocket: WebSocket):
     
     logger.info(f"Starting task: {task}")
     try:
-        magnetic_one = MagenticOneHelper(logs_dir=logs_dir)
-        await magnetic_one.initialize()
+        magnetic_one = app.state.magnetic_one
         await websocket.send_text(json.dumps({"type": "status", "message": "MagenticOne initialized."}))
-        logger.info("MagenticOne initialized")
+        logger.info("Using pre-initialized MagenticOne")
 
         task_future = asyncio.create_task(magnetic_one.run_task(task))
 
         async for log_entry in magnetic_one.stream_logs():
-            logger.info(f"Log entry: {log_entry}")
-            await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
+            logger.debug(f"Log entry: {log_entry}")
+            try:
+                await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
+            except Exception as e:
+                logger.error(f"Error sending log entry: {str(e)}")
 
         await task_future
 
@@ -82,9 +84,17 @@ async def _run_task(task: str, websocket: WebSocket):
         else:
             logger.warning("No final answer found in logs")
             await websocket.send_text(json.dumps({"type": "error", "message": "No final answer found in logs."}))
+    except asyncio.CancelledError:
+        logger.info("Task was cancelled")
+        await websocket.send_text(json.dumps({"type": "error", "message": "Task was cancelled."}))
     except Exception as e:
-        logger.error(f"Error in _run_task: {str(e)}")
-        await websocket.send_text(json.dumps({"type": "error", "message": f"An error occurred: {str(e)}"}))
+        logger.error(f"Error in _run_task: {str(e)}", exc_info=True)
+        error_details = traceback.format_exc()
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": f"An error occurred in _run_task: {str(e)}",
+            "details": error_details
+        }))
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -132,54 +142,6 @@ async def startup_event():
     except Exception as e:
         logger.error(f"Failed to initialize MagenticOne: {e}", exc_info=True)
         raise
-
-@modal_app.function(
-    image=image,
-    gpu="T4",
-    timeout=600,
-    memory=1024,
-    cpu=1,
-    mounts=project_mounts
-)
-async def _run_task(task: str, websocket: WebSocket):
-    logs_dir = "/tmp/magentic_one_logs"
-    os.makedirs(logs_dir, exist_ok=True)
-    
-    logger.info(f"Starting task: {task}")
-    try:
-        magnetic_one = app.state.magnetic_one
-        await websocket.send_text(json.dumps({"type": "status", "message": "MagenticOne initialized."}))
-        logger.info("Using pre-initialized MagenticOne")
-
-        task_future = asyncio.create_task(magnetic_one.run_task(task))
-
-        async for log_entry in magnetic_one.stream_logs():
-            logger.debug(f"Log entry: {log_entry}")
-            try:
-                await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
-            except Exception as e:
-                logger.error(f"Error sending log entry: {str(e)}")
-
-        await task_future
-
-        final_answer = magnetic_one.get_final_answer()
-        if final_answer is not None:
-            logger.info(f"Final answer: {final_answer}")
-            await websocket.send_text(json.dumps({"type": "final_answer", "message": final_answer}))
-        else:
-            logger.warning("No final answer found in logs")
-            await websocket.send_text(json.dumps({"type": "error", "message": "No final answer found in logs."}))
-    except asyncio.CancelledError:
-        logger.info("Task was cancelled")
-        await websocket.send_text(json.dumps({"type": "error", "message": "Task was cancelled."}))
-    except Exception as e:
-        logger.error(f"Error in _run_task: {str(e)}", exc_info=True)
-        error_details = traceback.format_exc()
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": f"An error occurred in _run_task: {str(e)}",
-            "details": error_details
-        }))
 
 logger.info("WebSocket endpoint registered")
 
