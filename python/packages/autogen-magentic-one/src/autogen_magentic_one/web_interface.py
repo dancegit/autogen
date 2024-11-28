@@ -181,6 +181,8 @@ async def startup_event():
         await magnetic_one.initialize()
         logger.info("MagenticOne initialized successfully")
         app.state.magnetic_one = magnetic_one
+        loaded_agents = magnetic_one.get_loaded_agents()
+        logger.info(f"Loaded agents: {loaded_agents}")
     except Exception as e:
         logger.error(f"Failed to initialize MagenticOne: {e}", exc_info=True)
         raise
