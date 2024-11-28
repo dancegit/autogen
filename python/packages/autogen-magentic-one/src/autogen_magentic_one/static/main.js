@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         console.error('taskForm element not found');
         appendMessage(orchestratorOutput, 'Error: Task form not found', 'error');
     } else {
+        console.log('Task form found, adding submit event listener');
         form.addEventListener('submit', function(e) {
             console.log('Form submitted');
             e.preventDefault();
@@ -43,75 +44,78 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 return;
             }
         
-        orchestratorOutput.innerHTML = '';
-        agentsOutput.innerHTML = '';
-        appendMessage(orchestratorOutput, 'Processing...', 'status');
-        
-        console.log(`Connecting to WebSocket: ws://${window.location.host}/ws`);
-        socket = new WebSocket(`ws://${window.location.host}/ws`);
-        
-        socket.onopen = function(e) {
-            console.log('WebSocket connection established');
-            console.log(`Sending task: ${task}`);
-            socket.send(task);
-        };
-        
-        socket.onmessage = function(event) {
-            console.log("Received message:", event.data);
-            try {
-                const data = JSON.parse(event.data);
-                
-                switch(data.type) {
-                    case 'status':
-                        appendMessage(orchestratorOutput, data.message, 'status');
-                        break;
-                    case 'final_answer':
-                        appendMessage(orchestratorOutput, `Final Answer: ${data.message}`, 'status');
-                        break;
-                    case 'error':
-                        appendMessage(orchestratorOutput, `Error: ${data.message}`, 'error');
-                        if (data.details) {
-                            appendErrorDetails(orchestratorOutput, data.details);
-                        }
-                        break;
-                    case 'log':
-                        if (data.data.agent === 'Orchestrator') {
-                            appendMessage(orchestratorOutput, JSON.stringify(data.data, null, 2));
-                        } else {
-                            appendMessage(agentsOutput, `Agent ${data.data.agent}: ${data.data.message}`);
-                        }
-                        break;
-                    default:
-                        console.warn("Unknown message type:", data.type);
-                        appendMessage(orchestratorOutput, `Unknown message type: ${data.type}`, 'error');
+            orchestratorOutput.innerHTML = '';
+            agentsOutput.innerHTML = '';
+            appendMessage(orchestratorOutput, 'Processing...', 'status');
+            
+            console.log(`Connecting to WebSocket: ws://${window.location.host}/ws`);
+            socket = new WebSocket(`ws://${window.location.host}/ws`);
+            
+            socket.onopen = function(e) {
+                console.log('WebSocket connection established');
+                console.log(`Sending task: ${task}`);
+                socket.send(task);
+            };
+            
+            socket.onmessage = function(event) {
+                console.log("Received message:", event.data);
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    switch(data.type) {
+                        case 'status':
+                            appendMessage(orchestratorOutput, data.message, 'status');
+                            break;
+                        case 'final_answer':
+                            appendMessage(orchestratorOutput, `Final Answer: ${data.message}`, 'status');
+                            break;
+                        case 'error':
+                            appendMessage(orchestratorOutput, `Error: ${data.message}`, 'error');
+                            if (data.details) {
+                                appendErrorDetails(orchestratorOutput, data.details);
+                            }
+                            break;
+                        case 'log':
+                            if (data.data.agent === 'Orchestrator') {
+                                appendMessage(orchestratorOutput, JSON.stringify(data.data, null, 2));
+                            } else {
+                                appendMessage(agentsOutput, `Agent ${data.data.agent}: ${data.data.message}`);
+                            }
+                            break;
+                        default:
+                            console.warn("Unknown message type:", data.type);
+                            appendMessage(orchestratorOutput, `Unknown message type: ${data.type}`, 'error');
+                    }
+                } catch (error) {
+                    console.error("Error parsing message:", error);
+                    appendMessage(orchestratorOutput, `Error parsing message: ${error.message}`, 'error');
                 }
-            } catch (error) {
-                console.error("Error parsing message:", error);
-                appendMessage(orchestratorOutput, `Error parsing message: ${error.message}`, 'error');
-            }
-        };
-        
-        socket.onclose = function(event) {
-            if (event.wasClean) {
-                appendMessage(orchestratorOutput, `Connection closed cleanly, code=${event.code} reason=${event.reason}`, 'status');
-            } else {
-                appendMessage(orchestratorOutput, 'Connection died unexpectedly', 'error');
-            }
-        };
-        
-        socket.onerror = function(error) {
-            console.error("WebSocket error:", error);
-            appendMessage(orchestratorOutput, `WebSocket error: ${error.message}`, 'error');
-        };
-    });
-});
-
-// Add a ping function to keep the connection alive
-function ping() {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({type: 'ping'}));
+            };
+            
+            socket.onclose = function(event) {
+                if (event.wasClean) {
+                    appendMessage(orchestratorOutput, `Connection closed cleanly, code=${event.code} reason=${event.reason}`, 'status');
+                } else {
+                    appendMessage(orchestratorOutput, 'Connection died unexpectedly', 'error');
+                }
+            };
+            
+            socket.onerror = function(error) {
+                console.error("WebSocket error:", error);
+                appendMessage(orchestratorOutput, `WebSocket error: ${error.message}`, 'error');
+            };
+        });
     }
-}
 
-// Set up a timer to ping the server every 30 seconds
-setInterval(ping, 30000);
+    // Add a ping function to keep the connection alive
+    function ping() {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({type: 'ping'}));
+        }
+    }
+
+    // Set up a timer to ping the server every 30 seconds
+    setInterval(ping, 30000);
+
+    console.log('JavaScript initialization complete');
+});
