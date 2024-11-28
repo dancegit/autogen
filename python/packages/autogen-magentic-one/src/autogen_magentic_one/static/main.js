@@ -23,16 +23,25 @@ document.addEventListener('DOMContentLoaded', (event) => {
         element.scrollTop = element.scrollHeight;
     }
 
-    form.addEventListener('submit', function(e) {
-        console.log('Form submitted');
-        e.preventDefault();
-        const taskInput = document.getElementById('taskInput');
-        if (!taskInput) {
-            console.error('taskInput element not found');
-            appendMessage(orchestratorOutput, 'Error: Task input not found', 'error');
-            return;
-        }
-        const task = taskInput.value;
+    if (!form) {
+        console.error('taskForm element not found');
+        appendMessage(orchestratorOutput, 'Error: Task form not found', 'error');
+    } else {
+        form.addEventListener('submit', function(e) {
+            console.log('Form submitted');
+            e.preventDefault();
+            const taskInput = document.getElementById('taskInput');
+            if (!taskInput) {
+                console.error('taskInput element not found');
+                appendMessage(orchestratorOutput, 'Error: Task input not found', 'error');
+                return;
+            }
+            const task = taskInput.value.trim();
+            if (!task) {
+                console.error('Task input is empty');
+                appendMessage(orchestratorOutput, 'Error: Please enter a task', 'error');
+                return;
+            }
         
         orchestratorOutput.innerHTML = '';
         agentsOutput.innerHTML = '';

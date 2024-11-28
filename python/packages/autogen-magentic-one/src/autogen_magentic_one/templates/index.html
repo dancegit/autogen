@@ -78,12 +78,14 @@
     <div class="container">
         <h1>AutoGen Magentic-One Web Interface</h1>
         <form id="taskForm">
-            <textarea id="taskInput" rows="4" placeholder="Enter your task here..."></textarea>
+            <textarea id="taskInput" rows="4" placeholder="Enter your task here..." required></textarea>
             <button type="submit">Run Task</button>
         </form>
         <script>
-            console.log('taskForm element:', document.getElementById('taskForm'));
-            console.log('taskInput element:', document.getElementById('taskInput'));
+            document.addEventListener('DOMContentLoaded', (event) => {
+                console.log('taskForm element:', document.getElementById('taskForm'));
+                console.log('taskInput element:', document.getElementById('taskInput'));
+            });
         </script>
         <div class="output-container">
             <div class="output-section">
