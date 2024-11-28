@@ -118,7 +118,11 @@ def modal_fastapi_app():
         import autogen_magentic_one
         print(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
         from autogen_magentic_one.web_interface import app
-        return app
+
+        if __name__ == "__main__":
+            uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+        else:
+            return app
     except ImportError as e:
         print(f"Error importing app: {e}")
         print("Detailed sys.path:")
