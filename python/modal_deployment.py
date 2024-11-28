@@ -67,6 +67,7 @@ image = (
         "/root/autogen/python/.venv/bin/pip install /root/autogen/python/packages/autogen-agentchat",
         "/root/autogen/python/.venv/bin/pip install /root/autogen/python/packages/agbench",
         "/root/autogen/python/.venv/bin/pip install /root/autogen/python/packages/autogen-studio",
+        "/root/autogen/python/.venv/bin/pip install tenacity",
         "/root/autogen/python/.venv/bin/pip install playwright",
         "/root/autogen/python/.venv/bin/playwright install --with-deps chromium",
         "/root/autogen/python/.venv/bin/playwright install-deps",
