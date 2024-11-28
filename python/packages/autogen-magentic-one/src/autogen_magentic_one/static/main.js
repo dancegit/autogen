@@ -2,12 +2,7 @@
 const FlowChart = function({ agents, messages }) {
     const React = window.React;
     const ReactFlow = window.ReactFlow;
-    const ReactFlowProvider = ReactFlow.ReactFlowProvider;
-    const useNodesState = ReactFlow.useNodesState;
-    const useEdgesState = ReactFlow.useEdgesState;
-    const addEdge = ReactFlow.addEdge;
-    const applyNodeChanges = ReactFlow.applyNodeChanges;
-    const applyEdgeChanges = ReactFlow.applyEdgeChanges;
+    const { ReactFlowProvider, useNodesState, useEdgesState, addEdge, applyNodeChanges, applyEdgeChanges } = ReactFlow;
     const [nodes, setNodes] = useNodesState(
         agents.map(function(agent, index) {
             return {
@@ -74,9 +69,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     function updateGraphicalView() {
         if (window.React && window.ReactDOM && window.ReactFlow) {
-            window.ReactDOM.render(
-                window.React.createElement(FlowChart, { agents: agents, messages: messages }),
-                graphicalView
+            const root = window.ReactDOM.createRoot(graphicalView);
+            root.render(
+                window.React.createElement(FlowChart, { agents: agents, messages: messages })
             );
         } else {
             console.error('React, ReactDOM, or ReactFlow is not available');
