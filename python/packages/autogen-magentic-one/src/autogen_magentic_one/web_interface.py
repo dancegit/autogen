@@ -12,10 +12,14 @@ import sys
 import json
 import traceback
 from autogen_magentic_one.magentic_one_helper import MagenticOneHelper
+import openai
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# Disable hpack debug logging
+logging.getLogger('hpack').setLevel(logging.WARNING)
 
 app = FastAPI()
 logger.info("FastAPI app initialized")
@@ -109,6 +113,13 @@ async def _run_task(task: str, websocket: WebSocket):
     except asyncio.CancelledError:
         logger.info("Task was cancelled")
         await websocket.send_text(json.dumps({"type": "error", "message": "Task was cancelled."}))
+    except openai.RateLimitError as e:
+        logger.error(f"OpenAI API rate limit exceeded: {str(e)}")
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "OpenAI API rate limit exceeded. Please try again later.",
+            "details": str(e)
+        }))
     except Exception as e:
         logger.error(f"Error in _run_task: {str(e)}", exc_info=True)
         error_details = traceback.format_exc()
