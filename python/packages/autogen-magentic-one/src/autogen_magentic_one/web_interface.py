@@ -183,6 +183,16 @@ async def websocket_endpoint(websocket: WebSocket):
     logger.info("WebSocket connection established")
     logger.info(f"WebSocket connection details: {websocket.client}")
 
+    if hasattr(app.state, 'initialization_error'):
+        error_info = app.state.initialization_error
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "MagenticOne initialization failed",
+            "details": error_info
+        }))
+        await websocket.close()
+        return
+
     try:
         task = await websocket.receive_text()
         logger.info(f"Received task: {task}")
@@ -224,9 +234,14 @@ async def startup_event():
         loaded_agents = magnetic_one.get_loaded_agents()
         logger.info(f"Loaded agents: {loaded_agents}")
     except Exception as e:
-        logger.error(f"Failed to initialize MagenticOne: {str(e)}")
+        logger.error(f"Failed to initialize MagenticOne: {str(e)}", exc_info=True)
         app.state.magnetic_one = None
-        app.state.initialization_error = str(e)
+        app.state.initialization_error = {
+            "message": str(e),
+            "traceback": traceback.format_exc()
+        }
+        # Log the full traceback
+        logger.error(f"Full traceback:\n{traceback.format_exc()}")
 
 logger.info("WebSocket endpoint registered")
 
