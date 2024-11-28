@@ -1,43 +1,33 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import ReactDOM from 'react-dom';
-import ReactFlow, { addEdge, Background, Controls, MiniMap } from 'react-flow-renderer';
+// FlowChart function using vanilla JavaScript and ReactFlow
+function FlowChart(container, agents, messages) {
+    const elements = [];
 
-const FlowChart = ({ agents, messages }) => {
-    const [elements, setElements] = useState([]);
-
-    const onConnect = useCallback((params) => setElements((els) => addEdge(params, els)), []);
-
-    useEffect(() => {
-        const nodes = agents.map((agent, index) => ({
+    agents.forEach((agent, index) => {
+        elements.push({
             id: agent,
             data: { label: agent },
             position: { x: (index + 1) * 200, y: 20 },
             type: 'default'
-        }));
+        });
+    });
 
-        const edges = messages.map((msg, index) => ({
+    messages.forEach((msg, index) => {
+        elements.push({
             id: `e${index}`,
             source: msg.from,
             target: msg.to,
             label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
             type: 'smoothstep'
-        }));
+        });
+    });
 
-        setElements([...nodes, ...edges]);
-    }, [agents, messages]);
+    const rfInstance = new ReactFlow.ReactFlowRenderer({
+        elements: elements,
+        onConnect: (params) => rfInstance.addEdge(params),
+    });
 
-    return (
-        <ReactFlow
-            elements={elements}
-            onConnect={onConnect}
-            style={{ width: '100%', height: '100%' }}
-        >
-            <Background />
-            <Controls />
-            <MiniMap />
-        </ReactFlow>
-    );
-};
+    rfInstance.setContainer(container);
+}
 
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
@@ -53,11 +43,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let agents = ['Orchestrator'];
     let messages = [];
 
+    let flowChartInstance;
+
     function updateGraphicalView() {
-        ReactDOM.render(
-            <FlowChart agents={agents} messages={messages} />,
-            graphicalView
-        );
+        if (flowChartInstance) {
+            flowChartInstance.destroy();
+        }
+        flowChartInstance = FlowChart(graphicalView, agents, messages);
     }
 
     updateGraphicalView();
@@ -125,8 +117,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
             agentsOutput.innerHTML = '';
             appendMessage(orchestratorOutput, 'Processing...', 'status');
             
-            console.log(`Connecting to WebSocket: wss://${window.location.host}/ws`);
-            socket = new WebSocket(`wss://${window.location.host}/ws`);
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            console.log(`Connecting to WebSocket: ${protocol}//${window.location.host}/ws`);
+            socket = new WebSocket(`${protocol}//${window.location.host}/ws`);
             
             socket.onopen = function(e) {
                 console.log('WebSocket connection established');
