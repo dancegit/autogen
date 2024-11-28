@@ -19,26 +19,6 @@ packages_path = current_dir / "packages"
 autogen_magentic_one_path = packages_path / "autogen-magentic-one"
 
 
-#for path in [autogen_path, packages_path, autogen_magentic_one_path]:
-#   if path.exists():
-#       sys.path.insert(0, str(path))
-#      print(f"Added to sys.path: {path}")
-#    else:
-#        print(f"Warning: {path} does not exist")
-
-# Print the updated sys.path
-#print("Updated sys.path:")
-#for path in sys.path:
-#    print(f"  {path}")
-
-# Install autogen_magentic_one package
-#if autogen_magentic_one_path.exists():
-#    print("Installing autogen_magentic_one package...")
-#    subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", str(autogen_magentic_one_path)])
-#    print("autogen_magentic_one package installed successfully.")
-#else:
-#    print("Warning: autogen_magentic_one directory not found.")
-
 # Define the base image
 base_image = (modal.Image
     .debian_slim()
@@ -95,7 +75,6 @@ image = (
         "/root/autogen/python/.venv/bin/python -m playwright install-deps",
         "/root/autogen/python/.venv/bin/python -m playwright install chromium"
     )
-    .shell("/bin/bash")
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
         "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
