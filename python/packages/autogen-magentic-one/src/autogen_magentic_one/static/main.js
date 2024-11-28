@@ -1,35 +1,43 @@
 // FlowChart component using ReactFlow
-const FlowChart = ({ agents, messages }) => {
+const FlowChart = function({ agents, messages }) {
     const [nodes, setNodes, onNodesChange] = ReactFlow.useNodesState(
-        agents.map((agent, index) => ({
-            id: agent,
-            data: { label: agent },
-            position: { x: (index + 1) * 200, y: 20 },
-        }))
+        agents.map(function(agent, index) {
+            return {
+                id: agent,
+                data: { label: agent },
+                position: { x: (index + 1) * 200, y: 20 },
+            };
+        })
     );
 
     const [edges, setEdges, onEdgesChange] = ReactFlow.useEdgesState(
-        messages.map((msg, index) => ({
-            id: `e${index}`,
-            source: msg.from,
-            target: msg.to,
-            label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
-            type: 'smoothstep',
-        }))
+        messages.map(function(msg, index) {
+            return {
+                id: 'e' + index,
+                source: msg.from,
+                target: msg.to,
+                label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
+                type: 'smoothstep',
+            };
+        })
     );
 
-    const onConnect = React.useCallback((params) => setEdges((eds) => ReactFlow.addEdge(params, eds)), [setEdges]);
+    const onConnect = React.useCallback(function(params) {
+        return setEdges(function(eds) {
+            return ReactFlow.addEdge(params, eds);
+        });
+    }, [setEdges]);
 
-    return (
-        <ReactFlow.ReactFlowProvider>
-            <ReactFlow.default
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-            />
-        </ReactFlow.ReactFlowProvider>
+    return React.createElement(
+        ReactFlow.ReactFlowProvider,
+        null,
+        React.createElement(ReactFlow.default, {
+            nodes: nodes,
+            edges: edges,
+            onNodesChange: onNodesChange,
+            onEdgesChange: onEdgesChange,
+            onConnect: onConnect
+        })
     );
 };
 
@@ -50,14 +58,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let flowChartInstance;
 
     function updateGraphicalView() {
-        if (!flowChartInstance) {
-            flowChartInstance = ReactDOM.render(
-                React.createElement(FlowChart, { agents: agents, messages: messages }),
-                graphicalView
-            );
-        } else {
-            flowChartInstance.setProps({ agents: agents, messages: messages });
-        }
+        ReactDOM.render(
+            React.createElement(FlowChart, { agents: agents, messages: messages }),
+            graphicalView
+        );
     }
 
     // Initial render
