@@ -62,7 +62,14 @@ print(f"Templates directory: {templates_dir}")
 # Ensure the package data is included
 import autogen_magentic_one
 
-@modal_app.function(image=image)
+@modal_app.function(
+    image=image,
+    gpu="T4",
+    timeout=600,
+    memory=1024,
+    cpu=1,
+    mounts=project_mounts
+)
 @asgi_app()
 def fastapi_app():
     return app
@@ -120,14 +127,6 @@ async def _run_task(task: str, websocket: WebSocket):
         }))
 
 @app.websocket("/ws")
-@modal_app.function(
-    image=image,
-    gpu="T4",
-    timeout=600,
-    memory=1024,
-    cpu=1,
-    mounts=project_mounts
-)
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     logger.info("WebSocket connection established")
