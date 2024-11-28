@@ -35,41 +35,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
             // Log all form elements
             console.log('Form elements:', form.elements);
             
-            let inputElement;
-            let task = '';
+            const inputElement = document.getElementById('taskInput');
+            console.log('Input element:', inputElement);
 
-            try {
-                // Try multiple methods to get the input element
-                inputElement = document.getElementById('taskInput');
-                console.log('Input element by ID:', inputElement);
-                
-                if (!inputElement) {
-                    inputElement = form.elements['taskInput'];
-                    console.log('Input element by name:', inputElement);
-                }
-                
-                if (!inputElement) {
-                    inputElement = form.querySelector('textarea[name="taskInput"]');
-                    console.log('Input element by querySelector:', inputElement);
-                }
-                
-                if (!inputElement) {
-                    inputElement = form.querySelector('textarea');
-                    console.log('Input element as textarea:', inputElement);
-                }
+            if (!inputElement) {
+                throw new Error('Task input element not found');
+            }
 
-                if (!inputElement) {
-                    throw new Error('Task input element not found');
-                }
+            const task = inputElement.value.trim();
+            console.log('Task value:', task);
 
-                console.log('Final input element:', inputElement);
-                console.log('Input element value:', inputElement.value);
-
-                task = inputElement.value ? inputElement.value.trim() : '';
-
-                if (!task) {
-                    throw new Error('Task input is empty');
-                }
+            if (!task) {
+                throw new Error('Task input is empty');
+            }
             } catch (error) {
                 console.error('Error retrieving task:', error);
                 appendMessage(orchestratorOutput, `Error: ${error.message}`, 'error');
