@@ -122,7 +122,7 @@ class MagenticOneHelper:
         )
 
         # Populate the loaded_agents list
-        self.loaded_agents = [agent.id.name for agent in agent_list]
+        self.loaded_agents = [agent.id.type for agent in agent_list]
         self.loaded_agents.append("Orchestrator")
 
     async def __aexit__(self, exc_type, exc_value, traceback) -> None:
