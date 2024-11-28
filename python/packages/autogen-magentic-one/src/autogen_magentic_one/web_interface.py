@@ -38,6 +38,14 @@ if not os.path.exists(templates_dir):
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 templates = Jinja2Templates(directory=templates_dir)
 
+# Ensure the correct MIME type for JavaScript files
+@app.middleware("http")
+async def add_content_type_header(request, call_next):
+    response = await call_next(request)
+    if request.url.path.endswith('.js'):
+        response.headers["Content-Type"] = "application/javascript"
+    return response
+
 # Log the path of the main.js file
 main_js_path = os.path.join(static_dir, "main.js")
 logger.info(f"main.js path: {main_js_path}")
