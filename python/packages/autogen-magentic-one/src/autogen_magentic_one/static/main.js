@@ -1,3 +1,7 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import ReactFlow from 'react-flow-renderer';
+
 // FlowChart function using ReactFlow
 function FlowChart(container, agents, messages) {
     const nodes = agents.map((agent, index) => ({
@@ -14,10 +18,17 @@ function FlowChart(container, agents, messages) {
         type: 'smoothstep',
     }));
 
-    ReactFlow.createReactFlow(container, {
-        nodes: nodes,
-        edges: edges,
-        onConnect: (params) => console.log('Edge connected', params),
+    const reactFlowInstance = ReactFlow.useReactFlow();
+    
+    reactFlowInstance.setNodes(nodes);
+    reactFlowInstance.setEdges(edges);
+
+    return ReactFlow.ReactFlowProvider({
+        children: ReactFlow.ReactFlow({
+            nodes: nodes,
+            edges: edges,
+            onConnect: (params) => console.log('Edge connected', params),
+        }),
     });
 }
 
@@ -38,10 +49,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let flowChartInstance;
 
     function updateGraphicalView() {
-        if (flowChartInstance) {
-            flowChartInstance.destroy();
-        }
-        flowChartInstance = FlowChart(graphicalView, agents, messages);
+        ReactDOM.render(
+            FlowChart(graphicalView, agents, messages),
+            graphicalView
+        );
     }
 
     updateGraphicalView();
