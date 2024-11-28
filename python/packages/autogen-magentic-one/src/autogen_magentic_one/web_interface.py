@@ -218,7 +218,7 @@ async def startup_event():
     logger.info("Application startup: Initializing MagenticOne")
     magnetic_one = MagenticOneHelper(logs_dir="/tmp/magentic_one_logs")
     await magnetic_one.initialize()
-    if hasattr(magnetic_one, 'initialization_error'):
+    if magnetic_one.initialization_error:
         logger.error(f"Failed to initialize MagenticOne: {magnetic_one.initialization_error}")
         app.state.magnetic_one = None
         app.state.initialization_error = magnetic_one.initialization_error

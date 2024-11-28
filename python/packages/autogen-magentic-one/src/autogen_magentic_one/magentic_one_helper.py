@@ -43,6 +43,7 @@ class MagenticOneHelper:
         self.log_handler: Optional[LogHandler] = None
         self.save_screenshots = save_screenshots
         self.loaded_agents: List[str] = []
+        self.initialization_error: Optional[str] = None
 
         if not os.path.exists(self.logs_dir):
             os.makedirs(self.logs_dir)
@@ -79,6 +80,10 @@ class MagenticOneHelper:
         except Exception as e:
             logger.error(f"Error during initialization: {str(e)}")
             self.initialization_error = str(e)
+            return
+
+        if self.initialization_error:
+            logger.error(f"Initialization failed: {self.initialization_error}")
             return
 
         # Set up code executor
