@@ -33,12 +33,27 @@ if not os.path.exists(templates_dir):
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 templates = Jinja2Templates(directory=templates_dir)
 
+# Log the path of the main.js file
+main_js_path = os.path.join(static_dir, "main.js")
+logger.info(f"main.js path: {main_js_path}")
+if os.path.exists(main_js_path):
+    logger.info(f"main.js file exists at {main_js_path}")
+    with open(main_js_path, 'r') as f:
+        logger.info(f"First 100 characters of main.js: {f.read(100)}")
+else:
+    logger.warning(f"main.js file not found at {main_js_path}")
+
 # Ensure static files are included in the deployment
 static_mount = modal.Mount.from_local_dir(
     static_dir,
     remote_path="/root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static"
 )
 project_mounts.append(static_mount)
+
+# Log the contents of the static directory
+print("Contents of static directory:")
+for item in os.listdir(static_dir):
+    print(f"  {item}")
 
 # Print the actual paths for debugging
 print(f"Static directory: {static_dir}")
