@@ -37,7 +37,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 appendMessage(orchestratorOutput, 'Error: Task input not found', 'error');
                 return;
             }
-            const task = taskInput.value.trim();
+            console.log('taskInput element:', taskInput);
+            console.log('taskInput value:', taskInput.value);
+            const task = taskInput.value ? taskInput.value.trim() : '';
             if (!task) {
                 console.error('Task input is empty');
                 appendMessage(orchestratorOutput, 'Error: Please enter a task', 'error');
