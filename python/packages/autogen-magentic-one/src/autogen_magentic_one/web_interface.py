@@ -123,6 +123,7 @@ async def _run_task(task: str, websocket: WebSocket):
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     logger.info("WebSocket connection established")
+    logger.info(f"WebSocket connection details: {websocket.client}")
     
     try:
         task = await websocket.receive_text()

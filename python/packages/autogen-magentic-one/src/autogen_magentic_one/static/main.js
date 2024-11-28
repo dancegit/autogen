@@ -55,8 +55,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             agentsOutput.innerHTML = '';
             appendMessage(orchestratorOutput, 'Processing...', 'status');
             
-            console.log(`Connecting to WebSocket: ws://${window.location.host}/ws`);
-            socket = new WebSocket(`ws://${window.location.host}/ws`);
+            console.log(`Connecting to WebSocket: wss://${window.location.host}/ws`);
+            socket = new WebSocket(`wss://${window.location.host}/ws`);
             
             socket.onopen = function(e) {
                 console.log('WebSocket connection established');
