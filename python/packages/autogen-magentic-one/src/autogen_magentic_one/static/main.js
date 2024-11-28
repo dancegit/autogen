@@ -102,7 +102,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
                             if (data.data.agent === 'Orchestrator') {
                                 appendMessage(orchestratorOutput, JSON.stringify(data.data, null, 2));
                             } else {
-                                appendMessage(agentsOutput, `Agent ${data.data.agent}: ${data.data.message}`);
+                                const agentName = data.data.agent || 'Unknown';
+                                const message = data.data.message || JSON.stringify(data.data);
+                                appendMessage(agentsOutput, `Agent ${agentName}: ${message}`);
                             }
                             break;
                         case 'agents_loaded':

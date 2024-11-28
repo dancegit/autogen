@@ -116,9 +116,16 @@ async def _run_task(task: str, websocket: WebSocket):
                 async for log_entry in magnetic_one.stream_logs():
                     logger.debug(f"Log entry: {log_entry}")
                     try:
+                        agent_name = log_entry.get('agent', 'Unknown')
+                        if isinstance(agent_name, dict) and 'type' in agent_name:
+                            agent_name = agent_name['type']
+                        elif isinstance(agent_name, str):
+                            agent_name = agent_name.split('.')[-1]  # Get the class name if it's a full path
+                        
+                        log_entry['agent'] = agent_name
                         await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
                         if log_entry.get('event') == 'agent_called':
-                            await websocket.send_text(json.dumps({"type": "agent_called", "agent": log_entry.get('agent')}))
+                            await websocket.send_text(json.dumps({"type": "agent_called", "agent": agent_name}))
                     except Exception as e:
                         logger.error(f"Error sending log entry: {str(e)}")
 
