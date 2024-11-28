@@ -15,35 +15,15 @@ app = FastAPI()
 import os
 import shutil
 
-# Get the path to the autogen-magentic-one directory
-base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Get the path to the autogen_magentic_one directory
+base_dir = os.path.dirname(os.path.abspath(__file__))
 static_dir = os.path.join(base_dir, "static")
 templates_dir = os.path.join(base_dir, "templates")
 
 if not os.path.exists(static_dir):
-    os.makedirs(static_dir)
+    print(f"Warning: static directory not found at {static_dir}")
 if not os.path.exists(templates_dir):
-    os.makedirs(templates_dir)
-
-# Check if main.js exists in the static directory
-main_js_dest = os.path.join(static_dir, "main.js")
-if not os.path.exists(main_js_dest):
-    print(f"Warning: main.js not found in {static_dir}")
-    # Copy main.js from the source directory to the static directory
-    main_js_src = os.path.join(base_dir, "src", "autogen_magentic_one", "static", "main.js")
-    if os.path.exists(main_js_src):
-        shutil.copy(main_js_src, main_js_dest)
-        print(f"Copied main.js to {static_dir}")
-
-# Check if index.html exists in the templates directory
-index_html_dest = os.path.join(templates_dir, "index.html")
-if not os.path.exists(index_html_dest):
-    print(f"Warning: index.html not found in {templates_dir}")
-    # Copy index.html from the source directory to the templates directory
-    index_html_src = os.path.join(base_dir, "src", "autogen_magentic_one", "templates", "index.html")
-    if os.path.exists(index_html_src):
-        shutil.copy(index_html_src, index_html_dest)
-        print(f"Copied index.html to {templates_dir}")
+    print(f"Warning: templates directory not found at {templates_dir}")
 
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 templates = Jinja2Templates(directory=templates_dir)
@@ -51,6 +31,9 @@ templates = Jinja2Templates(directory=templates_dir)
 # Print the actual paths for debugging
 print(f"Static directory: {static_dir}")
 print(f"Templates directory: {templates_dir}")
+
+# Ensure the package data is included
+import autogen_magentic_one
 
 @modal_app.function(image=image)
 @asgi_app()
