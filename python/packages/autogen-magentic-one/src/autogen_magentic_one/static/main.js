@@ -1,3 +1,44 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import ReactDOM from 'react-dom';
+import ReactFlow, { addEdge, Background, Controls, MiniMap } from 'react-flow-renderer';
+
+const FlowChart = ({ agents, messages }) => {
+    const [elements, setElements] = useState([]);
+
+    const onConnect = useCallback((params) => setElements((els) => addEdge(params, els)), []);
+
+    useEffect(() => {
+        const nodes = agents.map((agent, index) => ({
+            id: agent,
+            data: { label: agent },
+            position: { x: (index + 1) * 200, y: 20 },
+            type: 'default'
+        }));
+
+        const edges = messages.map((msg, index) => ({
+            id: `e${index}`,
+            source: msg.from,
+            target: msg.to,
+            label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
+            type: 'smoothstep'
+        }));
+
+        setElements([...nodes, ...edges]);
+    }, [agents, messages]);
+
+    return (
+        <ReactFlow
+            elements={elements}
+            onConnect={onConnect}
+            style={{ width: '100%', height: '100%' }}
+        >
+            <Background />
+            <Controls />
+            <MiniMap />
+        </ReactFlow>
+    );
+};
+
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
     const form = document.getElementById('taskForm');
@@ -11,60 +52,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     let agents = ['Orchestrator'];
     let messages = [];
-    let jsPlumbInstance;
-
-    function initJsPlumb() {
-        jsPlumbInstance = jsPlumb.getInstance({
-            Connector: ["Bezier", { curviness: 50 }],
-            Anchors: ["Top", "Bottom"],
-            EndpointStyle: { radius: 3, fill: "#4caf50" },
-            PaintStyle: { stroke: "#4caf50", strokeWidth: 2 },
-            ConnectionOverlays: [
-                ["Arrow", { location: 1, width: 10, length: 10 }]
-            ]
-        });
-
-        jsPlumbInstance.setContainer(graphicalView);
-    }
-
-    function createAgentBox(agent, index) {
-        const box = document.createElement('div');
-        box.className = 'agent-box';
-        box.id = `agent-${agent}`;
-        box.style.left = `${(index + 1) * 200}px`;
-        box.style.top = '20px';
-        box.innerHTML = `<p>${agent}</p>`;
-        graphicalView.appendChild(box);
-
-        jsPlumbInstance.draggable(box);
-        jsPlumbInstance.makeSource(box, {
-            filter: ".ep",
-            anchor: "Continuous"
-        });
-        jsPlumbInstance.makeTarget(box, {
-            dropOptions: { hoverClass: "dragHover" },
-            anchor: "Continuous"
-        });
-    }
-
-    function createMessageArrow(from, to, message) {
-        const connection = jsPlumbInstance.connect({
-            source: `agent-${from}`,
-            target: `agent-${to}`,
-            overlays: [
-                ["Label", { label: message.substring(0, 20) + (message.length > 20 ? '...' : ''), cssClass: "message-label" }]
-            ]
-        });
-    }
 
     function updateGraphicalView() {
-        graphicalView.innerHTML = '';
-        jsPlumbInstance.reset();
-        agents.forEach((agent, index) => createAgentBox(agent, index));
-        messages.forEach(msg => createMessageArrow(msg.from, msg.to, msg.content));
+        ReactDOM.render(
+            <FlowChart agents={agents} messages={messages} />,
+            graphicalView
+        );
     }
 
-    initJsPlumb();
+    updateGraphicalView();
 
     function appendMessage(element, message, className = '') {
         console.log(`Appending message: ${message}`);
