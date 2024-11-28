@@ -1,43 +1,38 @@
 // FlowChart component using ReactFlow
-const FlowChart = function({ agents, messages }) {
-    const React = window.React;
-    const ReactFlow = window.ReactFlow;
+const FlowChart = React.memo(({ agents, messages }) => {
     const { ReactFlowProvider, useNodesState, useEdgesState, addEdge, applyNodeChanges, applyEdgeChanges } = ReactFlow;
+    
     const [nodes, setNodes] = useNodesState(
-        agents.map(function(agent, index) {
-            return {
-                id: agent,
-                data: { label: agent },
-                position: { x: (index + 1) * 200, y: 20 },
-            };
-        })
+        agents.map((agent, index) => ({
+            id: agent,
+            data: { label: agent },
+            position: { x: (index + 1) * 200, y: 20 },
+        }))
     );
 
     const [edges, setEdges] = useEdgesState(
-        messages.map(function(msg, index) {
-            return {
-                id: 'e' + index,
-                source: msg.from,
-                target: msg.to,
-                label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
-                type: 'smoothstep',
-            };
-        })
+        messages.map((msg, index) => ({
+            id: `e${index}`,
+            source: msg.from,
+            target: msg.to,
+            label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
+            type: 'smoothstep',
+        }))
     );
 
     const onNodesChange = React.useCallback(
         (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-        [setNodes]
+        []
     );
 
     const onEdgesChange = React.useCallback(
         (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-        [setEdges]
+        []
     );
 
     const onConnect = React.useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
-        [setEdges]
+        []
     );
 
     return (
@@ -51,7 +46,7 @@ const FlowChart = function({ agents, messages }) {
             />
         </ReactFlowProvider>
     );
-};
+});
 
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
@@ -71,7 +66,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (window.React && window.ReactDOM && window.ReactFlow) {
             const root = window.ReactDOM.createRoot(graphicalView);
             root.render(
-                window.React.createElement(FlowChart, { agents: agents, messages: messages })
+                React.createElement(React.StrictMode, null,
+                    React.createElement(FlowChart, { agents: agents, messages: messages })
+                )
             );
         } else {
             console.error('React, ReactDOM, or ReactFlow is not available');
@@ -79,7 +76,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 
     // Initial render
-    updateGraphicalView();
+    window.addEventListener('load', updateGraphicalView);
 
     function appendMessage(element, message, className = '') {
         console.log(`Appending message: ${message}`);
