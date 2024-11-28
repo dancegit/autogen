@@ -40,16 +40,29 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
             try {
                 // Try multiple methods to get the input element
-                inputElement = document.getElementById('taskInput') || 
-                               form.elements['taskInput'] || 
-                               form.querySelector('textarea[name="taskInput"]') ||
-                               form.querySelector('textarea');
+                inputElement = document.getElementById('taskInput');
+                console.log('Input element by ID:', inputElement);
+                
+                if (!inputElement) {
+                    inputElement = form.elements['taskInput'];
+                    console.log('Input element by name:', inputElement);
+                }
+                
+                if (!inputElement) {
+                    inputElement = form.querySelector('textarea[name="taskInput"]');
+                    console.log('Input element by querySelector:', inputElement);
+                }
+                
+                if (!inputElement) {
+                    inputElement = form.querySelector('textarea');
+                    console.log('Input element as textarea:', inputElement);
+                }
 
                 if (!inputElement) {
                     throw new Error('Task input element not found');
                 }
 
-                console.log('Input element:', inputElement);
+                console.log('Final input element:', inputElement);
                 console.log('Input element value:', inputElement.value);
 
                 task = inputElement.value ? inputElement.value.trim() : '';
