@@ -1,6 +1,17 @@
+// Import ReactFlow
+import ReactFlow, { 
+    ReactFlowProvider, 
+    useNodesState, 
+    useEdgesState, 
+    addEdge,
+    applyNodeChanges,
+    applyEdgeChanges
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+
 // FlowChart component using ReactFlow
 const FlowChart = function({ agents, messages }) {
-    const [nodes, setNodes] = React.useState(
+    const [nodes, setNodes] = useNodesState(
         agents.map(function(agent, index) {
             return {
                 id: agent,
@@ -10,7 +21,7 @@ const FlowChart = function({ agents, messages }) {
         })
     );
 
-    const [edges, setEdges] = React.useState(
+    const [edges, setEdges] = useEdgesState(
         messages.map(function(msg, index) {
             return {
                 id: 'e' + index,
@@ -23,30 +34,30 @@ const FlowChart = function({ agents, messages }) {
     );
 
     const onNodesChange = React.useCallback(
-        (changes) => setNodes((nds) => ReactFlowRenderer.applyNodeChanges(changes, nds)),
+        (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
         [setNodes]
     );
 
     const onEdgesChange = React.useCallback(
-        (changes) => setEdges((eds) => ReactFlowRenderer.applyEdgeChanges(changes, eds)),
+        (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
         [setEdges]
     );
 
     const onConnect = React.useCallback(
-        (params) => setEdges((eds) => ReactFlowRenderer.addEdge(params, eds)),
+        (params) => setEdges((eds) => addEdge(params, eds)),
         [setEdges]
     );
 
-    return React.createElement(
-        ReactFlowRenderer.ReactFlowProvider,
-        null,
-        React.createElement(ReactFlowRenderer.default, {
-            nodes: nodes,
-            edges: edges,
-            onNodesChange: onNodesChange,
-            onEdgesChange: onEdgesChange,
-            onConnect: onConnect
-        })
+    return (
+        <ReactFlowProvider>
+            <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+            />
+        </ReactFlowProvider>
     );
 };
 
