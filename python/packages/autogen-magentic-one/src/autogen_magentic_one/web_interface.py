@@ -194,21 +194,26 @@ async def websocket_endpoint(websocket: WebSocket):
         return
 
     try:
-        task = await websocket.receive_text()
-        logger.info(f"Received task: {task}")
+        while True:
+            task = await websocket.receive_text()
+            logger.info(f"Received task: {task}")
 
-        try:
-            logger.debug("Calling _run_task")
-            await _run_task(task, websocket)
-            logger.debug("_run_task completed")
-        except Exception as e:
-            logger.error(f"An error occurred in _run_task: {e}", exc_info=True)
-            error_details = traceback.format_exc()
-            await websocket.send_text(json.dumps({
-                "type": "error",
-                "message": f"An error occurred in _run_task: {str(e)}",
-                "details": error_details
-            }))
+            if task.lower() == "ping":
+                await websocket.send_text(json.dumps({"type": "pong"}))
+                continue
+
+            try:
+                logger.debug("Calling _run_task")
+                await _run_task(task, websocket)
+                logger.debug("_run_task completed")
+            except Exception as e:
+                logger.error(f"An error occurred in _run_task: {e}", exc_info=True)
+                error_details = traceback.format_exc()
+                await websocket.send_text(json.dumps({
+                    "type": "error",
+                    "message": f"An error occurred in _run_task: {str(e)}",
+                    "details": error_details
+                }))
     except WebSocketDisconnect:
         logger.info("WebSocket disconnected")
     except Exception as e:
