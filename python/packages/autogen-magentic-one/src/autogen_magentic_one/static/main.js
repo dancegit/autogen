@@ -1,29 +1,24 @@
 // FlowChart function using ReactFlow
 function FlowChart(container, agents, messages) {
-    const elements = [];
+    const nodes = agents.map((agent, index) => ({
+        id: agent,
+        data: { label: agent },
+        position: { x: (index + 1) * 200, y: 20 },
+    }));
 
-    agents.forEach((agent, index) => {
-        elements.push({
-            id: agent,
-            data: { label: agent },
-            position: { x: (index + 1) * 200, y: 20 },
-        });
-    });
+    const edges = messages.map((msg, index) => ({
+        id: `e${index}`,
+        source: msg.from,
+        target: msg.to,
+        label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
+        type: 'smoothstep',
+    }));
 
-    messages.forEach((msg, index) => {
-        elements.push({
-            id: `e${index}`,
-            source: msg.from,
-            target: msg.to,
-            label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
-            type: 'smoothstep',
-        });
-    });
-
-    ReactFlow.default({
-        elements: elements,
+    ReactFlow.createReactFlow(container, {
+        nodes: nodes,
+        edges: edges,
         onConnect: (params) => console.log('Edge connected', params),
-    }, container);
+    });
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
