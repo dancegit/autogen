@@ -114,6 +114,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
                         case 'warning':
                             appendMessage(orchestratorOutput, `Warning: ${data.message}`, 'warning');
                             break;
+                        case 'retry':
+                            appendMessage(orchestratorOutput, `Retry attempt ${data.attempt} of ${data.max_retries}`, 'warning');
+                            break;
                         default:
                             console.warn("Unknown message type:", data.type);
                             appendMessage(orchestratorOutput, `Unknown message type: ${data.type}`, 'error');

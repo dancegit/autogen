@@ -85,7 +85,11 @@ async def read_root(request: Request):
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(3))
 async def run_openai_task(magnetic_one, task):
-    return await magnetic_one.run_task(task)
+    try:
+        return await magnetic_one.run_task(task)
+    except Exception as e:
+        logger.warning(f"Retry attempt for task: {task}. Error: {str(e)}")
+        raise
 
 async def _run_task(task: str, websocket: WebSocket):
     logs_dir = "/tmp/magentic_one_logs"
@@ -103,18 +107,29 @@ async def _run_task(task: str, websocket: WebSocket):
         await websocket.send_text(json.dumps({"type": "status", "message": "MagenticOne initialized."}))
         logger.info("Using pre-initialized MagenticOne")
 
-        task_future = asyncio.create_task(run_openai_task(magnetic_one, task))
-
-        async for log_entry in magnetic_one.stream_logs():
-            logger.debug(f"Log entry: {log_entry}")
+        retry_count = 0
+        max_retries = 3
+        while retry_count < max_retries:
             try:
-                await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
-                if log_entry.get('event') == 'agent_called':
-                    await websocket.send_text(json.dumps({"type": "agent_called", "agent": log_entry.get('agent')}))
-            except Exception as e:
-                logger.error(f"Error sending log entry: {str(e)}")
+                task_future = asyncio.create_task(run_openai_task(magnetic_one, task))
+                
+                async for log_entry in magnetic_one.stream_logs():
+                    logger.debug(f"Log entry: {log_entry}")
+                    try:
+                        await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
+                        if log_entry.get('event') == 'agent_called':
+                            await websocket.send_text(json.dumps({"type": "agent_called", "agent": log_entry.get('agent')}))
+                    except Exception as e:
+                        logger.error(f"Error sending log entry: {str(e)}")
 
-        await task_future
+                await task_future
+                break  # If successful, break out of the retry loop
+            except Exception as e:
+                retry_count += 1
+                logger.warning(f"Retry attempt {retry_count} for task: {task}. Error: {str(e)}")
+                await websocket.send_text(json.dumps({"type": "retry", "attempt": retry_count, "max_retries": max_retries}))
+                if retry_count >= max_retries:
+                    raise  # Re-raise the last exception if all retries are exhausted
 
         final_answer = magnetic_one.get_final_answer()
         if final_answer is not None:
