@@ -76,7 +76,7 @@
             }
             .graphical-view {
                 width: 100%;
-                height: 400px;
+                height: 600px;
                 border: 1px solid #ddd;
                 margin-bottom: 20px;
                 position: relative;
@@ -89,28 +89,23 @@
                 border-radius: 10px;
                 padding: 10px;
                 background-color: #e8f5e9;
-                overflow: auto;
+                cursor: move;
+                z-index: 10;
             }
-            .message-arrow {
-                position: absolute;
-                background-color: #2196f3;
-                height: 2px;
+            .agent-box p {
+                margin: 0;
+                font-weight: bold;
             }
-            .message-arrow:after {
-                content: '';
-                position: absolute;
-                top: -4px;
-                right: 0;
-                width: 0;
-                height: 0;
-                border-left: 8px solid #2196f3;
-                border-top: 5px solid transparent;
-                border-bottom: 5px solid transparent;
+            .jtk-connector {
+                z-index: 5;
+            }
+            .jtk-endpoint {
+                z-index: 6;
             }
             .message-label {
-                position: absolute;
-                background-color: rgba(255, 255, 255, 0.8);
+                background-color: white;
                 padding: 2px 5px;
+                border: 1px solid #ddd;
                 border-radius: 3px;
                 font-size: 12px;
             }
@@ -165,6 +160,7 @@
             </div>
         </div>
 
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jsplumb/2.15.6/js/jsplumb.min.js"></script>
         <script src="{{ url_for('static', path='main.js') }}"></script>
         <script>
             window.onerror = function (message, source, lineno, colno, error) {

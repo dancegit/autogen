@@ -11,6 +11,21 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     let agents = ['Orchestrator'];
     let messages = [];
+    let jsPlumbInstance;
+
+    function initJsPlumb() {
+        jsPlumbInstance = jsPlumb.getInstance({
+            Connector: ["Bezier", { curviness: 50 }],
+            Anchors: ["Top", "Bottom"],
+            EndpointStyle: { radius: 3, fill: "#4caf50" },
+            PaintStyle: { stroke: "#4caf50", strokeWidth: 2 },
+            ConnectionOverlays: [
+                ["Arrow", { location: 1, width: 10, length: 10 }]
+            ]
+        });
+
+        jsPlumbInstance.setContainer(graphicalView);
+    }
 
     function createAgentBox(agent, index) {
         const box = document.createElement('div');
@@ -18,51 +33,38 @@ document.addEventListener('DOMContentLoaded', (event) => {
         box.id = `agent-${agent}`;
         box.style.left = `${(index + 1) * 200}px`;
         box.style.top = '20px';
-        box.innerHTML = `<strong>${agent}</strong><br>`;
+        box.innerHTML = `<p>${agent}</p>`;
         graphicalView.appendChild(box);
+
+        jsPlumbInstance.draggable(box);
+        jsPlumbInstance.makeSource(box, {
+            filter: ".ep",
+            anchor: "Continuous"
+        });
+        jsPlumbInstance.makeTarget(box, {
+            dropOptions: { hoverClass: "dragHover" },
+            anchor: "Continuous"
+        });
     }
 
     function createMessageArrow(from, to, message) {
-        const fromBox = document.getElementById(`agent-${from}`);
-        const toBox = document.getElementById(`agent-${to}`);
-        
-        const arrow = document.createElement('div');
-        arrow.className = 'message-arrow';
-        
-        const label = document.createElement('div');
-        label.className = 'message-label';
-        label.textContent = message.substring(0, 20) + (message.length > 20 ? '...' : '');
-        
-        const fromRect = fromBox.getBoundingClientRect();
-        const toRect = toBox.getBoundingClientRect();
-        
-        const graphicalViewRect = graphicalView.getBoundingClientRect();
-        
-        const startX = fromRect.left - graphicalViewRect.left + fromRect.width / 2;
-        const startY = fromRect.top - graphicalViewRect.top + fromRect.height;
-        const endX = toRect.left - graphicalViewRect.left + toRect.width / 2;
-        const endY = toRect.top - graphicalViewRect.top;
-        
-        const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
-        const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
-        
-        arrow.style.width = `${length}px`;
-        arrow.style.left = `${startX}px`;
-        arrow.style.top = `${startY}px`;
-        arrow.style.transform = `rotate(${angle}deg)`;
-        
-        label.style.left = `${startX + (endX - startX) / 2}px`;
-        label.style.top = `${startY + (endY - startY) / 2}px`;
-        
-        graphicalView.appendChild(arrow);
-        graphicalView.appendChild(label);
+        const connection = jsPlumbInstance.connect({
+            source: `agent-${from}`,
+            target: `agent-${to}`,
+            overlays: [
+                ["Label", { label: message.substring(0, 20) + (message.length > 20 ? '...' : ''), cssClass: "message-label" }]
+            ]
+        });
     }
 
     function updateGraphicalView() {
         graphicalView.innerHTML = '';
+        jsPlumbInstance.reset();
         agents.forEach((agent, index) => createAgentBox(agent, index));
         messages.forEach(msg => createMessageArrow(msg.from, msg.to, msg.content));
     }
+
+    initJsPlumb();
 
     function appendMessage(element, message, className = '') {
         console.log(`Appending message: ${message}`);
