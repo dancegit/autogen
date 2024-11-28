@@ -1,5 +1,5 @@
 // FlowChart component using ReactFlow
-const FlowChart = React.memo(({ agents, messages }) => {
+const FlowChart = React.memo(function FlowChart({ agents, messages }) {
     const { ReactFlowProvider, useNodesState, useEdgesState, addEdge, applyNodeChanges, applyEdgeChanges } = ReactFlow;
     
     const [nodes, setNodes] = useNodesState(
@@ -35,16 +35,16 @@ const FlowChart = React.memo(({ agents, messages }) => {
         []
     );
 
-    return (
-        <ReactFlowProvider>
-            <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-            />
-        </ReactFlowProvider>
+    return React.createElement(
+        ReactFlowProvider,
+        null,
+        React.createElement(ReactFlow, {
+            nodes: nodes,
+            edges: edges,
+            onNodesChange: onNodesChange,
+            onEdgesChange: onEdgesChange,
+            onConnect: onConnect
+        })
     );
 });
 
@@ -66,7 +66,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (window.React && window.ReactDOM && window.ReactFlow) {
             const root = window.ReactDOM.createRoot(graphicalView);
             root.render(
-                React.createElement(React.StrictMode, null,
+                React.createElement(
+                    React.StrictMode,
+                    null,
                     React.createElement(FlowChart, { agents: agents, messages: messages })
                 )
             );
