@@ -121,6 +121,18 @@ async def websocket_endpoint(websocket: WebSocket):
         logger.info("Closing WebSocket connection")
         await websocket.close()
 
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Application startup: Initializing MagenticOne")
+    try:
+        magnetic_one = MagenticOneHelper(logs_dir="/tmp/magentic_one_logs")
+        await magnetic_one.initialize()
+        logger.info("MagenticOne initialized successfully")
+        app.state.magnetic_one = magnetic_one
+    except Exception as e:
+        logger.error(f"Failed to initialize MagenticOne: {e}", exc_info=True)
+        raise
+
 @modal_app.function(
     image=image,
     gpu="T4",
@@ -135,10 +147,9 @@ async def _run_task(task: str, websocket: WebSocket):
     
     logger.info(f"Starting task: {task}")
     try:
-        magnetic_one = MagenticOneHelper(logs_dir=logs_dir)
-        await magnetic_one.initialize()
+        magnetic_one = app.state.magnetic_one
         await websocket.send_text(json.dumps({"type": "status", "message": "MagenticOne initialized."}))
-        logger.info("MagenticOne initialized")
+        logger.info("Using pre-initialized MagenticOne")
 
         task_future = asyncio.create_task(magnetic_one.run_task(task))
 

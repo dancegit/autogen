@@ -90,3 +90,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
         };
     });
 });
+
+// Add a ping function to keep the connection alive
+function ping() {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({type: 'ping'}));
+    }
+}
+
+// Set up a timer to ping the server every 30 seconds
+setInterval(ping, 30000);
