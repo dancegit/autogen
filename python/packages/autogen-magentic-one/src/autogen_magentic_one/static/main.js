@@ -26,7 +26,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
     form.addEventListener('submit', function(e) {
         console.log('Form submitted');
         e.preventDefault();
-        const task = document.getElementById('taskInput').value;
+        const taskInput = document.getElementById('taskInput');
+        if (!taskInput) {
+            console.error('taskInput element not found');
+            appendMessage(orchestratorOutput, 'Error: Task input not found', 'error');
+            return;
+        }
+        const task = taskInput.value;
         
         orchestratorOutput.innerHTML = '';
         agentsOutput.innerHTML = '';
