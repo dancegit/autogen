@@ -1,8 +1,8 @@
 import asyncio
 import logging
 import modal
-from fastapi import FastAPI, Request, Form, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, Form, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from modal import asgi_app, Function
@@ -16,7 +16,7 @@ import openai
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Disable hpack debug logging
@@ -31,12 +31,16 @@ static_dir = os.path.join(base_dir, "static")
 templates_dir = os.path.join(base_dir, "templates")
 
 if not os.path.exists(static_dir):
-    print(f"Warning: static directory not found at {static_dir}")
+    logger.error(f"Static directory not found at {static_dir}")
 if not os.path.exists(templates_dir):
-    print(f"Warning: templates directory not found at {templates_dir}")
+    logger.error(f"Templates directory not found at {templates_dir}")
 
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
-templates = Jinja2Templates(directory=templates_dir)
+try:
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    templates = Jinja2Templates(directory=templates_dir)
+except Exception as e:
+    logger.error(f"Error mounting static files or templates: {str(e)}")
+    raise
 
 # Ensure the correct MIME type for JavaScript files
 @app.middleware("http")
@@ -54,7 +58,7 @@ if os.path.exists(main_js_path):
     with open(main_js_path, 'r') as f:
         logger.info(f"First 100 characters of main.js: {f.read(100)}")
 else:
-    logger.warning(f"main.js file not found at {main_js_path}")
+    logger.error(f"main.js file not found at {main_js_path}")
 
 # Ensure static files are included in the deployment
 static_mount = modal.Mount.from_local_dir(
@@ -64,13 +68,13 @@ static_mount = modal.Mount.from_local_dir(
 project_mounts.append(static_mount)
 
 # Log the contents of the static directory
-print("Contents of static directory:")
+logger.info("Contents of static directory:")
 for item in os.listdir(static_dir):
-    print(f"  {item}")
+    logger.info(f"  {item}")
 
 # Print the actual paths for debugging
-print(f"Static directory: {static_dir}")
-print(f"Templates directory: {templates_dir}")
+logger.info(f"Static directory: {static_dir}")
+logger.info(f"Templates directory: {templates_dir}")
 
 # Ensure the package data is included
 import autogen_magentic_one
@@ -89,7 +93,15 @@ def fastapi_app():
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    try:
+        return templates.TemplateResponse("index.html", {"request": request})
+    except Exception as e:
+        logger.error(f"Error rendering index.html: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/api/health")
+async def health_check():
+    return JSONResponse(content={"status": "ok"})
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(3))
 async def run_openai_task(magnetic_one, task):
@@ -201,45 +213,55 @@ async def _run_task(task: str, websocket: WebSocket):
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    logger.info("WebSocket connection established")
-    logger.info(f"WebSocket connection details: {websocket.client}")
-
-    if hasattr(app.state, 'initialization_error'):
-        error_info = app.state.initialization_error
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "MagenticOne initialization failed",
-            "details": error_info
-        }))
-        await websocket.close()
-        return
-
-    # Send loaded agents information
-    await websocket.send_text(json.dumps({
-        "type": "loaded_agents",
-        "agents": app.state.loaded_agents
-    }))
-
     try:
+        await websocket.accept()
+        logger.info("WebSocket connection established")
+        logger.info(f"WebSocket connection details: {websocket.client}")
+
+        if hasattr(app.state, 'initialization_error'):
+            error_info = app.state.initialization_error
+            await websocket.send_text(json.dumps({
+                "type": "error",
+                "message": "MagenticOne initialization failed",
+                "details": error_info
+            }))
+            return
+
+        if not hasattr(app.state, 'loaded_agents'):
+            logger.error("Loaded agents not found in app state")
+            await websocket.send_text(json.dumps({
+                "type": "error",
+                "message": "Loaded agents not found"
+            }))
+            return
+
+        # Send loaded agents information
+        await websocket.send_text(json.dumps({
+            "type": "loaded_agents",
+            "agents": app.state.loaded_agents
+        }))
+
         while True:
-            task = await websocket.receive_text()
-            logger.info(f"Received task: {task}")
-
-            if task.lower() == "ping":
-                await websocket.send_text(json.dumps({"type": "pong"}))
-                continue
-
             try:
+                task = await asyncio.wait_for(websocket.receive_text(), timeout=30)
+                logger.info(f"Received task: {task}")
+
+                if task.lower() == "ping":
+                    await websocket.send_text(json.dumps({"type": "pong"}))
+                    continue
+
                 logger.debug("Calling _run_task")
                 await _run_task(task, websocket)
                 logger.debug("_run_task completed")
+            except asyncio.TimeoutError:
+                logger.debug("WebSocket receive timeout, sending ping")
+                await websocket.send_text(json.dumps({"type": "ping"}))
             except Exception as e:
-                logger.error(f"An error occurred in _run_task: {e}", exc_info=True)
+                logger.error(f"An error occurred in task execution: {e}", exc_info=True)
                 error_details = traceback.format_exc()
                 await websocket.send_text(json.dumps({
                     "type": "error",
-                    "message": f"An error occurred in _run_task: {str(e)}",
+                    "message": f"An error occurred in task execution: {str(e)}",
                     "details": error_details
                 }))
     except WebSocketDisconnect:
@@ -247,11 +269,14 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         logger.error(f"An unexpected error occurred in websocket_endpoint: {e}", exc_info=True)
         error_details = traceback.format_exc()
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": f"An unexpected error occurred: {str(e)}",
-            "details": error_details
-        }))
+        try:
+            await websocket.send_text(json.dumps({
+                "type": "error",
+                "message": f"An unexpected error occurred: {str(e)}",
+                "details": error_details
+            }))
+        except:
+            logger.error("Failed to send error message over WebSocket")
     finally:
         logger.info("Closing WebSocket connection")
         await websocket.close()
