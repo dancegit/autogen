@@ -105,7 +105,8 @@ class LedgerOrchestrator(BaseOrchestrator):
         return self._synthesize_prompt.format(task=task, team=team, facts=facts, plan=plan)
 
     def _get_ledger_prompt(self, task: str, team: str, names: List[str]) -> str:
-        return self._ledger_prompt.format(task=task, team=team, names=names)
+        prompt = self._ledger_prompt.format(task=task, team=team, names=names)
+        return prompt + "\n\nPlease provide your response in valid JSON format."
 
     def _get_update_facts_prompt(self, task: str, facts: str) -> str:
         return self._update_facts_prompt.format(task=task, facts=facts)
@@ -216,7 +217,6 @@ class LedgerOrchestrator(BaseOrchestrator):
         for _ in range(max_json_retries):
             ledger_response = await self._model_client.create(
                 self._system_messages + self._chat_history + ledger_user_messages,
-                json_output=True,
                 cancellation_token=cancellation_token,
             )
             ledger_str = ledger_response.content
