@@ -29,8 +29,9 @@ base_image = (modal.Image
         "apt-get update",
         "apt-get install -y google-chrome-stable",
         "apt-get install -y nodejs npm",
-        "npm init -y",
-        "npm install react react-dom react-flow-renderer"
+        "npm init -y || echo 'npm init failed' >&2",
+        "npm install --force react react-dom react-flow-renderer || echo 'npm install failed' >&2",
+        "npm list || echo 'npm list failed' >&2"
     ))
 
 # Remove the Docker image definition as it's not needed for now
