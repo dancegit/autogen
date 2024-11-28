@@ -3,10 +3,66 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const form = document.getElementById('taskForm');
     const orchestratorOutput = document.getElementById('orchestratorOutput');
     const agentsOutput = document.getElementById('agentsOutput');
+    const graphicalView = document.getElementById('graphicalView');
     let socket;
 
     const loadedAgentsList = document.getElementById('loadedAgents');
     const activeAgentElement = document.getElementById('activeAgent');
+
+    let agents = ['Orchestrator'];
+    let messages = [];
+
+    function createAgentBox(agent, index) {
+        const box = document.createElement('div');
+        box.className = 'agent-box';
+        box.id = `agent-${agent}`;
+        box.style.left = `${(index + 1) * 200}px`;
+        box.style.top = '20px';
+        box.innerHTML = `<strong>${agent}</strong><br>`;
+        graphicalView.appendChild(box);
+    }
+
+    function createMessageArrow(from, to, message) {
+        const fromBox = document.getElementById(`agent-${from}`);
+        const toBox = document.getElementById(`agent-${to}`);
+        
+        const arrow = document.createElement('div');
+        arrow.className = 'message-arrow';
+        
+        const label = document.createElement('div');
+        label.className = 'message-label';
+        label.textContent = message.substring(0, 20) + (message.length > 20 ? '...' : '');
+        
+        const fromRect = fromBox.getBoundingClientRect();
+        const toRect = toBox.getBoundingClientRect();
+        
+        const graphicalViewRect = graphicalView.getBoundingClientRect();
+        
+        const startX = fromRect.left - graphicalViewRect.left + fromRect.width / 2;
+        const startY = fromRect.top - graphicalViewRect.top + fromRect.height;
+        const endX = toRect.left - graphicalViewRect.left + toRect.width / 2;
+        const endY = toRect.top - graphicalViewRect.top;
+        
+        const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+        const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+        
+        arrow.style.width = `${length}px`;
+        arrow.style.left = `${startX}px`;
+        arrow.style.top = `${startY}px`;
+        arrow.style.transform = `rotate(${angle}deg)`;
+        
+        label.style.left = `${startX + (endX - startX) / 2}px`;
+        label.style.top = `${startY + (endY - startY) / 2}px`;
+        
+        graphicalView.appendChild(arrow);
+        graphicalView.appendChild(label);
+    }
+
+    function updateGraphicalView() {
+        graphicalView.innerHTML = '';
+        agents.forEach((agent, index) => createAgentBox(agent, index));
+        messages.forEach(msg => createMessageArrow(msg.from, msg.to, msg.content));
+    }
 
     function appendMessage(element, message, className = '') {
         console.log(`Appending message: ${message}`);
@@ -91,6 +147,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
                             break;
                         case 'final_answer':
                             appendMessage(orchestratorOutput, `Final Answer: ${data.message}`, 'status');
+                            messages.push({from: 'Orchestrator', to: 'User', content: data.message});
+                            updateGraphicalView();
                             break;
                         case 'error':
                             appendMessage(orchestratorOutput, `Error: ${data.message}`, 'error');
@@ -105,10 +163,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
                                 const agentName = data.data.agent || 'Unknown';
                                 const message = data.data.message || JSON.stringify(data.data);
                                 appendMessage(agentsOutput, `Agent ${agentName}: ${message}`);
+                                if (!agents.includes(agentName)) {
+                                    agents.push(agentName);
+                                }
+                                messages.push({from: 'Orchestrator', to: agentName, content: message});
+                                updateGraphicalView();
                             }
                             break;
                         case 'agents_loaded':
                             updateLoadedAgents(data.agents);
+                            agents = ['Orchestrator', ...data.agents];
+                            updateGraphicalView();
                             break;
                         case 'agent_called':
                             updateActiveAgent(data.agent);
