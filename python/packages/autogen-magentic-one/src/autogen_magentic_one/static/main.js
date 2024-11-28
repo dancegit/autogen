@@ -31,15 +31,28 @@ document.addEventListener('DOMContentLoaded', (event) => {
         form.addEventListener('submit', function(e) {
             console.log('Form submitted');
             e.preventDefault();
+            
+            // Log all form elements
+            console.log('Form elements:', form.elements);
+            
             const taskInput = document.getElementById('taskInput');
-            if (!taskInput) {
-                console.error('taskInput element not found');
+            console.log('taskInput element (by ID):', taskInput);
+            
+            // Try getting the input by name
+            const taskInputByName = form.elements['taskInput'];
+            console.log('taskInput element (by name):', taskInputByName);
+            
+            if (!taskInput && !taskInputByName) {
+                console.error('taskInput element not found by ID or name');
                 appendMessage(orchestratorOutput, 'Error: Task input not found', 'error');
                 return;
             }
-            console.log('taskInput element:', taskInput);
-            console.log('taskInput value:', taskInput.value);
-            const task = taskInput.value ? taskInput.value.trim() : '';
+            
+            const inputElement = taskInput || taskInputByName;
+            console.log('Input element:', inputElement);
+            console.log('Input element value:', inputElement.value);
+            
+            const task = inputElement.value ? inputElement.value.trim() : '';
             if (!task) {
                 console.error('Task input is empty');
                 appendMessage(orchestratorOutput, 'Error: Please enter a task', 'error');
