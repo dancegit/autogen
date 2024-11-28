@@ -60,17 +60,21 @@ class MagenticOneHelper:
         """
         Initialize the MagenticOne system, setting up agents and runtime.
         """
-        # Create the runtime
-        self.runtime = SingleThreadedAgentRuntime()
+        try:
+            # Create the runtime
+            self.runtime = SingleThreadedAgentRuntime()
 
-        # Set up logging
-        logger = logging.getLogger(EVENT_LOGGER_NAME)
-        logger.setLevel(logging.INFO)
-        self.log_handler = LogHandler(filename=os.path.join(self.logs_dir, "log.jsonl"))
-        logger.handlers = [self.log_handler]
+            # Set up logging
+            logger = logging.getLogger(EVENT_LOGGER_NAME)
+            logger.setLevel(logging.INFO)
+            self.log_handler = LogHandler(filename=os.path.join(self.logs_dir, "log.jsonl"))
+            logger.handlers = [self.log_handler]
 
-        # Create client
-        client = create_completion_client_from_env(model="gpt-4o")
+            # Create client
+            client = create_completion_client_from_env(model="gpt-4")
+        except Exception as e:
+            logger.error(f"Error during initialization: {str(e)}")
+            raise
 
         # Set up code executor
         self.code_executor = DockerCommandLineCodeExecutor(work_dir=self.logs_dir)

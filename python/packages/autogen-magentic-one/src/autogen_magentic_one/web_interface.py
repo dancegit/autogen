@@ -225,7 +225,8 @@ async def startup_event():
         logger.info(f"Loaded agents: {loaded_agents}")
     except Exception as e:
         logger.error(f"Failed to initialize MagenticOne: {e}", exc_info=True)
-        raise
+        app.state.magnetic_one = None
+        app.state.initialization_error = str(e)
 
 logger.info("WebSocket endpoint registered")
 
