@@ -1,36 +1,42 @@
-import React from 'https://esm.sh/react@17';
+import React, { useState, useCallback } from 'https://esm.sh/react@17';
 import ReactDOM from 'https://esm.sh/react-dom@17';
-import ReactFlow from 'https://esm.sh/reactflow@11.7.0';
+import ReactFlow, { ReactFlowProvider, useNodesState, useEdgesState, addEdge } from 'https://esm.sh/reactflow@11.7.0';
+import 'https://esm.sh/reactflow@11.7.0/dist/style.css';
 
-// FlowChart function using ReactFlow
-function FlowChart(container, agents, messages) {
-    const nodes = agents.map((agent, index) => ({
-        id: agent,
-        data: { label: agent },
-        position: { x: (index + 1) * 200, y: 20 },
-    }));
+// FlowChart component using ReactFlow
+const FlowChart = ({ agents, messages }) => {
+    const [nodes, setNodes, onNodesChange] = useNodesState(
+        agents.map((agent, index) => ({
+            id: agent,
+            data: { label: agent },
+            position: { x: (index + 1) * 200, y: 20 },
+        }))
+    );
 
-    const edges = messages.map((msg, index) => ({
-        id: `e${index}`,
-        source: msg.from,
-        target: msg.to,
-        label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
-        type: 'smoothstep',
-    }));
+    const [edges, setEdges, onEdgesChange] = useEdgesState(
+        messages.map((msg, index) => ({
+            id: `e${index}`,
+            source: msg.from,
+            target: msg.to,
+            label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
+            type: 'smoothstep',
+        }))
+    );
 
-    const reactFlowInstance = ReactFlow.useReactFlow();
-    
-    reactFlowInstance.setNodes(nodes);
-    reactFlowInstance.setEdges(edges);
+    const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
-    return ReactFlow.ReactFlowProvider({
-        children: ReactFlow.ReactFlow({
-            nodes: nodes,
-            edges: edges,
-            onConnect: (params) => console.log('Edge connected', params),
-        }),
-    });
-}
+    return (
+        <ReactFlowProvider>
+            <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+            />
+        </ReactFlowProvider>
+    );
+};
 
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
@@ -50,11 +56,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     function updateGraphicalView() {
         ReactDOM.render(
-            FlowChart(graphicalView, agents, messages),
+            <FlowChart agents={agents} messages={messages} />,
             graphicalView
         );
     }
 
+    // Initial render
     updateGraphicalView();
 
     function appendMessage(element, message, className = '') {
