@@ -1,11 +1,6 @@
-import React, { useState, useCallback } from 'https://esm.sh/react@17';
-import ReactDOM from 'https://esm.sh/react-dom@17';
-import ReactFlow, { ReactFlowProvider, useNodesState, useEdgesState, addEdge } from 'https://esm.sh/reactflow@11.7.0';
-import 'https://esm.sh/reactflow@11.7.0/dist/style.css';
-
 // FlowChart component using ReactFlow
 const FlowChart = ({ agents, messages }) => {
-    const [nodes, setNodes, onNodesChange] = useNodesState(
+    const [nodes, setNodes, onNodesChange] = ReactFlow.useNodesState(
         agents.map((agent, index) => ({
             id: agent,
             data: { label: agent },
@@ -13,7 +8,7 @@ const FlowChart = ({ agents, messages }) => {
         }))
     );
 
-    const [edges, setEdges, onEdgesChange] = useEdgesState(
+    const [edges, setEdges, onEdgesChange] = ReactFlow.useEdgesState(
         messages.map((msg, index) => ({
             id: `e${index}`,
             source: msg.from,
@@ -23,18 +18,18 @@ const FlowChart = ({ agents, messages }) => {
         }))
     );
 
-    const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+    const onConnect = React.useCallback((params) => setEdges((eds) => ReactFlow.addEdge(params, eds)), [setEdges]);
 
     return (
-        <ReactFlowProvider>
-            <ReactFlow
+        <ReactFlow.ReactFlowProvider>
+            <ReactFlow.default
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
             />
-        </ReactFlowProvider>
+        </ReactFlow.ReactFlowProvider>
     );
 };
 
@@ -55,10 +50,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let flowChartInstance;
 
     function updateGraphicalView() {
-        ReactDOM.render(
-            <FlowChart agents={agents} messages={messages} />,
-            graphicalView
-        );
+        if (!flowChartInstance) {
+            flowChartInstance = ReactDOM.render(
+                React.createElement(FlowChart, { agents: agents, messages: messages }),
+                graphicalView
+            );
+        } else {
+            flowChartInstance.setProps({ agents: agents, messages: messages });
+        }
     }
 
     // Initial render
