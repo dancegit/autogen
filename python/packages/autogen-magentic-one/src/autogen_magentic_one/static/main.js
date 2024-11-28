@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         };
         
         socket.onmessage = function(event) {
+            console.log("Received message:", event.data);
             const data = JSON.parse(event.data);
             
             switch(data.type) {
@@ -46,6 +47,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
                         appendMessage(agentsOutput, `Agent ${data.data.agent}: ${data.data.message}`);
                     }
                     break;
+                default:
+                    console.warn("Unknown message type:", data.type);
+                    appendMessage(orchestratorOutput, `Unknown message type: ${data.type}`, 'error');
             }
         };
         

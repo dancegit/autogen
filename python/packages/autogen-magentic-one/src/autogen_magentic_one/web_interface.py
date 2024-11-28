@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from fastapi import FastAPI, Request, Form, WebSocket
+from fastapi import FastAPI, Request, Form, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -11,9 +11,11 @@ import sys
 import json
 from autogen_magentic_one.magentic_one_helper import MagenticOneHelper
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 app = FastAPI()
-import os
-import shutil
 
 # Get the path to the autogen_magentic_one directory
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -56,34 +58,52 @@ async def _run_task(task: str, websocket: WebSocket):
     logs_dir = "/tmp/magentic_one_logs"
     os.makedirs(logs_dir, exist_ok=True)
     
-    magnetic_one = MagenticOneHelper(logs_dir=logs_dir)
-    await magnetic_one.initialize()
-    await websocket.send_text(json.dumps({"type": "status", "message": "MagenticOne initialized."}))
+    logger.info(f"Starting task: {task}")
+    try:
+        magnetic_one = MagenticOneHelper(logs_dir=logs_dir)
+        await magnetic_one.initialize()
+        await websocket.send_text(json.dumps({"type": "status", "message": "MagenticOne initialized."}))
+        logger.info("MagenticOne initialized")
 
-    task_future = asyncio.create_task(magnetic_one.run_task(task))
+        task_future = asyncio.create_task(magnetic_one.run_task(task))
 
-    async for log_entry in magnetic_one.stream_logs():
-        await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
+        async for log_entry in magnetic_one.stream_logs():
+            logger.info(f"Log entry: {log_entry}")
+            await websocket.send_text(json.dumps({"type": "log", "data": log_entry}))
 
-    await task_future
+        await task_future
 
-    final_answer = magnetic_one.get_final_answer()
-    if final_answer is not None:
-        await websocket.send_text(json.dumps({"type": "final_answer", "message": final_answer}))
-    else:
-        await websocket.send_text(json.dumps({"type": "error", "message": "No final answer found in logs."}))
+        final_answer = magnetic_one.get_final_answer()
+        if final_answer is not None:
+            logger.info(f"Final answer: {final_answer}")
+            await websocket.send_text(json.dumps({"type": "final_answer", "message": final_answer}))
+        else:
+            logger.warning("No final answer found in logs")
+            await websocket.send_text(json.dumps({"type": "error", "message": "No final answer found in logs."}))
+    except Exception as e:
+        logger.error(f"Error in _run_task: {str(e)}")
+        await websocket.send_text(json.dumps({"type": "error", "message": f"An error occurred: {str(e)}"}))
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    task = await websocket.receive_text()
+    logger.info("WebSocket connection established")
     
     try:
-        await _run_task.remote(task, websocket)
+        task = await websocket.receive_text()
+        logger.info(f"Received task: {task}")
+        
+        try:
+            await _run_task.remote(task, websocket)
+        except Exception as e:
+            logger.error(f"An error occurred in _run_task: {e}")
+            await websocket.send_text(json.dumps({"type": "error", "message": f"An error occurred: {str(e)}"}))
+    except WebSocketDisconnect:
+        logger.info("WebSocket disconnected")
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        await websocket.send_text(json.dumps({"type": "error", "message": str(e)}))
+        logger.error(f"An unexpected error occurred: {e}")
     finally:
+        logger.info("Closing WebSocket connection")
         await websocket.close()
 
 if __name__ == "__main__":
