@@ -111,15 +111,19 @@ class MagenticOneHelper:
         self.runtime.start()
 
         actual_surfer = await self.runtime.try_get_underlying_agent_instance(web_surfer.id, type=MultimodalWebSurfer)
-        await actual_surfer.init(
-            model_client=client,
-            downloads_folder=os.getcwd(),
-            start_page="https://www.bing.com",
-            browser_channel="chromium",
-            headless=True,
-            debug_dir=self.logs_dir,
-            to_save_screenshots=self.save_screenshots,
-        )
+        try:
+            await actual_surfer.init(
+                model_client=client,
+                downloads_folder=os.getcwd(),
+                start_page="https://www.bing.com",
+                browser_channel="chromium",
+                headless=True,
+                debug_dir=self.logs_dir,
+                to_save_screenshots=self.save_screenshots,
+            )
+        except Exception as e:
+            logging.error(f"Failed to initialize WebSurfer: {str(e)}")
+            # Continue without WebSurfer if initialization fails
 
         # Populate the loaded_agents list
         self.loaded_agents = [agent.id.type for agent in agent_list]

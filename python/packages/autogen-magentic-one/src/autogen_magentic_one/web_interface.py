@@ -13,6 +13,7 @@ import json
 import traceback
 from autogen_magentic_one.magentic_one_helper import MagenticOneHelper
 import openai
+from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -82,6 +83,10 @@ def fastapi_app():
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(3))
+async def run_openai_task(magnetic_one, task):
+    return await magnetic_one.run_task(task)
+
 async def _run_task(task: str, websocket: WebSocket):
     logs_dir = "/tmp/magentic_one_logs"
     os.makedirs(logs_dir, exist_ok=True)
@@ -98,7 +103,7 @@ async def _run_task(task: str, websocket: WebSocket):
         await websocket.send_text(json.dumps({"type": "status", "message": "MagenticOne initialized."}))
         logger.info("Using pre-initialized MagenticOne")
 
-        task_future = asyncio.create_task(magnetic_one.run_task(task))
+        task_future = asyncio.create_task(run_openai_task(magnetic_one, task))
 
         async for log_entry in magnetic_one.stream_logs():
             logger.debug(f"Log entry: {log_entry}")
