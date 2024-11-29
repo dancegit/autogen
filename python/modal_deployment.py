@@ -69,12 +69,12 @@ image = (
         "/root/autogen/python/.venv/bin/pip install /root/autogen/python/packages/autogen-studio",
         "/root/autogen/python/.venv/bin/pip install tenacity",
         "/root/autogen/python/.venv/bin/pip install playwright",
-        "/root/autogen/python/.venv/bin/playwright install --with-deps chromium",
-        "/root/autogen/python/.venv/bin/playwright install-deps",
-        "/root/autogen/python/.venv/bin/playwright install chromium",
-        "/root/autogen/python/.venv/bin/python -m playwright install",
-        "/root/autogen/python/.venv/bin/python -m playwright install-deps",
-        "/root/autogen/python/.venv/bin/python -m playwright install chromium"
+        r"/root/autogen/python/.venv/bin/playwright install --with-deps chromium",
+        r"/root/autogen/python/.venv/bin/playwright install-deps",
+        r"/root/autogen/python/.venv/bin/playwright install chromium",
+        r"/root/autogen/python/.venv/bin/python -m playwright install",
+        r"/root/autogen/python/.venv/bin/python -m playwright install-deps",
+        r"/root/autogen/python/.venv/bin/python -m playwright install chromium"
     )
     .workdir("/root")
     .run_commands(
