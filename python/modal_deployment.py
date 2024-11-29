@@ -27,26 +27,7 @@ base_image = (modal.Image
         "wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -",
         "echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google-chrome.list",
         "apt-get update",
-        "apt-get install -y google-chrome-stable",
-        "apt-get install -y nodejs npm",
-        "rm -rf node_modules package-lock.json",
-        "npm cache clean --force",
-        "npm cache clean --force",
-        "npm cache verify",
-        "npm init -y || (echo 'npm init failed' >&2 && exit 1)",
-        "for i in {1..3}; do npm install react react-dom @reactflow/core --no-fund --no-audit --loglevel verbose --force && break || (echo 'npm install attempt $i failed' >&2 && cat /root/.npm/_logs/*-debug.log && npm cache clean --force && rm -rf node_modules package-lock.json); done",
-        "npm list --depth=0 || (echo 'npm list failed' >&2 && exit 1)",
-        "echo 'npm installation completed' && npm list --depth=0",
-        "cd /root || (echo 'Changing to root directory failed' >&2 && exit 1)",
-        "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd",
-        "if [ -f /root/node_modules/react/umd/react.production.min.js ]; then cp /root/node_modules/react/umd/react.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/; else echo 'React file not found' >&2; fi",
-        "if [ -f /root/node_modules/react-dom/umd/react-dom.production.min.js ]; then cp /root/node_modules/react-dom/umd/react-dom.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/; else echo 'ReactDOM file not found' >&2; fi",
-        "if [ -d /root/node_modules/@reactflow/core/dist ]; then cp -r /root/node_modules/@reactflow/core/dist/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/; else echo 'ReactFlow dist directory not found' >&2; fi",
-        "ls -R /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/ || echo 'Failed to list ReactFlow directory' >&2",
-        "echo 'Contents of node_modules/@reactflow/core/dist:'",
-        "ls -R /root/node_modules/@reactflow/core/dist || echo 'Failed to list ReactFlow dist directory' >&2",
-        "echo 'npm debug logs:'",
-        "cat /root/.npm/_logs/*-debug.log || echo 'No npm debug logs found' >&2"
+        "apt-get install -y google-chrome-stable"
     ))
 
 # Remove the Docker image definition as it's not needed for now
@@ -93,7 +74,14 @@ image = (
         "/root/autogen/python/.venv/bin/playwright install chromium",
         "/root/autogen/python/.venv/bin/python -m playwright install",
         "/root/autogen/python/.venv/bin/python -m playwright install-deps",
-        "/root/autogen/python/.venv/bin/python -m playwright install chromium"
+        "/root/autogen/python/.venv/bin/python -m playwright install chromium",
+        "apt-get install -y nodejs npm",
+        "npm init -y",
+        "npm install react react-dom @reactflow/core --no-fund --no-audit",
+        "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd",
+        "cp /root/node_modules/react/umd/react.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/",
+        "cp /root/node_modules/react-dom/umd/react-dom.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/",
+        "cp -r /root/node_modules/@reactflow/core/dist/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/"
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
