@@ -41,12 +41,16 @@ const FlowChart = ({ agents, messages }) => {
             label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
             type: 'smoothstep',
         })));
-    }, [agents, messages, setNodes, setEdges]);
+    }, [agents, messages]);
 
     const onConnect = React.useCallback(
         (params) => setEdges((eds) => window.ReactFlow.addEdge(params, eds)),
-        [setEdges]
+        []
     );
+
+    if (!window.ReactFlow || !window.ReactFlow.ReactFlow) {
+        return <div>Loading ReactFlow...</div>;
+    }
 
     return (
         <window.ReactFlow.ReactFlowProvider>
@@ -58,8 +62,8 @@ const FlowChart = ({ agents, messages }) => {
                 onConnect={onConnect}
                 fitView
             >
-                <window.ReactFlow.Background color="#c0c0c0" gap={20} />
-                <window.ReactFlow.Controls />
+                {window.ReactFlow.Background && <window.ReactFlow.Background color="#c0c0c0" gap={20} />}
+                {window.ReactFlow.Controls && <window.ReactFlow.Controls />}
             </window.ReactFlow.ReactFlow>
         </window.ReactFlow.ReactFlowProvider>
     );
