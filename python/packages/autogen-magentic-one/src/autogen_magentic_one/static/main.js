@@ -56,7 +56,10 @@ const FlowChart = React.memo(({ agents, messages }) => {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
-            />
+            >
+                <ReactFlow.Background color="#c0c0c0" gap={20} />
+                <ReactFlow.Controls />
+            </ReactFlow.default>
         </ReactFlow.ReactFlowProvider>
     );
 });
