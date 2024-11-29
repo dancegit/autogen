@@ -64,7 +64,7 @@ function initializeApp() {
     let messages = [];
 
     function updateGraphicalView() {
-        if (window.React && window.ReactDOM && window.ReactFlow) {
+        if (window.React && window.ReactDOM && window.ReactFlowCore) {
             const root = window.ReactDOM.createRoot(graphicalView);
             root.render(
                 React.createElement(
@@ -74,7 +74,7 @@ function initializeApp() {
                 )
             );
         } else {
-            console.error('React, ReactDOM, or ReactFlow is not available');
+            console.error('React, ReactDOM, or ReactFlowCore is not available');
         }
     }
 
