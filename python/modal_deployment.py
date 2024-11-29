@@ -29,17 +29,19 @@ base_image = (modal.Image
         "apt-get update",
         "apt-get install -y google-chrome-stable",
         "apt-get install -y nodejs npm",
-        "npm init -y || echo 'npm init failed' >&2",
-        "npm install react react-dom @reactflow/core --no-fund --no-audit || (echo 'npm install failed' >&2 && cat /root/.npm/_logs/*-debug.log)",
-        "npm list || echo 'npm list failed' >&2",
-        "cd /root || echo 'Changing to root directory failed' >&2",
+        "npm init -y || (echo 'npm init failed' >&2 && exit 1)",
+        "npm install react react-dom @reactflow/core --no-fund --no-audit --loglevel verbose || (echo 'npm install failed' >&2 && cat /root/.npm/_logs/*-debug.log && exit 1)",
+        "npm list || (echo 'npm list failed' >&2 && exit 1)",
+        "cd /root || (echo 'Changing to root directory failed' >&2 && exit 1)",
         "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd",
-        "cp /root/node_modules/react/umd/react.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/ || echo 'Copying React files failed' >&2",
-        "cp /root/node_modules/react-dom/umd/react-dom.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/ || echo 'Copying ReactDOM files failed' >&2",
-        "cp -r /root/node_modules/@reactflow/core/dist/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/ || echo 'Copying ReactFlow files failed' >&2",
-        "ls -R /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
+        "if [ -f /root/node_modules/react/umd/react.production.min.js ]; then cp /root/node_modules/react/umd/react.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/; else echo 'React file not found' >&2; fi",
+        "if [ -f /root/node_modules/react-dom/umd/react-dom.production.min.js ]; then cp /root/node_modules/react-dom/umd/react-dom.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/; else echo 'ReactDOM file not found' >&2; fi",
+        "if [ -d /root/node_modules/@reactflow/core/dist ]; then cp -r /root/node_modules/@reactflow/core/dist/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/; else echo 'ReactFlow dist directory not found' >&2; fi",
+        "ls -R /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/ || echo 'Failed to list ReactFlow directory' >&2",
         "echo 'Contents of node_modules/@reactflow/core/dist:'",
-        "ls -R node_modules/@reactflow/core/dist/"
+        "ls -R /root/node_modules/@reactflow/core/dist || echo 'Failed to list ReactFlow dist directory' >&2",
+        "echo 'npm debug logs:'",
+        "cat /root/.npm/_logs/*-debug.log || echo 'No npm debug logs found' >&2"
     ))
 
 # Remove the Docker image definition as it's not needed for now
