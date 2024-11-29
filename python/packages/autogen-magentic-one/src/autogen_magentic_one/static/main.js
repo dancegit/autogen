@@ -1,3 +1,17 @@
+// Wait for React and ReactFlow to be available
+function waitForDependencies() {
+    return new Promise((resolve) => {
+        function checkDependencies() {
+            if (window.React && window.ReactDOM && window.ReactFlow) {
+                resolve();
+            } else {
+                setTimeout(checkDependencies, 100);
+            }
+        }
+        checkDependencies();
+    });
+}
+
 // FlowChart component using ReactFlow
 function FlowChart({ agents, messages }) {
     const [nodes, setNodes] = React.useState([]);
@@ -49,7 +63,8 @@ function FlowChart({ agents, messages }) {
 
 const FlowChartMemo = React.memo(FlowChart);
 
-function initializeApp() {
+async function initializeApp() {
+    await waitForDependencies();
     console.log('DOM fully loaded and parsed');
     const form = document.getElementById('taskForm');
     const orchestratorOutput = document.getElementById('orchestratorOutput');
@@ -79,16 +94,12 @@ function initializeApp() {
     }
 
     // Initial render
-    window.addEventListener('load', () => {
-        console.log('Window loaded, updating graphical view');
+    window.addEventListener('load', async () => {
+        console.log('Window loaded, waiting for dependencies');
+        await waitForDependencies();
+        console.log('Dependencies loaded, updating graphical view');
         updateGraphicalView();
     });
-
-    // Update graphical view whenever agents or messages change
-    React.useEffect(() => {
-        console.log('Agents or messages changed, updating graphical view');
-        updateGraphicalView();
-    }, [agents, messages]);
 
     function appendMessage(element, message, className = '') {
         console.log(`Appending message: ${message}`);
@@ -261,5 +272,10 @@ function initializeApp() {
     }, 1000);
 }
 
-// Initialize the app immediately since libraries are guaranteed to be loaded
-initializeApp();
+// Initialize the app after ensuring dependencies are loaded
+waitForDependencies().then(() => {
+    console.log('Dependencies loaded, initializing app');
+    initializeApp();
+}).catch(error => {
+    console.error('Error initializing app:', error);
+});
