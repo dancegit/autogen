@@ -39,7 +39,7 @@ __all__ = ['app', 'image', 'docker_image']
 autogen_mount = modal.Mount.from_local_dir(
     current_dir.parent,
     remote_path="/root/autogen",
-    condition=lambda path: not any(excluded in path for excluded in [".github", "docs", "dotnet", "venv",".venv",".aider*"])
+    condition=lambda path: not any(excluded in path for excluded in [".github", "docs", "dotnet", "venv", ".venv", r"\.aider.*"])
 )
 
 # Combine all mounts
