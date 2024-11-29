@@ -53,7 +53,7 @@ const FlowChart = ({ agents, messages }) => {
             </window.ReactFlow.ReactFlow>
         </window.ReactFlow.ReactFlowProvider>
     );
-});
+};
 
 async function initializeApp() {
     await waitForDependencies();
