@@ -64,7 +64,7 @@ function initializeApp() {
     let messages = [];
 
     function updateGraphicalView() {
-        if (window.React && window.ReactDOM && window.ReactFlowCore) {
+        if (window.React && window.ReactDOM && window.ReactFlow) {
             const root = window.ReactDOM.createRoot(graphicalView);
             root.render(
                 React.createElement(

@@ -30,12 +30,12 @@ base_image = (modal.Image
         "apt-get install -y google-chrome-stable",
         "apt-get install -y nodejs npm",
         "npm init -y || echo 'npm init failed' >&2",
-        "npm install react react-dom @reactflow/core || (echo 'npm install failed' >&2 && cat /root/.npm/_logs/*-debug.log)",
+        "npm install react react-dom @reactflow/core --no-fund --no-audit || (echo 'npm install failed' >&2 && cat /root/.npm/_logs/*-debug.log)",
         "npm list || echo 'npm list failed' >&2",
         "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd",
-        "cp -r /node_modules/react/umd/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/",
-        "cp -r /node_modules/react-dom/umd/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/",
-        "cp -r /node_modules/@reactflow/core/dist/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
+        "cp -r node_modules/react/umd/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/ || echo 'Copying React files failed' >&2",
+        "cp -r node_modules/react-dom/umd/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/ || echo 'Copying ReactDOM files failed' >&2",
+        "cp -r node_modules/@reactflow/core/dist/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/ || echo 'Copying ReactFlow files failed' >&2",
         "ls -R /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/"
     ))
 
