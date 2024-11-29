@@ -283,3 +283,6 @@ waitForDependencies().then(() => {
 }).catch(error => {
     console.error('Error initializing app:', error);
 });
+
+// Export the initializeApp function
+window.initializeApp = initializeApp;
