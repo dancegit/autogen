@@ -45,6 +45,12 @@ try:
     if not os.path.exists(reactflow_umd_dir):
         os.makedirs(reactflow_umd_dir)
         logger.warning(f"Created ReactFlow UMD directory: {reactflow_umd_dir}")
+    
+    # Log the contents of the ReactFlow directory after copying
+    logger.info("Contents of ReactFlow directory after copying:")
+    for root, dirs, files in os.walk(reactflow_dir):
+        for file in files:
+            logger.info(f"  {os.path.join(root, file)}")
     templates = Jinja2Templates(directory=templates_dir)
     templates.env.globals["url_for"] = app.url_path_for
 
