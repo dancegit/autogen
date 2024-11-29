@@ -19,12 +19,12 @@ const FlowChart = ({ agents, messages }) => {
     const [reactFlowInstance, setReactFlowInstance] = React.useState(null);
 
     const onNodesChange = React.useCallback(
-        (changes) => setNodes((nds) => window.ReactFlow.applyNodeChanges(changes, nds)),
+        (changes) => setNodes((nds) => ReactFlow.applyNodeChanges(changes, nds)),
         []
     );
 
     const onEdgesChange = React.useCallback(
-        (changes) => setEdges((eds) => window.ReactFlow.applyEdgeChanges(changes, eds)),
+        (changes) => setEdges((eds) => ReactFlow.applyEdgeChanges(changes, eds)),
         []
     );
 
@@ -49,17 +49,17 @@ const FlowChart = ({ agents, messages }) => {
     }, [agents, messages]);
 
     const onConnect = React.useCallback(
-        (params) => setEdges((eds) => window.ReactFlow.addEdge(params, eds)),
+        (params) => setEdges((eds) => ReactFlow.addEdge(params, eds)),
         []
     );
 
-    if (!window.ReactFlow || !window.ReactFlow.ReactFlow) {
+    if (!ReactFlow) {
         return <div>Loading ReactFlow...</div>;
     }
 
     return (
-        <window.ReactFlow.ReactFlowProvider>
-            <window.ReactFlow.ReactFlow
+        <ReactFlow.ReactFlowProvider>
+            <ReactFlow.ReactFlow
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
@@ -68,10 +68,10 @@ const FlowChart = ({ agents, messages }) => {
                 onInit={setReactFlowInstance}
                 fitView
             >
-                <window.ReactFlow.Background color="#c0c0c0" gap={20} />
-                <window.ReactFlow.Controls />
-            </window.ReactFlow.ReactFlow>
-        </window.ReactFlow.ReactFlowProvider>
+                <ReactFlow.Background color="#c0c0c0" gap={20} />
+                <ReactFlow.Controls />
+            </ReactFlow.ReactFlow>
+        </ReactFlow.ReactFlowProvider>
     );
 };
 

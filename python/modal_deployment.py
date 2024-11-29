@@ -80,13 +80,11 @@ image = (
     .run_commands(
         "apt-get install -y nodejs npm",
         "npm init -y",
-        "npm install react react-dom reactflow @babel/core @babel/cli @babel/preset-env @babel/preset-react --no-fund --no-audit",
+        "npm install @xyflow/react @babel/core @babel/cli @babel/preset-env @babel/preset-react --no-fund --no-audit",
         "echo 'Contents of /root/node_modules:' && find /root/node_modules -print",
-        "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd",
-        "cp /root/node_modules/react/umd/react.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
-        "cp /root/node_modules/react-dom/umd/react-dom.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
-        "cp /root/node_modules/@reactflow/core/dist/umd/index.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/reactflow.production.min.js",
-        "cp /root/node_modules/reactflow/dist/style.css /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
+        "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow",
+        "cp /root/node_modules/@xyflow/react/dist/umd/index.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/reactflow.production.min.js",
+        "cp /root/node_modules/@xyflow/react/dist/style.css /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
         "echo '{ \"presets\": [\"@babel/preset-env\", \"@babel/preset-react\"] }' > /root/.babelrc",
         "ls -R /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/"
     )
