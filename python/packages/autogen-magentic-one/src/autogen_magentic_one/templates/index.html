@@ -162,15 +162,21 @@
         <script src="https://unpkg.com/reactflow@11.7.4/dist/umd/reactflow.min.js"></script>
         <link href="https://unpkg.com/reactflow@11.7.4/dist/style.css" rel="stylesheet" />
         <script>
-            window.onload = function() {
+            function checkLibrariesLoaded() {
                 if (window.React && window.ReactDOM && window.ReactFlow) {
                     console.log('React, ReactDOM, and ReactFlow loaded successfully');
+                    // Load main.js after libraries are loaded
+                    var script = document.createElement('script');
+                    script.src = "{{ url_for('static', path='main.js') }}";
+                    script.type = "module";
+                    document.body.appendChild(script);
                 } else {
                     console.error('Failed to load React, ReactDOM, or ReactFlow');
+                    setTimeout(checkLibrariesLoaded, 100); // Check again after 100ms
                 }
             }
+            window.onload = checkLibrariesLoaded;
         </script>
-        <script src="{{ url_for('static', path='main.js') }}" type="module"></script>
         <script>
             window.onerror = function (message, source, lineno, colno, error) {
                 console.error(

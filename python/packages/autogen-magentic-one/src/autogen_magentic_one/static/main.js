@@ -49,7 +49,7 @@ function FlowChart({ agents, messages }) {
 
 const FlowChartMemo = React.memo(FlowChart);
 
-window.addEventListener('load', (event) => {
+function initializeApp() {
     console.log('DOM fully loaded and parsed');
     const form = document.getElementById('taskForm');
     const orchestratorOutput = document.getElementById('orchestratorOutput');
@@ -259,4 +259,16 @@ window.addEventListener('load', (event) => {
             console.log('Input element not found in delayed logging');
         }
     }, 1000);
-});
+}
+
+// Check if React and other libraries are loaded before initializing the app
+function checkAndInitialize() {
+    if (window.React && window.ReactDOM && window.ReactFlow) {
+        initializeApp();
+    } else {
+        console.log('Waiting for React, ReactDOM, and ReactFlow to load...');
+        setTimeout(checkAndInitialize, 100); // Check again after 100ms
+    }
+}
+
+checkAndInitialize();
