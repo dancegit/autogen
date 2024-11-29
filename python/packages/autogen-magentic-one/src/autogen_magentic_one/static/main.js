@@ -74,7 +74,7 @@ function initializeApp() {
                 )
             );
         } else {
-            console.error('React, ReactDOM, or ReactFlowCore is not available');
+            console.error('React, ReactDOM, or ReactFlow is not available');
         }
     }
 
