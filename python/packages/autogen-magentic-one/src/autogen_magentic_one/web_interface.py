@@ -41,7 +41,10 @@ try:
     if not os.path.exists(reactflow_dir):
         os.makedirs(reactflow_dir)
         logger.warning(f"Created ReactFlow directory: {reactflow_dir}")
-    app.mount("/reactflow", StaticFiles(directory=reactflow_dir), name="reactflow")
+    reactflow_umd_dir = os.path.join(reactflow_dir, "umd")
+    if not os.path.exists(reactflow_umd_dir):
+        os.makedirs(reactflow_umd_dir)
+        logger.warning(f"Created ReactFlow UMD directory: {reactflow_umd_dir}")
     templates = Jinja2Templates(directory=templates_dir)
     templates.env.globals["url_for"] = app.url_path_for
 
