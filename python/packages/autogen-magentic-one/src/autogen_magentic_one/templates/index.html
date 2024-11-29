@@ -206,7 +206,17 @@
                 }
             }
 
-            window.onload = loadLibraries;
+            window.onload = async function() {
+                await loadLibraries();
+                console.log("Libraries loaded, waiting for dependencies");
+                await new Promise(resolve => setTimeout(resolve, 500)); // Add a small delay
+                if (typeof initializeApp === 'function') {
+                    console.log("Initializing app");
+                    initializeApp();
+                } else {
+                    console.error("initializeApp function not found");
+                }
+            };
         </script>
         <script>
             window.onerror = function (message, source, lineno, colno, error) {
