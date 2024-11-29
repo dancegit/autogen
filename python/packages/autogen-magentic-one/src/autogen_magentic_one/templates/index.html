@@ -173,7 +173,7 @@
         />
         <script>
             // Ensure ReactFlow is available globally
-            window.ReactFlow = window.ReactFlow || ReactFlow;
+            window.ReactFlow = window.ReactFlow || (typeof ReactFlow !== 'undefined' ? ReactFlow : null);
         </script>
 
         <script>
@@ -271,10 +271,12 @@
                     console.log("ReactFlow loaded successfully");
                 } else {
                     console.error("ReactFlow not loaded properly");
+                    console.log("window.ReactFlow:", window.ReactFlow);
+                    console.log("typeof ReactFlow:", typeof ReactFlow);
                 }
             }
             // Run the check after a short delay to ensure all scripts have had a chance to load
-            setTimeout(checkReactFlow, 10000);
+            setTimeout(checkReactFlow, 2000);
         </script>
     </body>
 </html>
