@@ -37,6 +37,7 @@ if not os.path.exists(templates_dir):
 
 try:
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    app.mount("/reactflow", StaticFiles(directory=os.path.join(static_dir, "reactflow")), name="reactflow")
     templates = Jinja2Templates(directory=templates_dir)
     templates.env.globals["url_for"] = app.url_path_for
 except Exception as e:
