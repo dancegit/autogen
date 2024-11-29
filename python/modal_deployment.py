@@ -74,7 +74,10 @@ image = (
         "/root/autogen/python/.venv/bin/playwright install chromium",
         "/root/autogen/python/.venv/bin/python -m playwright install",
         "/root/autogen/python/.venv/bin/python -m playwright install-deps",
-        "/root/autogen/python/.venv/bin/python -m playwright install chromium",
+        "/root/autogen/python/.venv/bin/python -m playwright install chromium"
+    )
+    .workdir("/root")
+    .run_commands(
         "apt-get install -y nodejs npm",
         "npm init -y",
         "npm install react react-dom @reactflow/core --no-fund --no-audit",
