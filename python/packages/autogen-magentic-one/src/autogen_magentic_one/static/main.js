@@ -14,8 +14,8 @@ function waitForDependencies() {
 
 // FlowChart component using ReactFlow
 const FlowChart = React.memo(({ agents, messages }) => {
-    const [nodes, setNodes] = React.useState([]);
-    const [edges, setEdges] = React.useState([]);
+    const [nodes, setNodes, onNodesChange] = window.ReactFlow.useNodesState([]);
+    const [edges, setEdges, onEdgesChange] = window.ReactFlow.useEdgesState([]);
 
     React.useEffect(() => {
         setNodes(agents.map((agent, index) => ({
@@ -31,36 +31,27 @@ const FlowChart = React.memo(({ agents, messages }) => {
             label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
             type: 'smoothstep',
         })));
-    }, [agents, messages]);
-
-    const onNodesChange = React.useCallback(
-        (changes) => setNodes((nds) => window.ReactFlow.applyNodeChanges(changes, nds)),
-        []
-    );
-
-    const onEdgesChange = React.useCallback(
-        (changes) => setEdges((eds) => window.ReactFlow.applyEdgeChanges(changes, eds)),
-        []
-    );
+    }, [agents, messages, setNodes, setEdges]);
 
     const onConnect = React.useCallback(
         (params) => setEdges((eds) => window.ReactFlow.addEdge(params, eds)),
-        []
+        [setEdges]
     );
 
     return (
-        <window.ReactFlow.Provider>
+        <window.ReactFlow.ReactFlowProvider>
             <window.ReactFlow.ReactFlow
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
+                fitView
             >
                 <window.ReactFlow.Background color="#c0c0c0" gap={20} />
                 <window.ReactFlow.Controls />
             </window.ReactFlow.ReactFlow>
-        </window.ReactFlow.Provider>
+        </window.ReactFlow.ReactFlowProvider>
     );
 });
 
@@ -79,7 +70,7 @@ async function initializeApp() {
     let agents = ['Orchestrator'];
     let messages = [];
 
-    function updateGraphicalView() {
+    const updateGraphicalView = window.React.useCallback(() => {
         if (window.React && window.ReactDOM && window.ReactFlow) {
             const root = window.ReactDOM.createRoot(graphicalView);
             root.render(
@@ -92,15 +83,13 @@ async function initializeApp() {
         } else {
             console.error('React, ReactDOM, or ReactFlow is not available');
         }
-    }
+    }, [agents, messages]);
 
     // Initial render
-    window.addEventListener('load', async () => {
-        console.log('Window loaded, waiting for dependencies');
-        await waitForDependencies();
+    window.React.useEffect(() => {
         console.log('Dependencies loaded, updating graphical view');
         updateGraphicalView();
-    });
+    }, []);
 
     function appendMessage(element, message, className = '') {
         console.log(`Appending message: ${message}`);
