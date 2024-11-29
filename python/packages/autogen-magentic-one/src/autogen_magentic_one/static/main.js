@@ -49,7 +49,7 @@ const FlowChart = React.memo(({ agents, messages }) => {
     );
 
     return (
-        <window.ReactFlow.ReactFlowProvider>
+        <window.ReactFlow.Provider>
             <window.ReactFlow.ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -60,7 +60,7 @@ const FlowChart = React.memo(({ agents, messages }) => {
                 <window.ReactFlow.Background color="#c0c0c0" gap={20} />
                 <window.ReactFlow.Controls />
             </window.ReactFlow.ReactFlow>
-        </window.ReactFlow.ReactFlowProvider>
+        </window.ReactFlow.Provider>
     );
 });
 
@@ -83,9 +83,11 @@ async function initializeApp() {
         if (window.React && window.ReactDOM && window.ReactFlow) {
             const root = window.ReactDOM.createRoot(graphicalView);
             root.render(
-                <React.StrictMode>
-                    <FlowChart agents={agents} messages={messages} />
-                </React.StrictMode>
+                window.React.createElement(
+                    window.React.StrictMode,
+                    null,
+                    window.React.createElement(FlowChart, { agents: agents, messages: messages })
+                )
             );
         } else {
             console.error('React, ReactDOM, or ReactFlow is not available');
