@@ -166,7 +166,7 @@
         <link rel="stylesheet" href="{{ url_for('static', path='reactflow/style.css') }}">
         <script>
             // Ensure ReactFlow is available globally
-            window.ReactFlow = ReactFlow;
+            window.ReactFlow = window.ReactFlow || {};
         </script>
         <script>
             function loadScript(src) {
@@ -190,7 +190,7 @@
                     console.log("Starting to load libraries...");
                     await loadScript("{{ url_for('static', path='reactflow/react.production.min.js') }}");
                     await loadScript("{{ url_for('static', path='reactflow/react-dom.production.min.js') }}");
-                    await loadScript("{{ url_for('static', path='reactflow/index.js') }}");
+                    await loadScript("{{ url_for('static', path='reactflow/umd/reactflow.production.min.js') }}");
                     console.log("React, ReactDOM, and ReactFlow loaded successfully");
 
                     // Load main.js after libraries are loaded
