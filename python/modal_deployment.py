@@ -85,7 +85,8 @@ image = (
         "cp /root/node_modules/react/umd/react.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/",
         "cp /root/node_modules/react-dom/umd/react-dom.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/",
         "cp /root/node_modules/@reactflow/core/dist/reactflow.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
-        "cp /root/node_modules/@reactflow/core/dist/style.css /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/"
+        "cp /root/node_modules/@reactflow/core/dist/style.css /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
+        "echo 'Contents of node_modules:' && find /root/node_modules -type d | sed -e 's/[^-][^\/]*\//  |/g' -e 's/|\([^ ]\)/|-\1/'"
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
