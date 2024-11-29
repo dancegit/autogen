@@ -14,8 +14,18 @@ function waitForDependencies() {
 
 // FlowChart component using ReactFlow
 const FlowChart = ({ agents, messages }) => {
-    const [nodes, setNodes, onNodesChange] = window.ReactFlow.useNodesState([]);
-    const [edges, setEdges, onEdgesChange] = window.ReactFlow.useEdgesState([]);
+    const [nodes, setNodes] = React.useState([]);
+    const [edges, setEdges] = React.useState([]);
+
+    const onNodesChange = React.useCallback(
+        (changes) => setNodes((nds) => window.ReactFlow.applyNodeChanges(changes, nds)),
+        [setNodes]
+    );
+
+    const onEdgesChange = React.useCallback(
+        (changes) => setEdges((eds) => window.ReactFlow.applyEdgeChanges(changes, eds)),
+        [setEdges]
+    );
 
     React.useEffect(() => {
         setNodes(agents.map((agent, index) => ({
