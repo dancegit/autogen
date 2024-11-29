@@ -33,12 +33,12 @@ base_image = (modal.Image
         "npm install react react-dom @reactflow/core --no-fund --no-audit || (echo 'npm install failed' >&2 && cat /root/.npm/_logs/*-debug.log)",
         "npm list || echo 'npm list failed' >&2",
         "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd",
-        "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd",
         "cp node_modules/react/umd/react.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/ || echo 'Copying React files failed' >&2",
         "cp node_modules/react-dom/umd/react-dom.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/ || echo 'Copying ReactDOM files failed' >&2",
-        "cp node_modules/@reactflow/core/dist/index.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/ || echo 'Copying ReactFlow files failed' >&2",
-        "cp node_modules/@reactflow/core/dist/style.css /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/ || echo 'Copying ReactFlow CSS failed' >&2",
-        "ls -R /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/"
+        "cp -r node_modules/@reactflow/core/dist/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/ || echo 'Copying ReactFlow files failed' >&2",
+        "ls -R /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
+        "echo 'Contents of node_modules/@reactflow/core/dist:'",
+        "ls -R node_modules/@reactflow/core/dist/"
     ))
 
 # Remove the Docker image definition as it's not needed for now
