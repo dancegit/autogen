@@ -37,9 +37,18 @@ if not os.path.exists(templates_dir):
 
 try:
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
-    app.mount("/reactflow", StaticFiles(directory=os.path.join(static_dir, "reactflow")), name="reactflow")
+    reactflow_dir = os.path.join(static_dir, "reactflow")
+    if not os.path.exists(reactflow_dir):
+        os.makedirs(reactflow_dir)
+        logger.warning(f"Created ReactFlow directory: {reactflow_dir}")
+    app.mount("/reactflow", StaticFiles(directory=reactflow_dir), name="reactflow")
     templates = Jinja2Templates(directory=templates_dir)
     templates.env.globals["url_for"] = app.url_path_for
+
+    # Log the contents of the ReactFlow directory
+    logger.info("Contents of ReactFlow directory:")
+    for item in os.listdir(reactflow_dir):
+        logger.info(f"  {item}")
 except Exception as e:
     logger.error(f"Error mounting static files or templates: {str(e)}")
     raise

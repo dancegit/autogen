@@ -33,7 +33,10 @@ base_image = (modal.Image
         "npm install react react-dom reactflow || (echo 'npm install failed' >&2 && cat /root/.npm/_logs/*-debug.log)",
         "npm list || echo 'npm list failed' >&2",
         "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow",
-        "cp -r /root/node_modules/reactflow/dist/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/ || echo 'Copying ReactFlow files failed' >&2"
+        "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd",
+        "cp /root/node_modules/reactflow/dist/umd/*.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/",
+        "cp /root/node_modules/reactflow/dist/style.css /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
+        "ls -R /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/"
     ))
 
 # Remove the Docker image definition as it's not needed for now
