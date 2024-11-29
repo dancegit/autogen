@@ -161,7 +161,16 @@
         <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
         <script src="https://unpkg.com/reactflow@11.7.4/dist/umd/reactflow.min.js"></script>
         <link href="https://unpkg.com/reactflow@11.7.4/dist/style.css" rel="stylesheet" />
-        <script src="{{ url_for('static', path='main.js') }}" type="module" defer></script>
+        <script>
+            window.onload = function() {
+                if (window.React && window.ReactDOM && window.ReactFlow) {
+                    console.log('React, ReactDOM, and ReactFlow loaded successfully');
+                } else {
+                    console.error('Failed to load React, ReactDOM, or ReactFlow');
+                }
+            }
+        </script>
+        <script src="{{ url_for('static', path='main.js') }}" type="module"></script>
         <script>
             window.onerror = function (message, source, lineno, colno, error) {
                 console.error(

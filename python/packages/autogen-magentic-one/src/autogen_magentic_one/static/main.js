@@ -1,22 +1,23 @@
 // FlowChart component using ReactFlow
-const FlowChart = React.memo(function FlowChart({ agents, messages }) {
-    const [nodes, setNodes] = React.useState(
-        agents.map((agent, index) => ({
+function FlowChart({ agents, messages }) {
+    const [nodes, setNodes] = React.useState([]);
+    const [edges, setEdges] = React.useState([]);
+
+    React.useEffect(() => {
+        setNodes(agents.map((agent, index) => ({
             id: agent,
             data: { label: agent },
             position: { x: (index + 1) * 200, y: 20 },
-        }))
-    );
+        })));
 
-    const [edges, setEdges] = React.useState(
-        messages.map((msg, index) => ({
+        setEdges(messages.map((msg, index) => ({
             id: `e${index}`,
             source: msg.from,
             target: msg.to,
             label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
             type: 'smoothstep',
-        }))
-    );
+        })));
+    }, [agents, messages]);
 
     const onNodesChange = React.useCallback(
         (changes) => setNodes((nds) => ReactFlow.applyNodeChanges(changes, nds)),
@@ -44,9 +45,11 @@ const FlowChart = React.memo(function FlowChart({ agents, messages }) {
             onConnect: onConnect
         })
     );
-});
+}
 
-document.addEventListener('DOMContentLoaded', (event) => {
+const FlowChartMemo = React.memo(FlowChart);
+
+window.addEventListener('load', (event) => {
     console.log('DOM fully loaded and parsed');
     const form = document.getElementById('taskForm');
     const orchestratorOutput = document.getElementById('orchestratorOutput');
