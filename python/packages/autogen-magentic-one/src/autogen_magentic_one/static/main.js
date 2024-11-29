@@ -2,7 +2,7 @@
 function waitForDependencies() {
     return new Promise((resolve) => {
         function checkDependencies() {
-            if (window.React && window.ReactDOM && window.ReactFlow) {
+            if (window.React && window.ReactDOM && window.ReactFlow && window.XYFlow) {
                 resolve();
             } else {
                 setTimeout(checkDependencies, 100);
@@ -11,6 +11,9 @@ function waitForDependencies() {
         checkDependencies();
     });
 }
+
+// Import ReactFlow from the XYFlow namespace
+const ReactFlow = window.XYFlow.ReactFlow;
 
 // FlowChart component using ReactFlow
 const FlowChart = ({ agents, messages }) => {
