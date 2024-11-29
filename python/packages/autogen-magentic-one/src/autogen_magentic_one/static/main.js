@@ -16,31 +16,36 @@ function waitForDependencies() {
 const FlowChart = ({ agents, messages }) => {
     const [nodes, setNodes] = React.useState([]);
     const [edges, setEdges] = React.useState([]);
+    const [reactFlowInstance, setReactFlowInstance] = React.useState(null);
 
     const onNodesChange = React.useCallback(
         (changes) => setNodes((nds) => window.ReactFlow.applyNodeChanges(changes, nds)),
-        [setNodes]
+        []
     );
 
     const onEdgesChange = React.useCallback(
         (changes) => setEdges((eds) => window.ReactFlow.applyEdgeChanges(changes, eds)),
-        [setEdges]
+        []
     );
 
     React.useEffect(() => {
-        setNodes(agents.map((agent, index) => ({
-            id: agent,
-            data: { label: agent },
-            position: { x: (index + 1) * 200, y: 20 },
-        })));
+        if (agents.length > 0) {
+            setNodes(agents.map((agent, index) => ({
+                id: agent,
+                data: { label: agent },
+                position: { x: (index + 1) * 200, y: 20 },
+            })));
+        }
 
-        setEdges(messages.map((msg, index) => ({
-            id: `e${index}`,
-            source: msg.from,
-            target: msg.to,
-            label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
-            type: 'smoothstep',
-        })));
+        if (messages.length > 0) {
+            setEdges(messages.map((msg, index) => ({
+                id: `e${index}`,
+                source: msg.from,
+                target: msg.to,
+                label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
+                type: 'smoothstep',
+            })));
+        }
     }, [agents, messages]);
 
     const onConnect = React.useCallback(
@@ -60,10 +65,11 @@ const FlowChart = ({ agents, messages }) => {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
+                onInit={setReactFlowInstance}
                 fitView
             >
-                {window.ReactFlow.Background && <window.ReactFlow.Background color="#c0c0c0" gap={20} />}
-                {window.ReactFlow.Controls && <window.ReactFlow.Controls />}
+                <window.ReactFlow.Background color="#c0c0c0" gap={20} />
+                <window.ReactFlow.Controls />
             </window.ReactFlow.ReactFlow>
         </window.ReactFlow.ReactFlowProvider>
     );
