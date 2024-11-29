@@ -49,18 +49,18 @@ const FlowChart = React.memo(({ agents, messages }) => {
     );
 
     return (
-        <ReactFlow.ReactFlowProvider>
-            <ReactFlow.default
+        <window.ReactFlow.ReactFlowProvider>
+            <window.ReactFlow.ReactFlow
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
             >
-                <ReactFlow.Background color="#c0c0c0" gap={20} />
-                <ReactFlow.Controls />
-            </ReactFlow.default>
-        </ReactFlow.ReactFlowProvider>
+                <window.ReactFlow.Background color="#c0c0c0" gap={20} />
+                <window.ReactFlow.Controls />
+            </window.ReactFlow.ReactFlow>
+        </window.ReactFlow.ReactFlowProvider>
     );
 });
 
