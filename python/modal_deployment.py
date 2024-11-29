@@ -183,5 +183,3 @@ if __name__ == "__main__":
         print(f"Warning: autogen_magentic_one is not installed. Error: {e}")
     except AttributeError:
         print("Warning: autogen_magentic_one is installed but __version__ is not available")
-# Docker-related function removed
-echo '{ "presets": ["@babel/preset-env", "@babel/preset-react"] }' > /root/.babelrc
