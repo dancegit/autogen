@@ -160,10 +160,10 @@
             </div>
         </div>
 
-        <script src="{{ url_for('static', filename='reactflow/umd/react.production.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='reactflow/umd/react-dom.production.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='reactflow/umd/reactflow.min.js') }}"></script>
-        <link href="{{ url_for('static', filename='reactflow/style.css') }}" rel="stylesheet" />
+        <script src="{{ url_for('static', path='reactflow/umd/react.production.min.js') }}"></script>
+        <script src="{{ url_for('static', path='reactflow/umd/react-dom.production.min.js') }}"></script>
+        <script src="{{ url_for('static', path='reactflow/umd/reactflow.min.js') }}"></script>
+        <link href="{{ url_for('static', path='reactflow/style.css') }}" rel="stylesheet" />
         <script>
             function loadScript(src) {
                 return new Promise((resolve, reject) => {
@@ -184,13 +184,13 @@
             async function loadLibraries() {
                 try {
                     console.log("Starting to load libraries...");
-                    await loadScript("{{ url_for('static', filename='reactflow/react.production.min.js') }}");
-                    await loadScript("{{ url_for('static', filename='reactflow/react-dom.production.min.js') }}");
-                    await loadScript("{{ url_for('static', filename='reactflow/reactflow.min.js') }}");
+                    await loadScript("{{ url_for('static', path='reactflow/umd/react.production.min.js') }}");
+                    await loadScript("{{ url_for('static', path='reactflow/umd/react-dom.production.min.js') }}");
+                    await loadScript("{{ url_for('static', path='reactflow/umd/reactflow.min.js') }}");
                     console.log("React, ReactDOM, and ReactFlow loaded successfully");
 
                     // Load main.js after libraries are loaded
-                    await loadScript("{{ url_for('static', filename='main.js') }}");
+                    await loadScript("{{ url_for('static', path='main.js') }}");
                     console.log("All libraries and main.js loaded successfully");
                 } catch (error) {
                     console.error("Failed to load libraries:", error);
