@@ -13,7 +13,7 @@ function waitForDependencies() {
 }
 
 // FlowChart component using ReactFlow
-const FlowChart = React.memo(({ agents, messages }) => {
+const FlowChart = ({ agents, messages }) => {
     const [nodes, setNodes, onNodesChange] = window.ReactFlow.useNodesState([]);
     const [edges, setEdges, onEdgesChange] = window.ReactFlow.useEdgesState([]);
 
@@ -70,7 +70,7 @@ async function initializeApp() {
     let agents = ['Orchestrator'];
     let messages = [];
 
-    const updateGraphicalView = window.React.useCallback(() => {
+    const updateGraphicalView = () => {
         if (window.React && window.ReactDOM && window.ReactFlow) {
             const root = window.ReactDOM.createRoot(graphicalView);
             root.render(
@@ -83,13 +83,10 @@ async function initializeApp() {
         } else {
             console.error('React, ReactDOM, or ReactFlow is not available');
         }
-    }, [agents, messages]);
+    };
 
     // Initial render
-    window.React.useEffect(() => {
-        console.log('Dependencies loaded, updating graphical view');
-        updateGraphicalView();
-    }, []);
+    updateGraphicalView();
 
     function appendMessage(element, message, className = '') {
         console.log(`Appending message: ${message}`);
