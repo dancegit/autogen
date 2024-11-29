@@ -85,7 +85,6 @@ image = (
         "cp /root/node_modules/react/umd/react.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/",
         "cp /root/node_modules/react-dom/umd/react-dom.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/",
         "cp -r /root/node_modules/@reactflow/core/dist/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
-        "cp /root/node_modules/@reactflow/core/dist/index.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
         "cp /root/node_modules/@reactflow/core/dist/style.css /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/"
     )
     .env({
