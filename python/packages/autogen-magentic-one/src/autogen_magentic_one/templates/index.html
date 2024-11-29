@@ -178,7 +178,7 @@
         <script>
             // Check if ReactFlow is loaded correctly
             function checkReactFlow() {
-                if (window.ReactFlow && window.ReactFlow.ReactFlow) {
+                if (typeof window.ReactFlow === 'function') {
                     console.log("ReactFlow loaded successfully");
                 } else {
                     console.error("ReactFlow not loaded properly");
