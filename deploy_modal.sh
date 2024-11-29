@@ -19,45 +19,16 @@ fi
 
 # Change to the root autogen directory
 cd "$SCRIPT_DIR"
-
-# Find the correct pyproject.toml file
-PYPROJECT_PATH=$(find . -name pyproject.toml | grep "packages/autogen-magentic-one/pyproject.toml")
-
-if [ -z "$PYPROJECT_PATH" ]; then
-    echo "Could not find pyproject.toml for autogen-magentic-one"
-    exit 1
-fi
-
-# Change to the directory containing pyproject.toml
-PACKAGE_DIR=$(dirname "$PYPROJECT_PATH")
-echo "Changing to directory: $PACKAGE_DIR"
-cd "$PACKAGE_DIR" || { echo "Failed to change directory to $PACKAGE_DIR"; exit 1; }
-
-# Verify we're in the correct directory
-if [ ! -f "pyproject.toml" ]; then
-    echo "pyproject.toml not found in current directory. Current directory: $(pwd)"
-    exit 1
-fi
-
-# Change to the autogen-magentic-one package directory
-MAGENTIC_ONE_DIR="$SCRIPT_DIR/python/packages/autogen-magentic-one"
-echo "Changing to: $MAGENTIC_ONE_DIR"
-cd "$MAGENTIC_ONE_DIR" || { echo "Failed to change directory to $MAGENTIC_ONE_DIR"; exit 1; }
-
-# Verify we're in the correct directory
-if [ ! -f "pyproject.toml" ]; then
-    echo "pyproject.toml not found in current directory. Current directory: $(pwd)"
-    exit 1
-fi
-
+#setup venv
+#source ./venv/bin/activate
 # Print current directory and list files
 echo "Current directory: $(pwd)"
 echo "Files in current directory:"
 ls -la
 
 # Install dependencies
-echo "Installing dependencies..."
-uv pip install -e .
+#echo "Installing dependencies..."
+#uv pip install -e ./python
 
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."

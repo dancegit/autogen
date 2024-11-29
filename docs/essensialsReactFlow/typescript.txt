@@ -1,0 +1,365 @@
+Page: reactflow.dev_files/reactflow.dev/learn/advanced-use/typescript.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   On This Page
+     * [43]Basic usage
+     * [44]Custom nodes
+     * [45]Custom edges
+     * [46]Advanced usage
+     * [47]Node and Edge type unions
+     * [48]Functions passed to <ReactFlow />
+     * [49]Hooks
+     * [50]Type guards
+
+   [51]Question? Give us feedback ->[52]Edit this page
+
+   What's new?
+   [53]Our examples have a fresh new look[54]React Flow
+   CLI[56]...and more!
+   [57]Learn[58]Advanced Use
+   TypeScript
+
+Usage with TypeScript
+
+   React Flow is written in TypeScript because we value the additional
+   safety barrier it provides. We export all the types you need for
+   correctly typing data structures and functions you pass to the React
+   Flow component. We also provide a way to extend the types of nodes and
+   edges.
+
+Basic usage
+
+   Let's start with the most basic types you need for a simple starting
+   point. Typescript might already infer some of these types, but we will
+   define them explicitly nontheless.
+import { useState, useCallback } from 'react';
+import {
+  ReactFlow,
+  addEdge,
+  applyNodeChanges,
+  applyEdgeChanges,
+  type Node,
+  type Edge,
+  type FitViewOptions,
+  type OnConnect,
+  type OnNodesChange,
+  type OnEdgesChange,
+  type OnNodeDrag,
+  type NodeTypes,
+  type DefaultEdgeOptions,
+} from '@xyflow/react';
+
+const initialNodes: Node[] = [
+  { id: '1', data: { label: 'Node 1' }, position: { x: 5, y: 5 } },
+  { id: '2', data: { label: 'Node 2' }, position: { x: 5, y: 100 } },
+];
+
+const initialEdges: Edge[] = [{ id: 'e1-2', source: '1', target: '2' }];
+
+const fitViewOptions: FitViewOptions = {
+  padding: 0.2,
+};
+
+const defaultEdgeOptions: DefaultEdgeOptions = {
+  animated: true,
+};
+
+const nodeTypes: NodeTypes = {
+  num: NumberNode,
+  txt: TextNode,
+};
+
+const onNodeDrag: OnNodeDrag = (_, node) => {
+  console.log('drag event', node.data);
+};
+
+function Flow() {
+  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+
+  const onNodesChange: OnNodesChange = useCallback(
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [setNodes],
+  );
+  const onEdgesChange: OnEdgesChange = useCallback(
+    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setEdges],
+  );
+  const onConnect: OnConnect = useCallback(
+    (connection) => setEdges((eds) => addEdge(connection, eds)),
+    [setEdges],
+  );
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      nodeTypes={nodeTypes}
+      edges={edges}
+      edgeTypes={edgeTypes}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onNodeDrag={onNodeDrag}
+      fitView
+      fitViewOptions={fitViewOptions}
+      defaultEdgeOptions={defaultEdgeOptions}
+    />
+  );
+}
+
+   (BUTTON)
+
+Custom nodes
+
+   When working with [59]custom nodes you have the possibility to pass a
+   custom Node type (or your Node union) to the NodeProps type. There are
+   basically two ways to work with custom nodes:
+       type as a generic to the NodeProps type:
+
+   NumberNode.tsx
+import type { Node, NodeProps } from '@xyflow/react';
+
+type NumberNode = Node<{ number: number }, 'number'>;
+
+export default function NumberNode({ data }: NodeProps<NumberNode>) {
+  return <div>A special number: {data.number}</div>;
+}
+
+   (BUTTON)
+
+   !!! If you specify the node data separately, you need to use type (an
+   interface would not work here):
+type NumberNodeData = { number: number };
+type NumberNode = Node<NumberNodeData, 'number'>;
+
+   (BUTTON)
+       the node type, you want to pass your Node union type as a generic
+       to NodeProps:
+
+   CustomNode.tsx
+import type { Node, NodeProps } from '@xyflow/react';
+
+type NumberNode = Node<{ number: number }, 'number'>;
+type TextNode = Node<{ text: string }, 'text'>;
+
+type AppNode = NumberNode | TextNode;
+
+export default function CustomNode({ data }: NodeProps<AppNode>) {
+  if (data.type === 'number') {
+    return <div>A special number: {data.number}</div>;
+  }
+
+  return <div>A special text: {data.text}</div>;
+}
+
+   (BUTTON)
+
+Custom edges
+
+   For [60]custom edges you have the same possiblity as for custom nodes.
+   CustomEdge.tsx
+import {
+  getStraightPath,
+  BaseEdge,
+  type EdgeProps,
+  type Edge,
+} from '@xyflow/react';
+
+type CustomEdge = Edge<{ value: number }, 'custom'>;
+
+export default function CustomEdge({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+}: EdgeProps<CustomEdge>) {
+  const [edgePath] = getStraightPath({ sourceX, sourceY, targetX, targetY });
+
+  return <BaseEdge id={id} path={edgePath} />;
+}
+
+   (BUTTON)
+
+Advanced usage
+
+   When creating complex applications with React Flow, you will have a
+   number of custom nodes & edges, each with different kinds of data
+   attached to them. When we operate on these nodes & edges through built
+   in functions and hooks, we have to make sure that we [61]narrow down
+   the types of nodes & edges to prevent runtime errors.
+
+Node and Edge type unions
+
+   You will see many functions, callbacks and hooks (even the ReactFlow
+   component itself) that expect a NodeType or EdgeType generic. These
+   generics are simply [62]unions of all the different types of nodes &
+   edges you have in your application. As long as you have typed the data
+   objects correctly (see previous section), you can use their exported
+   type.
+
+   If you use any of the built-in nodes (`input', `output', `default') or
+   edges (`straight', `step', `smoothstep', `bezier'), you can add the
+   BuiltInNode and BuiltInEdge types exported from @xyflow/react to your
+   union type.
+import type { BuiltInNode, BuiltInEdge } from '@xyflow/react';
+
+// Custom nodes
+import NumberNode from './NumberNode';
+import TextNode from './TextNode';
+
+// Custom edge
+import EditableEdge from './EditableEdge';
+
+export type CustomNodeType = BuiltInNode | NumberNode | TextNode;
+export type CustomEdgeType = BuiltInEdge | EditableEdge;
+
+   (BUTTON)
+
+Functions passed to <ReactFlow />
+
+   To receive correct types for callback functions, you can pass your
+   union types to the ReactFlow component. By doing that you will have to
+   type your callback functions explicitly.
+import { type OnNodeDrag } from '@xyflow/react';
+
+// ...
+
+// Pass your union type here ...
+const onNodeDrag: OnNodeDrag<CustomNodeType> = useCallback((_, node) => {
+  if (node.type === 'number') {
+    // From here on, Typescript knows that node.data
+    // is of type { num: number }
+    console.log('drag event', node.data.number);
+  }
+}, []);
+
+const onNodesChange: OnNodesChange<CustomNodeType> = useCallback(
+  (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+  [setNodes],
+);
+
+   (BUTTON)
+
+Hooks
+
+   The type unions can also be used to type the return values of many
+   hooks.
+   FlowComponent.tsx
+import {
+  useReactFlow,
+  useHandleConnections,
+  useNodesData,
+  useStore,
+} from '@xyflow/react';
+
+export default function FlowComponent() {
+  // returned nodes and edges are correctly typed now
+  const { getNodes, getEdges } = useReactFlow<CustomNodeType, CustomEdgeType>();
+
+  // You can type useStore by typing the selector function
+  const nodes = useStore((s: ReactFlowState<CustomNodeType>) => ({
+    nodes: s.nodes,
+  }));
+
+  const connections = useHandleConnections({
+    type: 'target',
+  });
+
+  const nodesData = useNodesData<CustomNodeType>(connections?.[0].source);
+
+  nodeData.forEach(({ type, data }) => {
+    if (type === 'number') {
+      // This is type safe because we have narrowed down the type
+      console.log(data.number);
+    }
+  });
+  // ...
+}
+
+   (BUTTON)
+
+Type guards
+
+   There are multiple ways you can define [63]type guards in Typescript.
+   One way is to define type guard functions like isNumberNode or
+   isTextNode to filter out specific nodes from a list of nodes.
+function isNumberNode(node: CustomNodeType): node is NumberNode {
+  return node.type === 'number';
+}
+
+// numberNodes is of type NumberNode[]
+const numberNodes = nodes.filter(isNumberNode);
+
+   (BUTTON)
+   [64]Quickstart[65]Slideshow App
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [66]Getting Started[67]API Reference[68]Examples[69]Showcase
+
+   Social
+   [70]Discord[71]Github[72]X / Twitter[73]Bluesky
+
+   xyflow
+   [74]Blog[75]Open Source[76]About[77]Contact[78]
+   Careers hiring
+
+   Legal
+   [79]MIT License[80]Code of Conduct[81]Imprint
+
+   [82]info@xyflow.com -- Copyright © 2024 [83]webkid GmbH. All rights
+   reserved -- website design by [84]Facu Montanaro
+

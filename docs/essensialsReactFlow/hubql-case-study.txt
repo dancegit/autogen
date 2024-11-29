@@ -1,0 +1,114 @@
+Page: reactflow.dev_files/reactflow.dev/pro/case-studies/hubql-case-study.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Pricing[4]Pro Examples[5]Case Studies[6]Contact Us
+   [7]Sign Up (BUTTON)
+   [8]Case Studies
+
+   Hubql
+
+Flexible data model visualization with Hubql and React Flow
+
+   [9][hubql-tobiasmeixner.jpg]
+   [10]Tobias Meixner
+   Co-Founder of Hubql
+   Flexible data model visualization with Hubql and React Flow screenshot
+
+   Can you briefly describe Hubql?
+
+     Hubql is a collaboration platform for building and visualizing data
+     schemas together.
+
+   Why did you decide to use React Flow?
+
+     We were seeking a React library that helps us to turn data models
+     into visualizations without spending too much time building
+     abstractions and interactive elements. To save time in development
+     we opted for a stable, mature and feature-rich library that we can
+     extend with custom rendering options.
+
+   How are you currently using the library?
+
+     We use React Flow to transform data models such as JSON or Prisma
+     into diagrams or graphs. We pass AST (abstract syntax tree) data to
+     React Flow to generate nodes and edges based on data relationships.
+     These are then rendered with custom nodes in a table-like UI for
+     easier understanding.
+
+   What's something in React Flow that has been particularly useful?
+
+     Mainly the events to control drag and click behaviours of nodes are
+     very useful to extend functionality. Also the rendering of custom
+     nodes gives very high flexibility in the user interface for rich
+     user experiences and branding.
+
+   Have you had any issues along the way?
+
+     We have actually not faced any issues other than performance
+     problems from our side that could be solved by optimizing our React
+     code. React Flow itself is very stable and gives great performance
+     out of the box.
+
+   How have the features of your React Flow subscription helped you so
+   far?
+
+     There was a Pro example that matched our use case. This saved us
+     implementation time on the auto-layout and grouping features, which
+     were key to us. It is also great to get direct support from the
+     React Flow team and to give back to the maintainers directly.
+
+   [11]Check out Hubql
+   [12]Tracking business goals with React Flow-powered maps screenshot
+
+   DoubleLoop
+   Tracking business goals with React Flow-powered maps
+
+   React Flow is the majority of our core user experience. Our users
+   interact with all the of the domain objects in our system via the React
+   Flow pages. We have been leveling up our overall set of to feel as
+   natural as FigJam and Miro.
+   Read more
+   [13]
+   Automating OneSignal's customer engagement with a React Flow workflow
+   builder screenshot
+
+   OneSignal
+   Automating OneSignal's customer engagement with a React Flow workflow
+   builder
+
+   OneSignal is a customer engagement platform, we send over 12 billion
+   messages daily... After finding React Flow and creating an early proof
+   of concept, it was a no brainer that we would use this over building
+   something from scratch.
+   Read more
+
+Get Pro examples, prioritized bug reports, 1:1 support from the maintainers,
+and more with React Flow Pro
+
+   [14]React Flow Pro
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   React Flow Pro
+   [15]Pricing[16]Pro Examples[17]Case Studies[18]Request a Quote[19]Sign
+   Up[20]Sign In
+
+   Social
+   [21]Discord[22]Github[23]X / Twitter[24]Bluesky
+
+   xyflow
+   [25]Blog[26]Open Source[27]About[28]Contact[29]
+   Careers hiring
+
+   Legal
+   [30]Terms of Use[31]Ethical Standards[32]Privacy Policy[33]Imprint
+
+   [34]info@xyflow.com -- Copyright © 2024 [35]webkid GmbH. All rights
+   reserved -- website design by [36]Facu Montanaro
+

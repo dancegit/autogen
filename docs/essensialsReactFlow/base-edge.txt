@@ -1,0 +1,208 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/components/base-edge.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Props
+     * [98]Notes
+
+   [99]Question? Give us feedback ->[100]Edit this page
+
+   What's new?
+   [101]Our examples have a fresh new look[102]React Flow
+   CLI[104]...and more!
+   [105]Reference[106]Components
+   <BaseEdge />
+
+<BaseEdge />
+
+   [107]Source on GitHub
+
+   The <BaseEdge /> component gets used internally for all the edges. It
+   can be used inside a custom edge and handles the invisible helper edge
+   and the edge label for you.
+import { BaseEdge } from '@xyflow/react';
+
+export function CustomEdge({ sourceX, sourceY, targetX, targetY, ...props }) {
+  const [edgePath] = getStraightPath({
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+  });
+
+  return <BaseEdge path={edgePath} {...props} />;
+}
+
+   (BUTTON)
+
+Props
+
+               Name             Type
+   [108]#id
+   string
+   [109]#style
+   React.[110]CSSProperties
+   [111]#interactionWidth
+   number
+   The width of the invisible area around the edge that the user can
+   interact with. This is useful for making the edge easier to click or
+   hover over.
+   [112]#path
+   string
+   The SVG path string that defines the edge. This should look something
+   like 'M 0 0 L 100 100' for a simple line. The utility functions like
+   getSimpleBezierEdge can be used to generate this string for you.
+   [113]#markerStart
+   string
+   The id of the SVG marker to use at the start of the edge. This should
+   be defined in a <defs> element in a separate SVG document or element.
+   [114]#markerEnd
+   string
+   The id of the SVG marker to use at the end of the edge. This should be
+   defined in a <defs> element in a separate SVG document or element.
+   [115]#label
+   string | React.[116]ReactNode
+   The label or custom element to render along the edge. This is commonly
+   a text label or some custom controls.
+   [117]#labelX
+   number
+   [118]#labelY
+   number
+   [119]#labelStyle
+   React.[120]CSSProperties
+   [121]#labelShowBg
+   boolean
+   [122]#labelBgStyle
+   React.[123]CSSProperties
+   [124]#labelBgPadding
+   [number, number]
+   [125]#labelBgBorderRadius
+   number
+
+Notes
+
+     * If you want to use an edge marker with the [126]<BaseEdge />
+       component, you can pass the markerStart or markerEnd props passed
+       to your custom edge through to the [127]<BaseEdge /> component. You
+       can see all the props passed to a custom edge by looking at the
+       [128]EdgeProps type.
+
+   [129]Components[130]Types
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [131]Getting Started[132]API Reference[133]Examples[134]Showcase
+
+   Social
+   [135]Discord[136]Github[137]X / Twitter[138]Bluesky
+
+   xyflow
+   [139]Blog[140]Open Source[141]About[142]Contact[143]
+   Careers hiring
+
+   Legal
+   [144]MIT License[145]Code of Conduct[146]Imprint
+
+   [147]info@xyflow.com -- Copyright © 2024 [148]webkid GmbH. All rights
+   reserved -- website design by [149]Facu Montanaro
+

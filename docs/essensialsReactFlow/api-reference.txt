@@ -1,0 +1,211 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]How to use this reference
+     * [98]A note for our long-term users
+     * [99]A note for JavaScript users
+
+   [100]Question? Give us feedback ->[101]Edit this page
+
+   What's new?
+   [102]Our examples have a fresh new look[103]React Flow
+   CLI[105]...and more!
+   ReferenceAPI Reference
+
+API Reference
+
+   This reference attempts to document every function, hook, component,
+   and type exported by React Flow. If you are looking for guides and
+   tutorials, please refer to our [106]learn section.
+
+How to use this reference
+
+   We think that documentation should answer two broad questions: "what is
+   this thing?" and "how do I use it?"
+
+   To that end, our API reference aims to concisely answer that first
+   question and learn section goes into more detail on the second. If you
+   find yourself clicking around the reference wondering what the heck any
+   of this means, maybe we have a guide that can help you out!
+   [107]
+
+   Custom nodes
+
+   A powerful feature of React Flow is the ability to add custom nodes.
+   Within your custom nodes you can render everything you want. You can
+   define multiple source and target handles and render form inputs or
+   charts for example. In this guide we will implement a node with an
+   input field that updates some text in another part of the application.
+   Read more [108]
+
+   Layouting
+
+   We regularly get asked how to handle layouting in React Flow. While we
+   could build some basic layouting into React Flow, we believe that you
+   know your app's requirements best and with so many options out there we
+   think it's better you choose the best right tool for the job. In this
+   guide we'll look at four layouting libraries and how to use them.
+   Read more
+
+A note for our long-term users
+
+   If you're coming here from our old API pages things might look a bit
+   different! We've reorganized our documentation to make it easier to
+   look things up if you know what you're looking for. All our types,
+   components, hooks, and util functions get their own page now to help
+   you find exactly what you need.
+
+   If you're new to React Flow or you're not sure where to look for
+   something, take a look at the section below.
+
+A note for JavaScript users
+
+   React Flow is written in TypeScript, but we know that not everyone uses
+   it. We encourage developers to use the technology that works best for
+   them, and throughout our documentation there is a blend of TypeScript
+   and JavaScript examples.
+
+   For our API reference, however, we use TypeScript's syntax to document
+   the types of props and functions. Here's a quick crash course on how to
+   read it:
+
+   o ? means that the field or argument is optional.
+
+   o <T> in a type definition represents a generic type parameter. Like a
+   function argument but for types! The definition type Array<T> = ...
+   means a type called Array that takes a generic type parameter T.
+
+   o <T> when referring to a type is like "filling in" a generic type
+   parameter. It's like calling a function but for types! The type
+   Array<number> is the type Array with the generic type parameter T
+   filled in with the type number.
+
+   o T | U means that the type is either T or U: this is often called a
+   union.
+
+   o T & U means that the type is both T and U: this is often called an
+   intersection.
+
+   The TypeScript folks have their own [109]handy guide for reading types
+   that you might find useful. If you're still stuck on something, feel
+   free to drop by our [110]Discord and ask for help!
+   [111]<ReactFlow />
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [112]Getting Started[113]API Reference[114]Examples[115]Showcase
+
+   Social
+   [116]Discord[117]Github[118]X / Twitter[119]Bluesky
+
+   xyflow
+   [120]Blog[121]Open Source[122]About[123]Contact[124]
+   Careers hiring
+
+   Legal
+   [125]MIT License[126]Code of Conduct[127]Imprint
+
+   [128]info@xyflow.com -- Copyright © 2024 [129]webkid GmbH. All rights
+   reserved -- website design by [130]Facu Montanaro
+

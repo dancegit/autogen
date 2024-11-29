@@ -1,0 +1,201 @@
+Page: reactflow.dev_files/reactflow.dev/examples/edges/temporary-edges.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Examples
+     * [10]Feature Overview
+     * (BUTTON) Nodes
+          + [11]Custom Nodes
+          + [12]Updating Nodes
+          + [13]Stress Test
+          + [14]Hidden
+          + [15]Drag Handle
+          + [16]Easy Connect
+          + [17]Add Node On Edge Drop
+          + [18]Proximity Connect
+          + [19]Node Resizer
+          + [20]Node Toolbar
+          + [21]Rotatable Node
+          + [22]Dynamic Grouping
+          + [23]Intersections
+          + [24]Shapes
+          + [25]Connection Limit
+          + [26]Delete Middle Node
+     * (BUTTON) Edges
+          + [27]Custom Edges
+          + [28]Animating Edges
+          + [29]Edge Types
+          + [30]Editable Edge
+          + [31]Reconnect Edge
+          + [32]Connection Line
+          + [33]Multi Connection Line
+          + [34]Edge Markers
+          + [35]Delete Edge on Drop
+          + [36]Floating Edges
+          + [37]Simple Floating Edges
+          + [38]Edge Label Renderer
+          + [39]Temporary Edges
+     * (BUTTON) Layout
+          + [40]Sub Flow
+          + [41]Horizontal Flow
+          + [42]Dagre Tree
+          + [43]Entitree Flex Tree
+          + [44]Elkjs Tree
+          + [45]Elkjs Multiple Handles
+          + [46]Auto Layout
+          + [47]Force Layout
+          + [48]Expand and Collapse
+          + [49]Workflow Builder
+     * (BUTTON) Interaction
+          + [50]Interaction Props
+          + [51]Drag and Drop
+          + [52]Computing Flows
+          + [53]Validation
+          + [54]Connection Events
+          + [55]Preventing Cycles
+          + [56]Undo and Redo
+          + [57]Copy and Paste
+          + [58]Helper Lines
+          + [59]Touch Device
+          + [60]Save and Restore
+          + [61]Zoom Transitions
+          + [62]Collaborative
+          + [63]Contextual Zoom
+          + [64]Context Menu
+     * (BUTTON) Styling
+          + [65]Styled Components
+          + [66]Tailwind
+          + [67]Turbo Flow
+          + [68]Base Style
+          + [69]Dark Mode
+     * (BUTTON) Misc
+          + [70]Static Server Side Generation
+          + [71]Download Image
+          + [72]ReactFlowProvider
+          + [73]useReactFlow
+
+   [74]Examples[75]Edges
+   Temporary Edges
+
+Temporary Edges
+
+   In React Flow, almost everything is built around the concepts of nodes
+   and edges. Edges are the connections between nodes, but what if we want
+   to create an edge that is only connected to one node? What about an
+   "edge" not connected to any nodes at all?
+
+   This example shows how to create an "incomplete" edge when a user
+   releases a connection line without making a connection. A ghost node is
+   rendered where the connection line was released, and a temporary edge
+   is added to the flow. Making use of editable edges, the user can pick
+   the edge back up and complete the connection at which point the ghost
+   node is removed!
+
+   Instead of connecting A directly to B in the flow, try releasing the
+   connection line in an empty space to create a temporary edge!
+
+   IFRAME:
+   [76]https://example-apps.xyflow.com/react/examples/edges/temporary-edge
+   s/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) index.css (BUTTON) useIncompleteEdge.jsx
+   (BUTTON) xy-theme.css
+import {
+  Background,
+  ReactFlow,
+  ReactFlowProvider,
+  useNodesState,
+  useEdgesState,
+} from '@xyflow/react';
+
+import '@xyflow/react/dist/style.css';
+
+
+import { GhostNode, useIncompleteEdge } from './useIncompleteEdge';
+
+const nodeTypes = {
+  ghost: GhostNode,
+};
+
+const initialNodes = [
+  { id: '0', type: 'input', data: { label: 'A' }, position: { x: 0, y: -100 } },
+  { id: '1', type: 'output', data: { label: 'B' }, position: { x: 0, y: 100 } },
+];
+
+const IncompleteEdge = () => {
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  const handlers = useIncompleteEdge();
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      nodeTypes={nodeTypes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      fitView
+      {...handlers}
+      style={{ backgroundColor: "#F7F9FB" }}
+      >
+        <Background />
+      </ReactFlow>
+  );
+};
+
+export default () => (
+  <ReactFlowProvider>
+    <IncompleteEdge />
+  </ReactFlowProvider>
+);
+
+   (BUTTON)
+
+   We've defined a useIncompleteEdge hook that encapsulates the logic for
+   creating and managing a "ghost node". It returns a number of event
+   handlers intended to be passed to the <ReactFlow /> component.
+     * [77]onConnect is called when a complete connection is made.
+     * [78]onConnectEnd is called when the user releases a connection
+       line. The seconed connectionState param can be used to determine if
+       the connection was successful or not and where it started (and
+       ended if the connection is valid). This callback creates a ghost
+       node and a temporary edge from the connectionState.fromNode.id to
+       that ghost node. The temporary edge is marked as reconnectable so
+       that the user can pick it back up and complete the connection.
+     * [79]onReconnect is called when a complete reconnection is made.
+     * [80]onReconnectEnd is called when the user releases a reconnection
+       line. This callback removes the ghost node and temporary edge. A
+       new one may be added back when onConnectEnd is called.
+
+   This example is an adaptation of our [81]add node on edge drop example!
+   [82]Feature Overview[83]Dark Mode
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [84]Getting Started[85]API Reference[86]Examples[87]Showcase
+
+   Social
+   [88]Discord[89]Github[90]X / Twitter[91]Bluesky
+
+   xyflow
+   [92]Blog[93]Open Source[94]About[95]Contact[96]
+   Careers hiring
+
+   Legal
+   [97]MIT License[98]Code of Conduct[99]Imprint
+
+   [100]info@xyflow.com -- Copyright © 2024 [101]webkid GmbH. All rights
+   reserved -- website design by [102]Facu Montanaro
+

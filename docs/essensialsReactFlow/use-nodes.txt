@@ -1,0 +1,176 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/hooks/use-nodes.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Signature
+     * [98]Typescript
+     * [99]Notes
+
+   [100]Question? Give us feedback ->[101]Edit this page
+
+   What's new?
+   [102]Our examples have a fresh new look[103]React Flow
+   CLI[105]...and more!
+   [106]Reference[107]Hooks
+   useNodes()
+
+useNodes
+
+   [108]Source on GitHub
+
+   This hook returns an array of the current nodes. Components that use
+   this hook will re-render whenever any node changes, including when a
+   node is selected or moved.
+import { useNodes } from '@xyflow/react';
+
+export default function () {
+  const nodes = useNodes();
+
+  return <div>There are currently {nodes.length} nodes!</div>;
+}
+
+   (BUTTON)
+
+Signature
+
+       Name     Type
+   [109]#Returns
+   [110]#
+   Node<T>[]
+   An array of all nodes currently in the flow.
+
+Typescript
+
+   This hook accepts a generic type argument of custom node types. See
+   this [111]section in our Typescript guide for more information.
+const nodes = useNodes<CustomNodeType>();
+
+   (BUTTON)
+
+Notes
+
+     * Relying on useNodes unnecessarily can be a common cause of
+       performance issues. Whenever any node changes, this hook will cause
+       the component to re-render. Often we actually care about something
+       more specific, like when the number of nodes changes: where
+       possible try to use [112]useStore instead.
+
+   [113]Hooks[114]Utils
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [115]Getting Started[116]API Reference[117]Examples[118]Showcase
+
+   Social
+   [119]Discord[120]Github[121]X / Twitter[122]Bluesky
+
+   xyflow
+   [123]Blog[124]Open Source[125]About[126]Contact[127]
+   Careers hiring
+
+   Legal
+   [128]MIT License[129]Code of Conduct[130]Imprint
+
+   [131]info@xyflow.com -- Copyright © 2024 [132]webkid GmbH. All rights
+   reserved -- website design by [133]Facu Montanaro
+

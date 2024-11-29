@@ -1,0 +1,826 @@
+Page: reactflow.dev_files/reactflow.dev/learn/layouting/layouting.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   On This Page
+     * [43]Layouting Nodes
+     * [44]Dagre
+     * [45]D3-Hierarchy
+     * [46]D3-Force
+     * [47]Elkjs
+     * [48]Honourable Mentions
+     * [49]Routing Edges
+
+   [50]Question? Give us feedback ->[51]Edit this page
+
+   What's new?
+   [52]Our examples have a fresh new look[53]React Flow
+   CLI[55]...and more!
+   [56]LearnLayouting
+   Layouting Libraries
+
+Layouting
+
+   We regularly get asked how to handle layouting in React Flow. While we
+   could build some basic layouting into React Flow, we believe that you
+   know your app's requirements best and with so many options out there we
+   think it's better you choose the best right tool for the job (not to
+   mention it'd be a whole bunch of work for us).
+
+   That doesn't help very much if you don't know what the options are, so
+   this guide is here to help! We'll split things up into resources for
+   layouting nodes and resources for routing edges.
+
+   To start let's put together a simple example flow that we can use as a
+   base for testing out the different layouting options.
+
+   IFRAME:
+   [57]https://example-apps.xyflow.com/react/learn/layouting-flow-1-empty/
+   index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) index.css (BUTTON) index.html (BUTTON)
+   index.jsx (BUTTON) nodes-edges.js
+import React, { useCallback } from 'react';
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  useNodesState,
+  useEdgesState,
+  useReactFlow,
+} from '@xyflow/react';
+
+import { initialNodes, initialEdges } from './nodes-edges.js';
+import '@xyflow/react/dist/style.css';
+
+const getLayoutedElements = (nodes, edges) => {
+  return { nodes, edges };
+};
+
+const LayoutFlow = () => {
+  const { fitView } = useReactFlow();
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const onLayout = useCallback(() => {
+    const layouted = getLayoutedElements(nodes, edges);
+
+    setNodes([...layouted.nodes]);
+    setEdges([...layouted.edges]);
+
+    window.requestAnimationFrame(() => {
+      fitView();
+    });
+  }, [nodes, edges]);
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      fitView
+    />
+  );
+};
+
+export default function () {
+  return (
+    <ReactFlowProvider>
+      <LayoutFlow />
+    </ReactFlowProvider>
+  );
+}
+
+   (BUTTON)
+
+   Each of the examples that follow will be built on this empty flow.
+   Where possible we've tried to keep the examples confined to just one
+   index.js file so it's easy for you to compare how they're set up.
+
+Layouting Nodes
+
+   For layouting nodes, there are a few third-party libraries that we
+   think are worth checking out:
+   Library Dynamic node sizes Sub-flow layouting Edge routing Bundle size
+   [58]Dagre Yes Yes¹ No [59]Bundle size for @dagrejs/dagre
+   [60]D3-Hierarchy No No No [61]Bundle size for d3-hierarchy
+   [62]D3-Force Yes No No [63]Bundle size for d3-force
+   [64]ELK Yes Yes Yes [65]Bundle size for elkjs
+
+   ¹ Dagre currently has an [66]open issue that prevents it from laying
+   out sub-flows correctly if any nodes in the sub-flow are connected to
+   nodes outside the sub-flow.
+
+   We've loosely ordered these options from simplest to most complex,
+   where dagre is largely a drop-in solution and elkjs is a full-blown
+   highly configurable layouting engine. Below, we'll take a look at a
+   brief example of how each of these libraries can be used with React
+   Flow. For dagre and elkjs specifically, we have some separate examples
+   you can refer back to [67]here and [68]here.
+
+Dagre
+
+     * Repo: [69]https://github.com/dagrejs/dagre
+     * Docs:
+       [70]https://github.com/dagrejs/dagre/wiki#configuring-the-layout
+
+   Dagre is a simple library for layouting directed graphs. It has minimal
+   configuration options and a focus on speed over choosing the most
+   optimal layout. If you need to organise your flows into a tree, we
+   highly recommend dagre.
+
+   IFRAME:
+   [71]https://example-apps.xyflow.com/react/learn/layouting-flow-2-dagre/
+   index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) index.css (BUTTON) index.html (BUTTON)
+   index.jsx (BUTTON) nodes-edges.js
+import Dagre from '@dagrejs/dagre';
+import React, { useCallback } from 'react';
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  Panel,
+  useNodesState,
+  useEdgesState,
+  useReactFlow,
+} from '@xyflow/react';
+
+import { initialNodes, initialEdges } from './nodes-edges.js';
+import '@xyflow/react/dist/style.css';
+
+const getLayoutedElements = (nodes, edges, options) => {
+  const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+  g.setGraph({ rankdir: options.direction });
+
+  edges.forEach((edge) => g.setEdge(edge.source, edge.target));
+  nodes.forEach((node) =>
+    g.setNode(node.id, {
+      ...node,
+      width: node.measured?.width ?? 0,
+      height: node.measured?.height ?? 0,
+    }),
+  );
+
+  Dagre.layout(g);
+
+  return {
+    nodes: nodes.map((node) => {
+      const position = g.node(node.id);
+      // We are shifting the dagre node position (anchor=center center) to the t
+op left
+      // so it matches the React Flow node anchor point (top left).
+      const x = position.x - (node.measured?.width ?? 0) / 2;
+      const y = position.y - (node.measured?.height ?? 0) / 2;
+
+      return { ...node, position: { x, y } };
+    }),
+    edges,
+  };
+};
+
+const LayoutFlow = () => {
+  const { fitView } = useReactFlow();
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const onLayout = useCallback(
+    (direction) => {
+      console.log(nodes);
+      const layouted = getLayoutedElements(nodes, edges, { direction });
+
+      setNodes([...layouted.nodes]);
+      setEdges([...layouted.edges]);
+
+      window.requestAnimationFrame(() => {
+        fitView();
+      });
+    },
+    [nodes, edges],
+  );
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      fitView
+    >
+      <Panel position="top-right">
+        <button onClick={() => onLayout('TB')}>vertical layout</button>
+        <button onClick={() => onLayout('LR')}>horizontal layout</button>
+      </Panel>
+    </ReactFlow>
+  );
+};
+
+export default function () {
+  return (
+    <ReactFlowProvider>
+      <LayoutFlow />
+    </ReactFlowProvider>
+  );
+}
+
+   (BUTTON)
+
+   With no effort at all we get a well-organised tree layout! Whenever
+   getLayoutedElements is called, we'll reset the dagre graph and set the
+   graph's direction (either left-to-right or top-to-bottom) based on the
+   direction prop. Dagre needs to know the dimensions of each node in
+   order to lay them out, so we iterate over our list of nodes and add
+   them to dagre's internal graph.
+
+   After laying out the graph, we'll return an object with the layouted
+   nodes and edges. We do this by mapping over the original list of nodes
+   and updating each node's position according to node stored in the dagre
+   graph.
+
+   Documentation for dagre's configuration options can be found [72]here,
+   including properties to set for spacing and alignment.
+
+D3-Hierarchy
+
+     * Repo: [73]https://github.com/d3/d3-hierarchy
+     * Docs: [74]https://d3js.org/d3-hierarchy
+
+   When you know your graph is a tree with a single root node,
+   d3-hierarchy can provide a handful of interesting layouting options.
+   While the library can layout a simple tree just fine, it also has
+   layouting algorithms for tree maps, partition layouts, and enclosure
+   diagrams.
+
+   IFRAME:
+   [75]https://example-apps.xyflow.com/react/learn/layouting-flow-3-d3-hie
+   rarchy/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) index.css (BUTTON) index.html (BUTTON)
+   index.jsx (BUTTON) nodes-edges.js
+import React, { useCallback } from 'react';
+import { stratify, tree } from 'd3-hierarchy';
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  Panel,
+  useNodesState,
+  useEdgesState,
+  useReactFlow,
+} from '@xyflow/react';
+
+import { initialNodes, initialEdges } from './nodes-edges';
+import '@xyflow/react/dist/style.css';
+
+const g = tree();
+
+const getLayoutedElements = (nodes, edges, options) => {
+  if (nodes.length === 0) return { nodes, edges };
+
+  const { width, height } = document
+    .querySelector(`[data-id="${nodes[0].id}"]`)
+    .getBoundingClientRect();
+  const hierarchy = stratify()
+    .id((node) => node.id)
+    .parentId((node) => edges.find((edge) => edge.target === node.id)?.source);
+  const root = hierarchy(nodes);
+  const layout = g.nodeSize([width * 2, height * 2])(root);
+
+  return {
+    nodes: layout
+      .descendants()
+      .map((node) => ({ ...node.data, position: { x: node.x, y: node.y } })),
+    edges,
+  };
+};
+
+const LayoutFlow = () => {
+  const { fitView } = useReactFlow();
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const onLayout = useCallback(
+    (direction) => {
+      const { nodes: layoutedNodes, edges: layoutedEdges } =
+        getLayoutedElements(nodes, edges, {
+          direction,
+        });
+
+      setNodes([...layoutedNodes]);
+      setEdges([...layoutedEdges]);
+
+      window.requestAnimationFrame(() => {
+        fitView();
+      });
+    },
+    [nodes, edges],
+  );
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      fitView
+    >
+      <Panel position="top-right">
+        <button onClick={onLayout}>layout</button>
+      </Panel>
+    </ReactFlow>
+  );
+};
+
+export default function () {
+  return (
+    <ReactFlowProvider>
+      <LayoutFlow />
+    </ReactFlowProvider>
+  );
+}
+
+   (BUTTON)
+   ¡
+
+   D3-hierarchy expects your graphs to have a single root node, so it
+   won't work in all cases. It's also important to note that d3-hierarchy
+   assigns the same width and height to all nodes when calculating the
+   layout, so it's not the best choice if you're displaying lots of
+   different node types.
+
+D3-Force
+
+     * Repo: [76]https://github.com/d3/d3-force
+     * Docs: [77]https://d3js.org/d3-force
+
+   For something more interesting than a tree, a force-directed layout
+   might be the way to go. D3-Force is a physics-based layouting library
+   that can be used to position nodes by applying different forces to
+   them.
+
+   As a consequence, it's a little more complicated to configure and use
+   compared to dagre and d3-hierarchy. Importantly, d3-force's layouting
+   algorithm is iterative, so we need a way to keep computing the layout
+   across multiple renders.
+
+   First, let's see what it does:
+
+   IFRAME:
+   [78]https://example-apps.xyflow.com/react/learn/layouting-flow-4-d3-for
+   ce/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) collide.js (BUTTON) index.css (BUTTON)
+   index.html (BUTTON) index.jsx (BUTTON) nodes-edges.js
+import {
+  forceSimulation,
+  forceLink,
+  forceManyBody,
+  forceX,
+  forceY,
+} from 'd3-force';
+import React, { useCallback, useMemo, useRef } from 'react';
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  Panel,
+  useNodesState,
+  useEdgesState,
+  useReactFlow,
+  useNodesInitialized,
+} from '@xyflow/react';
+
+import { initialNodes, initialEdges } from './nodes-edges.js';
+import { collide } from './collide.js';
+
+import '@xyflow/react/dist/style.css';
+
+const simulation = forceSimulation()
+  .force('charge', forceManyBody().strength(-1000))
+  .force('x', forceX().x(0).strength(0.05))
+  .force('y', forceY().y(0).strength(0.05))
+  .force('collide', collide())
+  .alphaTarget(0.05)
+  .stop();
+
+const useLayoutedElements = () => {
+  const { getNodes, setNodes, getEdges, fitView } = useReactFlow();
+  const initialized = useNodesInitialized();
+
+  // You can use these events if you want the flow to remain interactive while
+  // the simulation is running. The simulation is typically responsible for sett
+ing
+  // the position of nodes, but if we have a reference to the node being dragged
+,
+  // we use that position instead.
+  const draggingNodeRef = useRef(null);
+  const dragEvents = useMemo(
+    () => ({
+      start: (_event, node) => (draggingNodeRef.current = node),
+      drag: (_event, node) => (draggingNodeRef.current = node),
+      stop: () => (draggingNodeRef.current = null),
+    }),
+    [],
+  );
+
+  return useMemo(() => {
+    let nodes = getNodes().map((node) => ({
+      ...node,
+      x: node.position.x,
+      y: node.position.y,
+    }));
+    let edges = getEdges().map((edge) => edge);
+    let running = false;
+
+    // If React Flow hasn't initialized our nodes with a width and height yet, o
+r
+    // if there are no nodes in the flow, then we can't run the simulation!
+    if (!initialized || nodes.length === 0) return [false, {}, dragEvents];
+
+    simulation.nodes(nodes).force(
+      'link',
+      forceLink(edges)
+        .id((d) => d.id)
+        .strength(0.05)
+        .distance(100),
+    );
+
+    // The tick function is called every animation frame while the simulation is
+    // running and progresses the simulation one step forward each time.
+    const tick = () => {
+      getNodes().forEach((node, i) => {
+        const dragging = draggingNodeRef.current?.id === node.id;
+
+        // Setting the fx/fy properties of a node tells the simulation to "fix"
+        // the node at that position and ignore any forces that would normally
+        // cause it to move.
+        if (dragging) {
+          nodes[i].fx = draggingNodeRef.current.position.x;
+          nodes[i].fy = draggingNodeRef.current.position.y;
+        } else {
+          delete nodes[i].fx;
+          delete nodes[i].fy;
+        }
+      });
+
+      simulation.tick();
+      setNodes(
+        nodes.map((node) => ({
+          ...node,
+          position: { x: node.fx ?? node.x, y: node.fy ?? node.y },
+        })),
+      );
+
+      window.requestAnimationFrame(() => {
+        // Give React and React Flow a chance to update and render the new node
+        // positions before we fit the viewport to the new layout.
+        fitView();
+
+        // If the simulation hasn't been stopped, schedule another tick.
+        if (running) tick();
+      });
+    };
+
+    const toggle = () => {
+      if (!running) {
+        getNodes().forEach((node, index) => {
+          let simNode = nodes[index];
+          Object.assign(simNode, node);
+          simNode.x = node.position.x;
+          simNode.y = node.position.y;
+        });
+      }
+      running = !running;
+      running && window.requestAnimationFrame(tick);
+    };
+
+    const isRunning = () => running;
+
+    return [true, { toggle, isRunning }, dragEvents];
+  }, [initialized, dragEvents, getNodes, getEdges, setNodes, fitView]);
+};
+
+const LayoutFlow = () => {
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+  const [initialized, { toggle, isRunning }, dragEvents] =
+    useLayoutedElements();
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodeDragStart={dragEvents.start}
+      onNodeDrag={dragEvents.drag}
+      onNodeDragStop={dragEvents.stop}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+    >
+      <Panel>
+        {initialized && (
+          <button onClick={toggle}>
+            {isRunning() ? 'Stop' : 'Start'} force simulation
+          </button>
+        )}
+      </Panel>
+    </ReactFlow>
+  );
+};
+
+export default function () {
+  return (
+    <ReactFlowProvider>
+      <LayoutFlow />
+    </ReactFlowProvider>
+  );
+}
+
+   (BUTTON)
+
+   We've changed our getLayoutedElements to a hook called
+   useLayoutedElements instead. Additonally, instead of passing in the
+   nodes and edges explicitly, we'll use get getNodes and getEdges
+   functions from the useReactFlow hook. This is important when combined
+   with the store selector in initialised because it will prevent us from
+   reconfiguring the simulation any time the nodes update.
+
+   The simulation is configured with a number of different forces applied
+   so you can see how they interact: play around in your own code to see
+   how you want to configure those forces. You can find the documentation
+   and some different examples of d3-force [79]here.
+   ¡
+
+   Rectangular collisions D3-Force has a built-in collision force, but it
+   assumes nodes are circles. We've thrown together a custom force in
+   collision.js that uses a similar algorithm but accounts for our
+   rectangular nodes instead. Feel free to steal it or let us know if you
+   have any suggestions for improvements!
+
+   The tick function progresses the simulation by one step and then
+   updates React Flow with the new node positions. We've also included a
+   demonstration on how to handle node dragging while the simulation is
+   running: if your flow isn't interactive you can ignore that part!
+   ¡
+
+   For larger graphs, computing the force layout every render forever is
+   going to incur a big performance hit. In this example we have a simple
+   toggle to turn the layouting on and off, but you might want to come up
+   with some other approach to only compute the layout when necessary.
+
+Elkjs
+
+     * Repo: [80]https://github.com/kieler/elkjs
+     * Docs: [81]https://eclipse.dev/elk/reference.html (good luck!)
+
+   Elkjs is certainly the most configurable option available, but it's
+   also the most complicated. Elkjs is a Java library that's been ported
+   to JavaScript, and it provides a huge number of options for configuring
+   the layout of your graph.
+
+   IFRAME:
+   [82]https://example-apps.xyflow.com/react/learn/layouting-flow-6-elkjs/
+   index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) index.css (BUTTON) index.html (BUTTON)
+   index.jsx (BUTTON) nodes-edges.js
+import ELK from 'elkjs/lib/elk.bundled.js';
+import React, { useCallback } from 'react';
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  Panel,
+  useNodesState,
+  useEdgesState,
+  useReactFlow,
+} from '@xyflow/react';
+
+import { initialNodes, initialEdges } from './nodes-edges.js';
+import '@xyflow/react/dist/style.css';
+
+const elk = new ELK();
+
+const useLayoutedElements = () => {
+  const { getNodes, setNodes, getEdges, fitView } = useReactFlow();
+  const defaultOptions = {
+    'elk.algorithm': 'layered',
+    'elk.layered.spacing.nodeNodeBetweenLayers': 100,
+    'elk.spacing.nodeNode': 80,
+  };
+
+  const getLayoutedElements = useCallback((options) => {
+    const layoutOptions = { ...defaultOptions, ...options };
+    const graph = {
+      id: 'root',
+      layoutOptions: layoutOptions,
+      children: getNodes().map((node) => ({
+        ...node,
+        width: node.measured.width,
+        height: node.measured.height,
+      })),
+      edges: getEdges(),
+    };
+
+    elk.layout(graph).then(({ children }) => {
+      // By mutating the children in-place we saves ourselves from creating a
+      // needless copy of the nodes array.
+      children.forEach((node) => {
+        node.position = { x: node.x, y: node.y };
+      });
+
+      setNodes(children);
+      window.requestAnimationFrame(() => {
+        fitView();
+      });
+    });
+  }, []);
+
+  return { getLayoutedElements };
+};
+
+const LayoutFlow = () => {
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+  const { getLayoutedElements } = useLayoutedElements();
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      fitView
+    >
+      <Panel position="top-right">
+        <button
+          onClick={() =>
+            getLayoutedElements({
+              'elk.algorithm': 'layered',
+              'elk.direction': 'DOWN',
+            })
+          }
+        >
+          vertical layout
+        </button>
+        <button
+          onClick={() =>
+            getLayoutedElements({
+              'elk.algorithm': 'layered',
+              'elk.direction': 'RIGHT',
+            })
+          }
+        >
+          horizontal layout
+        </button>
+        <button
+          onClick={() =>
+            getLayoutedElements({
+              'elk.algorithm': 'org.eclipse.elk.radial',
+            })
+          }
+        >
+          radial layout
+        </button>
+        <button
+          onClick={() =>
+            getLayoutedElements({
+              'elk.algorithm': 'org.eclipse.elk.force',
+            })
+          }
+        >
+          force layout
+        </button>
+      </Panel>
+    </ReactFlow>
+  );
+};
+
+export default function () {
+  return (
+    <ReactFlowProvider>
+      <LayoutFlow />
+    </ReactFlowProvider>
+  );
+}
+
+   (BUTTON)
+
+   At it's most basic we can compute layouts similar to dagre, but because
+   the layouting algorithm runs asynchronously we need to create a
+   useLayoutedElements hook similar to the one we created for d3-force.
+   ¡
+
+   The ELK reference is your new best friend We don't often recommend
+   elkjs because it's complexity makes it difficult for us to support
+   folks when they need it. If you do decide to use it, you'll want to
+   keep the original [83]Java API reference handy.
+
+   We've also included a few examples of some of the other layouting
+   algorithms available, including a non-interactive force layout.
+
+Honourable Mentions
+
+   Of course, we can't go through every layouting library out there: we'd
+   never work on anything else! Here are some other libraries we've come
+   across that might be worth taking a look at:
+     * If you want to use dagre or d3-hierarchy but need to support nodes
+       with different dimensions, both [84]d3-flextree and
+       [85]entitree-flex look promising.
+       You can find an example of how to use entitree-flex with React Flow
+       [86]here.
+     * [87]Cola.js looks like a promising option for so-called
+       "constraint-based" layouts. We haven't had time to properly
+       investigate it yet, but it looks like you can achieve results
+       similar to d3-force but with a lot more control.
+
+Routing Edges
+
+   If you don't have any requirements for edge routing, you can use one of
+   the layouting libraries above to position nodes and let the edges fall
+   wherever they may. Otherwise, you'll want to look into some libraries
+   and techniques for edge routing.
+
+   Your options here are more limited than for node layouting, but here
+   are some resources we thought looked promising:
+     * [88]react-flow-smart-edge
+     * [89]Routing Orthogonal Diagram Connectors in JavaScript
+
+   If you do explore some custom edge routing options, consider
+   contributing back to the community by writing a blog post or creating a
+   library!
+
+   Our [90]editable edge Pro Example could also be used as a starting
+   point for implementing a custom edge that can be routed along a
+   specific path.
+   [91]Quickstart[92]Slideshow App
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [93]Getting Started[94]API Reference[95]Examples[96]Showcase
+
+   Social
+   [97]Discord[98]Github[99]X / Twitter[100]Bluesky
+
+   xyflow
+   [101]Blog[102]Open Source[103]About[104]Contact[105]
+   Careers hiring
+
+   Legal
+   [106]MIT License[107]Code of Conduct[108]Imprint
+
+   [109]info@xyflow.com -- Copyright © 2024 [110]webkid GmbH. All rights
+   reserved -- website design by [111]Facu Montanaro
+

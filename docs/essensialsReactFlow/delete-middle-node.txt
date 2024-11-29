@@ -1,0 +1,256 @@
+Page: reactflow.dev_files/reactflow.dev/examples/nodes/delete-middle-node.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Examples
+     * [10]Feature Overview
+     * (BUTTON) Nodes
+          + [11]Custom Nodes
+          + [12]Updating Nodes
+          + [13]Stress Test
+          + [14]Hidden
+          + [15]Drag Handle
+          + [16]Easy Connect
+          + [17]Add Node On Edge Drop
+          + [18]Proximity Connect
+          + [19]Node Resizer
+          + [20]Node Toolbar
+          + [21]Rotatable Node
+          + [22]Dynamic Grouping
+          + [23]Intersections
+          + [24]Shapes
+          + [25]Connection Limit
+          + [26]Delete Middle Node
+     * (BUTTON) Edges
+          + [27]Custom Edges
+          + [28]Animating Edges
+          + [29]Edge Types
+          + [30]Editable Edge
+          + [31]Reconnect Edge
+          + [32]Connection Line
+          + [33]Multi Connection Line
+          + [34]Edge Markers
+          + [35]Delete Edge on Drop
+          + [36]Floating Edges
+          + [37]Simple Floating Edges
+          + [38]Edge Label Renderer
+          + [39]Temporary Edges
+     * (BUTTON) Layout
+          + [40]Sub Flow
+          + [41]Horizontal Flow
+          + [42]Dagre Tree
+          + [43]Entitree Flex Tree
+          + [44]Elkjs Tree
+          + [45]Elkjs Multiple Handles
+          + [46]Auto Layout
+          + [47]Force Layout
+          + [48]Expand and Collapse
+          + [49]Workflow Builder
+     * (BUTTON) Interaction
+          + [50]Interaction Props
+          + [51]Drag and Drop
+          + [52]Computing Flows
+          + [53]Validation
+          + [54]Connection Events
+          + [55]Preventing Cycles
+          + [56]Undo and Redo
+          + [57]Copy and Paste
+          + [58]Helper Lines
+          + [59]Touch Device
+          + [60]Save and Restore
+          + [61]Zoom Transitions
+          + [62]Collaborative
+          + [63]Contextual Zoom
+          + [64]Context Menu
+     * (BUTTON) Styling
+          + [65]Styled Components
+          + [66]Tailwind
+          + [67]Turbo Flow
+          + [68]Base Style
+          + [69]Dark Mode
+     * (BUTTON) Misc
+          + [70]Static Server Side Generation
+          + [71]Download Image
+          + [72]ReactFlowProvider
+          + [73]useReactFlow
+
+   [74]Examples[75]Nodes
+   Delete Middle Node
+
+Delete Middle Node
+
+   This example shows you how to recover deleted edges when you remove a
+   node from the middle of a chain. In other words, if we have three nodes
+   connected in sequence - a->b->c - and we deleted the middle node b,
+   this example shows you how to end up with the graph a->c.
+
+   To achieve this, we need to make use of a few bits:
+     * The [76]onNodesDelete callback lets us know when a node is deleted.
+     * [77]getConnectedEdges gives us all the edges connected to a node,
+       either as source or target.
+     * [78]getIncomers and [79]getOutgoers give us the nodes connected to
+       a node as source or target.
+
+   All together, this allows us to take all the nodes connected to the
+   deleted node, and reconnect them to any nodes the deleted node was
+   connected to.
+
+   IFRAME:
+   [80]https://example-apps.xyflow.com/react/examples/nodes/delete-middle-
+   node/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) index.css (BUTTON) xy-theme.css
+import React, { useCallback } from 'react';
+import {
+  ReactFlow,
+  Background,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  getIncomers,
+  getOutgoers,
+  getConnectedEdges,
+} from '@xyflow/react';
+
+import '@xyflow/react/dist/style.css';
+
+
+const initialNodes = [
+  {
+    id: '1',
+    type: 'input',
+    data: { label: 'Start here...' },
+    position: { x: -150, y: 0 },
+  },
+  {
+    id: '2',
+    type: 'input',
+    data: { label: '...or here!' },
+    position: { x: 150, y: 0 },
+  },
+  { id: '3', data: { label: 'Delete me.' }, position: { x: 0, y: 100 } },
+  { id: '4', data: { label: 'Then me!' }, position: { x: 0, y: 200 } },
+  {
+    id: '5',
+    type: 'output',
+    data: { label: 'End here!' },
+    position: { x: 0, y: 300 },
+  },
+];
+
+const initialEdges = [
+  { id: '1->3', source: '1', target: '3' },
+  { id: '2->3', source: '2', target: '3' },
+  { id: '3->4', source: '3', target: '4' },
+  { id: '4->5', source: '4', target: '5' },
+];
+
+export default function Flow() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const onConnect = useCallback(
+    (params) => setEdges(addEdge(params, edges)),
+    [edges],
+  );
+  const onNodesDelete = useCallback(
+    (deleted) => {
+      setEdges(
+        deleted.reduce((acc, node) => {
+          const incomers = getIncomers(node, nodes, edges);
+          const outgoers = getOutgoers(node, nodes, edges);
+          const connectedEdges = getConnectedEdges([node], edges);
+
+          const remainingEdges = acc.filter(
+            (edge) => !connectedEdges.includes(edge),
+          );
+
+          const createdEdges = incomers.flatMap(({ id: source }) =>
+            outgoers.map(({ id: target }) => ({
+              id: `${source}->${target}`,
+              source,
+              target,
+            })),
+          );
+
+          return [...remainingEdges, ...createdEdges];
+        }, edges),
+      );
+    },
+    [nodes, edges],
+  );
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onNodesDelete={onNodesDelete}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      fitView
+      attributionPosition="top-right"
+      style={{ backgroundColor: "#F7F9FB" }}
+      >
+        <Background />
+      </ReactFlow>
+  );
+}
+
+   (BUTTON)
+
+   Although this example is less than 20 lines of code there's quite a lot
+   to digest. Let's break some of it down:
+     * Our onNodesDelete callback is called with one argument - deleted -
+       that is an array of every node that was just deleted. If you select
+       an individual node and press the delete key, deleted will contain
+       just that node, but if you make a selection all the nodes in that
+       selection will be in deleted.
+     * We create a new array of edges - remainingEdges - that contains all
+       the edges in the flow that have nothing to do with the node(s) we
+       just deleted.
+     * We create another array of edges by flatMapping over the array of
+       incomers. These are nodes that were connected to the deleted node
+       as a source. For each of these nodes, we create a new edge that
+       connects to each node in the array of outgoers. These are nodes
+       that were connected to the deleted node as a target.
+
+   For brevity, we're using object destructuring while at the same time
+   renaming the variable bound (e.g. ({ id: source }) => ...) destructures
+   the id property of the object and binds it to a new variable called
+   source) but you don't need to do this
+
+Quick Reference
+
+   [81]getConnectedEdges[82]getIncomers[83]Array.prototype.flatMap[84]Dest
+   ructuring assignment
+   [85]Feature Overview[86]Dark Mode
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [87]Getting Started[88]API Reference[89]Examples[90]Showcase
+
+   Social
+   [91]Discord[92]Github[93]X / Twitter[94]Bluesky
+
+   xyflow
+   [95]Blog[96]Open Source[97]About[98]Contact[99]
+   Careers hiring
+
+   Legal
+   [100]MIT License[101]Code of Conduct[102]Imprint
+
+   [103]info@xyflow.com -- Copyright © 2024 [104]webkid GmbH. All rights
+   reserved -- website design by [105]Facu Montanaro
+

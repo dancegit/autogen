@@ -1,0 +1,125 @@
+Page: reactflow.dev_files/reactflow.dev/examples/layout/workflow-builder.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Examples
+     * [10]Feature Overview
+     * (BUTTON) Nodes
+          + [11]Custom Nodes
+          + [12]Updating Nodes
+          + [13]Stress Test
+          + [14]Hidden
+          + [15]Drag Handle
+          + [16]Easy Connect
+          + [17]Add Node On Edge Drop
+          + [18]Proximity Connect
+          + [19]Node Resizer
+          + [20]Node Toolbar
+          + [21]Rotatable Node
+          + [22]Dynamic Grouping
+          + [23]Intersections
+          + [24]Shapes
+          + [25]Connection Limit
+          + [26]Delete Middle Node
+     * (BUTTON) Edges
+          + [27]Custom Edges
+          + [28]Animating Edges
+          + [29]Edge Types
+          + [30]Editable Edge
+          + [31]Reconnect Edge
+          + [32]Connection Line
+          + [33]Multi Connection Line
+          + [34]Edge Markers
+          + [35]Delete Edge on Drop
+          + [36]Floating Edges
+          + [37]Simple Floating Edges
+          + [38]Edge Label Renderer
+          + [39]Temporary Edges
+     * (BUTTON) Layout
+          + [40]Sub Flow
+          + [41]Horizontal Flow
+          + [42]Dagre Tree
+          + [43]Entitree Flex Tree
+          + [44]Elkjs Tree
+          + [45]Elkjs Multiple Handles
+          + [46]Auto Layout
+          + [47]Force Layout
+          + [48]Expand and Collapse
+          + [49]Workflow Builder
+     * (BUTTON) Interaction
+          + [50]Interaction Props
+          + [51]Drag and Drop
+          + [52]Computing Flows
+          + [53]Validation
+          + [54]Connection Events
+          + [55]Preventing Cycles
+          + [56]Undo and Redo
+          + [57]Copy and Paste
+          + [58]Helper Lines
+          + [59]Touch Device
+          + [60]Save and Restore
+          + [61]Zoom Transitions
+          + [62]Collaborative
+          + [63]Contextual Zoom
+          + [64]Context Menu
+     * (BUTTON) Styling
+          + [65]Styled Components
+          + [66]Tailwind
+          + [67]Turbo Flow
+          + [68]Base Style
+          + [69]Dark Mode
+     * (BUTTON) Misc
+          + [70]Static Server Side Generation
+          + [71]Download Image
+          + [72]ReactFlowProvider
+          + [73]useReactFlow
+
+   [74]Examples[75]Layout
+   Workflow Builder
+
+Workflow Builder
+
+   This example can lead as a starting point for your workflow builder
+   app. It includes different ways to add new nodes, such as placeholders
+   or through buttons on the edges.
+
+   This is a Pro example. Get [76]all pro examples, 1:1 support from the
+   xyflow team and prioritized Github issues with a React Flow Pro
+   subscription.
+   [77]See Pricing Plans[78]Sign In
+
+   IFRAME: [79]https://pro-examples.reactflow.dev/workflow-builder
+
+About this Pro Example
+
+     * Dependencies: [80]reactflow, [81]d3-hierarchy
+
+   [82]Feature Overview[83]Dark Mode
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [84]Getting Started[85]API Reference[86]Examples[87]Showcase
+
+   Social
+   [88]Discord[89]Github[90]X / Twitter[91]Bluesky
+
+   xyflow
+   [92]Blog[93]Open Source[94]About[95]Contact[96]
+   Careers hiring
+
+   Legal
+   [97]MIT License[98]Code of Conduct[99]Imprint
+
+   [100]info@xyflow.com -- Copyright © 2024 [101]webkid GmbH. All rights
+   reserved -- website design by [102]Facu Montanaro
+

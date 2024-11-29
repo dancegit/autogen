@@ -1,0 +1,92 @@
+Page: reactflow.dev_files/reactflow.dev/components/edges/button-edge.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Introduction
+     * (BUTTON) Nodes
+          + [10]Tooltip
+          + [11]Placeholder
+          + [12]Database Schema
+          + [13]Annotation
+          + [14]Group with Label
+          + [15]Base Node
+     * (BUTTON) Edges
+          + [16]Edge with Button
+          + [17]Animated SVG Edge
+     * (BUTTON) Controls
+          + [18]Zoom Slider
+          + [19]Zoom Select
+     * (BUTTON) Handles
+          + [20]Handle with Label
+          + [21]Base Handle
+     * (BUTTON) Misc
+          + [22]DevTools
+     *
+     * [23]Request a Component
+
+   [24]Question? Give us feedback ->[25]Edit this page
+
+   What's new?
+   [26]Our examples have a fresh new look[27]React Flow
+   CLI[29]...and more!
+   [30]ComponentsEdgesEdge with Button
+
+Button Edge
+
+   An edge with a button that can be used to trigger a custom action.
+   (BUTTON) Preview (BUTTON) Demo Code
+
+   IFRAME: [31]https://ui.reactflow.dev/components/button-edge
+
+   Dependencies:
+   [32]@xyflow/react[33]lucide-react[34]shadcn/ui/button
+
+Installation
+
+   (BUTTON) CLI (BUTTON) Manual
+
+   Make sure to follow the [35]prerequisites before installing the
+   component.
+   (BUTTON)
+   (BUTTON) npm (BUTTON) pnpm (BUTTON) yarn (BUTTON) bun
+npx shadcn@latest add https://ui.reactflow.dev/button-edge
+
+   (BUTTON) (BUTTON)
+pnpm dlx shadcn@latest add https://ui.reactflow.dev/button-edge
+
+   (BUTTON) (BUTTON)
+yarn dlx shadcn@latest add https://ui.reactflow.dev/button-edge
+
+   (BUTTON) (BUTTON)
+bun x shadcn@latest add https://ui.reactflow.dev/button-edge
+
+   (BUTTON) (BUTTON)
+   [36]Base Node[37]Animated SVG Edge
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [38]Getting Started[39]API Reference[40]Examples[41]Showcase
+
+   Social
+   [42]Discord[43]Github[44]X / Twitter[45]Bluesky
+
+   xyflow
+   [46]Blog[47]Open Source[48]About[49]Contact[50]
+   Careers hiring
+
+   Legal
+   [51]MIT License[52]Code of Conduct[53]Imprint
+
+   [54]info@xyflow.com -- Copyright © 2024 [55]webkid GmbH. All rights
+   reserved -- website design by [56]Facu Montanaro
+

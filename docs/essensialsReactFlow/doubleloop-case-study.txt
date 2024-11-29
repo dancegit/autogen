@@ -1,0 +1,114 @@
+Page: reactflow.dev_files/reactflow.dev/pro/case-studies/doubleloop-case-study.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Pricing[4]Pro Examples[5]Case Studies[6]Contact Us
+   [7]Sign Up (BUTTON)
+   [8]Case Studies
+
+   DoubleLoop
+
+Tracking business goals with React Flow-powered maps
+
+   [9][sumitngupta.png]
+   [10]Sumit Gupta
+   CTO / Co-Founder of Doubleloop
+   Tracking business goals with React Flow-powered maps screenshot
+
+   Can you describe Doubleloop in a sentence?
+
+     We enable organizations to understand how the work they are doing
+     maps to the key outcomes they want to achieve.
+
+   What problem or decision were you facing that made you decide to use
+   React Flow?
+
+     Developer ergonomics- flexibility in that the library is really
+     solving the core of flow-charting and not something more bespoke to
+     their original domain problem. Vibrancy of the project development
+     seen through frequency of changes, community, bugs / PRs, etc.
+
+   How are you currently using React Flow?
+
+     It's the majority of our core user experience. Our users interact
+     with all the of the domain objects in our system via the reactflow
+     pages (we call them Maps). We have been leveling up our overall set
+     of interactions to feel as natural as FigJam and Miro.
+
+   Can you give an example of something about React Flow that you have
+   found especially useful?
+
+     It's the overall ergonomics that feel really nice. The library is
+     opinionated on things that I want a flowchart library opinionated on
+     like the overall domain modeling of a flow chart library but
+     completely un-opinionated on all the things that should be like what
+     exactly is rendered as a Node.
+
+   Have you experienced any issues or challenges while using the library?
+   If so, how were they resolved?
+
+     Mostly around things that I attribute to the youth of the project.
+     Overall its been developing in a great direction that we largely
+     assess by how much custom code we get to delete when a new release
+     is out because it's being handled by new internal APIs.
+
+   How have the features of your React Flow subscription helped you so
+   far?
+
+     100% Pro examples. Those and the Discord chat have been all we've
+     really leveraged to date.
+
+   [11]Check out DoubleLoop
+   [12]Improving Carto's end-user experience with React Flow Pro examples
+   screenshot
+
+   Carto
+   Improving Carto's end-user experience with React Flow Pro examples
+
+   Our customers can solve their spatial problems thanks to our data
+   catalog and analytical tools. We are using React Flow for our Workflows
+   tool, which is our main visual tool to automate data preparation &
+   analysis pipelines
+   Read more
+   [13]
+   Flexible data model visualization with Hubql and React Flow screenshot
+
+   Hubql
+   Flexible data model visualization with Hubql and React Flow
+
+   We were seeking a React library that helps us to turn data models into
+   visualization without spending too much time building abstractions and
+   interactive elements. To save time in development we opted for a
+   stable, mature and feature-rich library that we can extend with custom
+   rendering options.
+   Read more
+
+Get Pro examples, prioritized bug reports, 1:1 support from the maintainers,
+and more with React Flow Pro
+
+   [14]React Flow Pro
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   React Flow Pro
+   [15]Pricing[16]Pro Examples[17]Case Studies[18]Request a Quote[19]Sign
+   Up[20]Sign In
+
+   Social
+   [21]Discord[22]Github[23]X / Twitter[24]Bluesky
+
+   xyflow
+   [25]Blog[26]Open Source[27]About[28]Contact[29]
+   Careers hiring
+
+   Legal
+   [30]Terms of Use[31]Ethical Standards[32]Privacy Policy[33]Imprint
+
+   [34]info@xyflow.com -- Copyright © 2024 [35]webkid GmbH. All rights
+   reserved -- website design by [36]Facu Montanaro
+

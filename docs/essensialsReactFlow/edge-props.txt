@@ -1,0 +1,223 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/types/edge-props.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Fields
+
+   [98]Question? Give us feedback ->[99]Edit this page
+
+   What's new?
+   [100]Our examples have a fresh new look[101]React Flow
+   CLI[103]...and more!
+   [104]Reference[105]Types
+   EdgeProps
+
+EdgeProps
+
+   [106]Source on GitHub
+
+   When you implement a custom edge it is wrapped in a component that
+   enables some basic functionality. Your custom edge component receives
+   the following props:
+export type EdgeProps<EdgeType extends Edge = Edge> = {
+  id: string;
+  animated: boolean;
+  data: EdgeType['data'];
+  style: React.CSSProperties;
+  selected: boolean;
+  source: string;
+  target: string;
+  sourceHandleId?: string | null;
+  targetHandleId?: string | null;
+  interactionWidth: number;
+  sourceX: number;
+  sourceY: number;
+  targetX: number;
+  targetY: number;
+  sourcePosition: Position;
+  targetPosition: Position;
+  label?: string | React.ReactNode;
+  labelStyle?: React.CSSProperties;
+  labelShowBg?: boolean;
+  labelBgStyle?: CSSProperties;
+  labelBgPadding?: [number, number];
+  labelBgBorderRadius?: number;
+  markerStart?: string;
+  markerEnd?: string;
+  pathOptions?: any;
+};
+
+   (BUTTON)
+
+Fields
+
+               Name             Type
+   [107]#id
+   string
+   [108]#animated?
+   boolean
+   [109]#data
+   T
+   [110]#style
+   React.[111]CSSProperties
+   [112]#selected
+   boolean
+   [113]#source
+   string
+   [114]#target
+   string
+   [115]#sourceHandleId?
+   string | null
+   [116]#targetHandleId?
+   string | null
+   [117]#interactionWidth
+   number
+   [118]#sourceX
+   number
+   [119]#sourceY
+   number
+   [120]#targetX
+   number
+   [121]#targetY
+   number
+   [122]#sourcePosition
+   Position
+   [123]#targetPosition
+   Position
+   [124]#label?
+   string | React.[125]ReactNode
+   [126]#labelStyle?
+   React.[127]CSSProperties
+   [128]#labelShowBg?
+   boolean
+   [129]#labelBgStyle?
+   React.[130]CSSProperties
+   [131]#labelBgPadding?
+   [number, number]
+   [132]#labelBgBorderRadius?
+   number
+   [133]#markerStart?
+   string
+   [134]#markerEnd?
+   string
+   [135]#pathOptions?
+   any
+   [136]Types[137]getTransformForBounds()
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [138]Getting Started[139]API Reference[140]Examples[141]Showcase
+
+   Social
+   [142]Discord[143]Github[144]X / Twitter[145]Bluesky
+
+   xyflow
+   [146]Blog[147]Open Source[148]About[149]Contact[150]
+   Careers hiring
+
+   Legal
+   [151]MIT License[152]Code of Conduct[153]Imprint
+
+   [154]info@xyflow.com -- Copyright © 2024 [155]webkid GmbH. All rights
+   reserved -- website design by [156]Facu Montanaro
+

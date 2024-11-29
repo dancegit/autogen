@@ -1,0 +1,322 @@
+Page: reactflow.dev_files/reactflow.dev/learn.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   On This Page
+     * [43]React Flow in 60 seconds
+     * [44]Play online
+     * [45]Vite template
+     * [46]Installation
+     * [47]Creating your first flow
+     * [48]Adding interactivity
+     * [49]Some extra goodies
+     * [50]Next Steps
+
+   [51]Question? Give us feedback ->[52]Edit this page
+
+   What's new?
+   [53]Our examples have a fresh new look[54]React Flow
+   CLI[56]...and more!
+   LearnQuickstart
+
+Quickstart
+
+   If you want to get up-and-running as soon as possible you're in the
+   right place! This page will take you from zero to a working React Flow
+   app in a few minutes. From there, you can take a deeper look at what
+   React Flow is all about, check out the examples, or dive into the API
+   docs.
+
+React Flow in 60 seconds
+
+Play online
+
+   You can try React Flow without setting anything up locally by checking
+   out the starter projects we have on [57]CodeSandbox:
+   [58]JS
+   new.reactflow.dev/js[59]
+   TS
+   new.reactflow.dev/ts
+
+Vite template
+
+   If you want to get started right away, you can use our [60]vite
+   template:
+   (BUTTON)
+   (BUTTON) npm (BUTTON) pnpm (BUTTON) yarn (BUTTON) bun
+npx degit xyflow/vite-react-flow-template app-name
+
+   (BUTTON) (BUTTON)
+pnpm dlx degit xyflow/vite-react-flow-template app-name
+
+   (BUTTON) (BUTTON)
+yarn dlx degit xyflow/vite-react-flow-template app-name
+
+   (BUTTON) (BUTTON)
+bun x degit xyflow/vite-react-flow-template app-name
+
+   (BUTTON) (BUTTON)
+
+Installation
+
+   To get started locally you should have a few things:
+     * [61]Node.js installed.
+     * Either npm or another package manager like [62]yarn or [63]pnpm.
+     * A working knowledge of [64]React. You don't need to be an expert,
+       but you should be comfortable with the basics.
+
+   First, spin up a new [65]React project however you like; we recommend
+   using [66]Vite but the choice is yours.
+   (BUTTON)
+   (BUTTON) npm (BUTTON) pnpm (BUTTON) yarn (BUTTON) bun
+npm init vite my-react-flow-app -- --template react
+
+   (BUTTON) (BUTTON)
+pnpm create vite my-react-flow-app --template react
+
+   (BUTTON) (BUTTON)
+yarn create vite my-react-flow-app --template react
+
+   (BUTTON) (BUTTON)
+bunx create-vite my-react-flow-app --template react
+
+   (BUTTON) (BUTTON)
+
+   React Flow is published on npm as [67]@xyflow/react, so go ahead and
+   add it next.
+   (BUTTON)
+   (BUTTON) npm (BUTTON) pnpm (BUTTON) yarn (BUTTON) bun
+npm install @xyflow/react
+
+   (BUTTON) (BUTTON)
+pnpm add @xyflow/react
+
+   (BUTTON) (BUTTON)
+yarn add @xyflow/react
+
+   (BUTTON) (BUTTON)
+bun add @xyflow/react
+
+   (BUTTON) (BUTTON)
+
+   Lastly, spin up the dev server and we're good to go!
+
+Creating your first flow
+
+   The reactflow package exports the <ReactFlow /> component as the
+   default export. That and a handful of nodes and edges are all we need
+   to get something going! Get rid of everything inside App.jsx and add
+   the following:
+import React from 'react';
+import { ReactFlow } from '@xyflow/react';
+
+import '@xyflow/react/dist/style.css';
+
+const initialNodes = [
+  { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
+  { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
+];
+const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+
+export default function App() {
+  return (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <ReactFlow nodes={initialNodes} edges={initialEdges} />
+    </div>
+  );
+}
+
+   (BUTTON)
+
+   There are a few things to pay attention to here:
+     * ¨ You must import the React Flow stylesheet.
+     * The <ReactFlow /> component must be wrapped in an element with a
+       width and height.
+
+Adding interactivity
+
+   Graphs created with React Flow are fully interactive. We can move nodes
+   around, connect them together, delete them, ... To get the basic
+   functionality we need to add three things:
+     * A callback for what to do when [68]nodes change.
+     * A callback for what to do when [69]edges change.
+     * A callback for what to do when nodes are [70]connected.
+
+   Fortunately for you, we provide some hooks to make this easy!
+import React, { useCallback } from 'react';
+import {
+  ReactFlow,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+} from '@xyflow/react';
+
+import '@xyflow/react/dist/style.css';
+
+const initialNodes = [
+  { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
+  { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
+];
+const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+
+export default function App() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges],
+  );
+
+  return (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+      />
+    </div>
+  );
+}
+
+   (BUTTON)
+
+Some extra goodies
+
+   Finally, React Flow ships with some plugins out of the box for things
+   like a [71]<Minimap /> or viewport [72]<Controls />.
+import React, { useCallback } from 'react';
+import {
+  ReactFlow,
+  MiniMap,
+  Controls,
+  Background,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+} from '@xyflow/react';
+
+import '@xyflow/react/dist/style.css';
+
+import { getStaticCode } from 'xy-shared/server';
+export const getStaticProps = getStaticCode(['learn/quickstart']);
+
+
+const initialNodes = [
+  { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
+  { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
+];
+const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+
+export default function App() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges],
+  );
+
+  return (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+      >
+        <Controls />
+        <MiniMap />
+        <Background variant="dots" gap={12} size={1} />
+      </ReactFlow>
+    </div>
+  );
+}
+
+   (BUTTON)
+
+   IFRAME:
+   [73]https://example-apps.xyflow.com/react/learn/quickstart/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+
+   Et voila. You've already created your first interactive flow! Check out
+   the links below on where to head next.
+
+Next Steps
+
+   [74]Concepts[75]Customization[76]Examples[77]API
+   Reference[78]Discord[79]Template Projects
+   [80]Tutorials
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [81]Getting Started[82]API Reference[83]Examples[84]Showcase
+
+   Social
+   [85]Discord[86]Github[87]X / Twitter[88]Bluesky
+
+   xyflow
+   [89]Blog[90]Open Source[91]About[92]Contact[93]
+   Careers hiring
+
+   Legal
+   [94]MIT License[95]Code of Conduct[96]Imprint
+
+   [97]info@xyflow.com -- Copyright © 2024 [98]webkid GmbH. All rights
+   reserved -- website design by [99]Facu Montanaro
+

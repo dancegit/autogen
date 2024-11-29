@@ -1,0 +1,135 @@
+Page: reactflow.dev_files/reactflow.dev/components/edges/animated-svg-edge.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Introduction
+     * (BUTTON) Nodes
+          + [10]Tooltip
+          + [11]Placeholder
+          + [12]Database Schema
+          + [13]Annotation
+          + [14]Group with Label
+          + [15]Base Node
+     * (BUTTON) Edges
+          + [16]Edge with Button
+          + [17]Animated SVG Edge
+     * (BUTTON) Controls
+          + [18]Zoom Slider
+          + [19]Zoom Select
+     * (BUTTON) Handles
+          + [20]Handle with Label
+          + [21]Base Handle
+     * (BUTTON) Misc
+          + [22]DevTools
+     *
+     * [23]Request a Component
+
+   On This Page
+     * [24]Custom shapes
+
+   [25]Question? Give us feedback ->[26]Edit this page
+
+   What's new?
+   [27]Our examples have a fresh new look[28]React Flow
+   CLI[30]...and more!
+   [31]Components[32]EdgesAnimated SVG Edge
+
+Animated SVG Edge
+
+   An edge that animates a custom SVG element along the edge's path. This
+   component is based on the [33]animating SVG elements example.
+   (BUTTON) Preview (BUTTON) Demo Code
+
+   IFRAME: [34]https://ui.reactflow.dev/components/animated-svg-edge
+
+   Dependencies:
+   [35]@xyflow/react
+
+Installation
+
+   (BUTTON) CLI (BUTTON) Manual
+
+   Make sure to follow the [36]prerequisites before installing the
+   component.
+   (BUTTON)
+   (BUTTON) npm (BUTTON) pnpm (BUTTON) yarn (BUTTON) bun
+npx shadcn@latest add https://ui.reactflow.dev/animated-svg-edge
+
+   (BUTTON) (BUTTON)
+pnpm dlx shadcn@latest add https://ui.reactflow.dev/animated-svg-edge
+
+   (BUTTON) (BUTTON)
+yarn dlx shadcn@latest add https://ui.reactflow.dev/animated-svg-edge
+
+   (BUTTON) (BUTTON)
+bun x shadcn@latest add https://ui.reactflow.dev/animated-svg-edge
+
+   (BUTTON) (BUTTON)
+
+Custom shapes
+
+   It is intended that you add your own SVG shapes to the module. Each
+   shape should be a React component that takes one prop,
+   animateMotionProps, and returns some SVG.
+
+   You can define these shapes in a separate file or in the same file as
+   the edge component. In order to use them, you need to add them to the
+   shapes record like so:
+const shapes = {
+  box: ({ animateMotionProps }) => (
+    <rect width="5" height="5" fill="#ff0073">
+      <animateMotion {...animateMotionProps} />
+    </rect>
+  ),
+} satisfies Record<string, AnimatedSvg>;
+
+   (BUTTON)
+
+   The keys of the shapes record are valid values for the shape field of
+   the edge's data:
+const initialEdges = [
+  {
+    // ...
+    type: "animatedSvgEdge",
+    data: {
+      duration: 2,
+      shape: "box",
+    },
+  } satisfies AnimatedSvgEdge,
+];
+
+   (BUTTON)
+
+   If you want to render regular HTML elements, be sure to wrap them in an
+   SVG <foreignObject /> element. Make sure to give the <foreignObject />
+   an id attribute and use that as the href attribute when rendering the
+   <animateMotion /> element.
+   [37]Edge with Button[38]Zoom Slider
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [39]Getting Started[40]API Reference[41]Examples[42]Showcase
+
+   Social
+   [43]Discord[44]Github[45]X / Twitter[46]Bluesky
+
+   xyflow
+   [47]Blog[48]Open Source[49]About[50]Contact[51]
+   Careers hiring
+
+   Legal
+   [52]MIT License[53]Code of Conduct[54]Imprint
+
+   [55]info@xyflow.com -- Copyright © 2024 [56]webkid GmbH. All rights
+   reserved -- website design by [57]Facu Montanaro
+

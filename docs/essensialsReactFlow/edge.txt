@@ -1,0 +1,260 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/types/edge.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Variants
+     * [98]Edge
+     * [99]SmoothStepEdge
+     * [100]BezierEdge
+     * [101]Default edge types
+
+   [102]Question? Give us feedback ->[103]Edit this page
+
+   What's new?
+   [104]Our examples have a fresh new look[105]React Flow
+   CLI[107]...and more!
+   [108]Reference[109]Types
+   Edge
+
+Edge
+
+   [110]Source on GitHub
+
+   Where a [111]Connection is the minimal description of an edge between
+   two nodes, an Edge is the complete description with everything React
+   Flow needs to know in order to render it.
+export type Edge<T> = DefaultEdge<T> | SmoothStepEdge<T> | BezierEdge<T>;
+
+   (BUTTON)
+
+Variants
+
+Edge
+
+   [112]Source on GitHub
+               Name             Type
+   [113]#id
+   string
+   [114]#type
+   string
+   [115]#style?
+   React.[116]CSSProperties
+   [117]#className?
+   string
+   [118]#source
+   string
+   [119]#target
+   string
+   [120]#sourceHandle
+   string | null
+   [121]#targetHandle
+   string | null
+   [122]#data
+   T
+   [123]#hidden
+   boolean
+   [124]#animated
+   boolean
+   [125]#selected
+   boolean
+   [126]#selectable
+   boolean
+   [127]#deletable
+   boolean
+   [128]#focusable
+   boolean
+   [129]#reconnectable?
+   boolean | "source" | "target"
+   Determines whether the edge can be updated by dragging the source or
+   target to a new node. This property will override the default set by
+   the edgesReconnectable prop on the <ReactFlow /> component.
+   [130]#markerStart
+   string | EdgeMarker
+   [131]#markerEnd
+   string | EdgeMarker
+   [132]#zIndex?
+   number
+   [133]#interactionWidth
+   number
+   ReactFlow renders an invisible path around each edge to make them
+   easier to click or tap on. This property sets the width of that
+   invisible path.
+   [134]#ariaLabel
+   string
+   [135]#label?
+   string | React.[136]ReactNode
+   [137]#labelStyle?
+   React.[138]CSSProperties
+   [139]#labelShowBg?
+   boolean
+   [140]#labelBgStyle?
+   React.[141]CSSProperties
+   [142]#labelBgPadding?
+   [number, number]
+   [143]#labelBgBorderRadius?
+   number
+
+SmoothStepEdge
+
+   [144]Source on GitHub
+
+   The SmoothStepEdge variant has all the same fields as an Edge, but it
+   also has the following additional fields:
+                Name              Type
+   [145]#type
+   "smoothstep"
+   [146]#pathOptions?
+   object
+   [147]#pathOptions.offset?
+   number
+   [148]#pathOptions.borderRadius?
+   number
+
+BezierEdge
+
+   [149]Source on GitHub
+
+   The BezierEdge variant has all the same fields as an Edge, but it also
+   has the following additional fields:
+               Name            Type
+   [150]#type
+   "default"
+   [151]#pathOptions?
+   object
+   [152]#pathOptions.curvature?
+   number
+
+Default edge types
+
+   You can create any of React Flow's default edges by setting the type
+   property to one of the following values:
+     * "default"
+     * "straight"
+     * "step"
+     * "smoothstep"
+     * "simplebezier"
+
+   If you don't set the type property at all, React Flow will fallback to
+   the "default" bezier curve edge type.
+
+   These default edges are available even if you set the [153]edgeTypes
+   prop to something else, unless you override any of these keys directly.
+   [154]Types[155]getTransformForBounds()
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [156]Getting Started[157]API Reference[158]Examples[159]Showcase
+
+   Social
+   [160]Discord[161]Github[162]X / Twitter[163]Bluesky
+
+   xyflow
+   [164]Blog[165]Open Source[166]About[167]Contact[168]
+   Careers hiring
+
+   Legal
+   [169]MIT License[170]Code of Conduct[171]Imprint
+
+   [172]info@xyflow.com -- Copyright © 2024 [173]webkid GmbH. All rights
+   reserved -- website design by [174]Facu Montanaro
+

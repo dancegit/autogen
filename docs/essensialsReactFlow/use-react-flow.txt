@@ -1,0 +1,314 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/hooks/use-react-flow.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Signature
+     * [98]Nodes and edges
+     * [99]Intersections
+     * [100]Viewport fields
+     * [101]Typescript
+     * [102]Notes
+
+   [103]Question? Give us feedback ->[104]Edit this page
+
+   What's new?
+   [105]Our examples have a fresh new look[106]React Flow
+   CLI[108]...and more!
+   [109]Reference[110]Hooks
+   useReactFlow()
+
+useReactFlow
+
+   [111]Source on GitHub
+
+   This hook returns a [112]ReactFlowInstance that can be used to update
+   nodes and edges, manipulate the viewport, or query the current state of
+   the flow.
+import { useCallback, useState } from 'react';
+import { useReactFlow } from '@xyflow/react';
+
+export function NodeCounter() {
+  const reactFlow = useReactFlow();
+  const [count, setCount] = useState(0);
+  const countNodes = useCallback(() => {
+    setCount(reactFlow.getNodes().length);
+    // you need to pass it as a dependency if you are using it with useEffect or
+ useCallback
+    // because at the first render, it's not initialized yet and some functions
+might not work.
+  }, [reactFlow]);
+
+  return (
+    <div>
+      <button onClick={countNodes}>Update count</button>
+      <p>There are {count} nodes in the flow.</p>
+    </div>
+  );
+}
+
+   (BUTTON)
+
+Signature
+
+Nodes and edges
+
+                                    Name                                 Type
+   [113]#getNode
+   (id: string) => Node<T> | undefined
+   [114]#getInternalNode
+   (id: string) => InternalNode<T> | undefined
+   [115]#getNodes
+   () => Node<T>[]
+   [116]#addNodes
+   (payload: Node<T>[] | Node<T>) => void
+   Add one or many nodes to your existing nodes array. Calling this
+   function will trigger the onNodesChange handler in a controlled flow.
+   [117]#setNodes
+   (payload: Node<T>[] | ((nodes: Node<T>[]) => Node<T>[])) => void
+   Set your nodes array to something else by either overwriting it with a
+   new array or by passing in a function to update the existing array. If
+   using a function, it is important to make sure a new array is returned
+   instead of mutating the existing array. Calling this function will
+   trigger the onNodesChange handler in a controlled flow.
+   [118]#getEdge
+   (id: string) => Edge<U> | undefined
+   [119]#getEdges
+   () => Edge<U>[]
+   [120]#addEdges
+   (payload: Edge<U>[] | Edge<U>) => void
+   Add one or many edges to your existing edges array. Calling this
+   function will trigger the onEdgesChange handler in a controlled flow.
+   [121]#setEdges
+   (payload: Edge<U>[] | ((edges: Edge<U>[]) => Edge<U>[])) => void
+   Set your edges array to something else by either overwriting it with a
+   new array or by passing in a function to update the existing array. If
+   using a function, it is important to make sure a new array is returned
+   instead of mutating the existing array. Calling this function will
+   trigger the onEdgesChange handler in a controlled flow.
+   [122]#toObject
+   () => ReactFlowJsonObject<T, U>
+   This function returns a JSON representation of your current React Flow
+   graph.
+   [123]#deleteElements
+   DeleteElements
+   [124]#updateNode
+   (id: string, nodeUpdate: [125]Partial<NodeType> | ((node: NodeType) =>
+   [126]Partial<NodeType>), options?: { replace: boolean }) => void
+   [127]#updateNodeData
+   (id: string, dataUpdate: [128]Partial<NodeType['data']> | ((edge:
+   NodeType) => [129]Partial<NodeType['data']>), options?: { replace:
+   boolean }) => void
+   [130]#updateEdge
+   (id: string, edgeUpdate: [131]Partial<EdgeType> | ((node: EdgeType) =>
+   [132]Partial<EdgeType>), options?: { replace: boolean }) => void
+   [133]#updateEdgeData
+   (id: string, dataUpdate: [134]Partial<EdgeType['data']> | ((edge:
+   EdgeType) => [135]Partial<EdgeType['data']>), options?: { replace:
+   boolean }) => void
+   [136]#getHandleConnections
+   ({ type, nodeId, id }: { type: HandleType, nodeId: string, id?: string
+   | null }) => HandleConnection[]
+   Get all the connections of a handle belonging to a specific node. The
+   type parameter be either 'source' or 'target'.
+   [137]#getNodesBounds
+   (nodes: (NodeType | InternalNode | string)[]) => Rect
+   Returns the bounds of the given nodes or node ids.
+
+Intersections
+
+                                    Name                                  Type
+   [138]#getIntersectingNodes
+   (node: ([139]Partial<Node<T>> & { id: Node["id"] }) | Rect, partially?:
+   boolean, nodes?: Node<T>[]) => Node<T>[]
+   Find all the nodes currently intersecting with a given node or
+   rectangle. The partially parameter can be set to true to include nodes
+   that are only partially intersecting.
+   [140]#isNodeIntersecting
+   (node: ([141]Partial<Node<T>> & { id: Node["id"] }) | Rect, area: Rect,
+   partially?: boolean) => boolean
+   Determine if a given node or rectangle is intersecting with another
+   rectangle. The partially parameter can be set to true return true even
+   if the node is only partially intersecting.
+
+Viewport fields
+
+                                   Name                                 Type
+   [142]#viewportInitialized
+   boolean
+   React Flow needs to mount the viewport to the DOM and initialize its
+   zoom and pan behaviour. This property tells you when
+   [143]#zoomIn
+   (options?: { duration: number; }) => void
+   [144]#zoomOut
+   (options?: { duration: number; }) => void
+   [145]#zoomTo
+   (zoomLevel: number, options?: { duration: number; }) => void
+   Zoom the viewport to a given zoom level. Passing in a duration will
+   animate the viewport to the new zoom level.
+   [146]#getZoom
+   () => number
+   Get the current zoom level of the viewport.
+   [147]#setViewport
+   (viewport: Viewport, options?: { duration: number; }) => void
+   [148]#getViewport
+   () => Viewport
+   [149]#fitView
+   (fitViewOptions?: FitViewOptions) => boolean
+   [150]#setCenter
+   (x: number, y: number, options?: { duration: number, zoom: number; })
+   => void
+   Center the viewport on a given position. Passing in a duration will
+   animate the viewport to the new position.
+   [151]#fitBounds
+   (bounds: Rect, options?: { duration: number, padding: number; }) =>
+   void
+   A low-level utility function to fit the viewport to a given rectangle.
+   By pasing in a duration, the viewport will animate from its current
+   position to the new position. The padding option can be used to add
+   space around the bounds.
+   [152]#screenToFlowPosition
+   (position: { x: number; y: number; }) => { x: number; y: number; }
+   With this function you can translate a screen pixel position to a flow
+   position. It is useful for implemting drag and drop from a sidebar for
+   example.
+   [153]#flowToScreenPosition
+   (position: { x: number; y: number; }) => { x: number; y: number; }
+   Translate a position inside the flow's canvas to a screen pixel
+   position.
+
+Typescript
+
+   This hook accepts a generic type argument of custom node & edge types.
+   See this [154]section in our Typescript guide for more information.
+const reactFlow = useReactFlow<CustomNodeType, CustomEdgeType>();
+
+   (BUTTON)
+
+Notes
+
+     * This hook can only be used in a component that is a child of a
+       [155]<ReactFlowProvider /> or a [156]<ReactFlow /> component.
+     * Unlike [157]useNodes or [158]useEdges, this hook won't cause your
+       component to re-render when state changes. Instead, you can query
+       the state when you need it by using methods on the
+       [159]ReactFlowInstance this hook returns.
+
+   [160]Hooks[161]Utils
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [162]Getting Started[163]API Reference[164]Examples[165]Showcase
+
+   Social
+   [166]Discord[167]Github[168]X / Twitter[169]Bluesky
+
+   xyflow
+   [170]Blog[171]Open Source[172]About[173]Contact[174]
+   Careers hiring
+
+   Legal
+   [175]MIT License[176]Code of Conduct[177]Imprint
+
+   [178]info@xyflow.com -- Copyright © 2024 [179]webkid GmbH. All rights
+   reserved -- website design by [180]Facu Montanaro
+

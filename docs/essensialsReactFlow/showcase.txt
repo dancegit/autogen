@@ -1,0 +1,414 @@
+Page: reactflow.dev_files/reactflow.dev/showcase.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+
+Showcase
+
+See what you can build with React Flow
+
+   We've seen React Flow used to create data processing tools, chatbot
+   builders, machine learning, musical synthesizers, and more. Explore
+   some of our favorite projects from around the internet.
+   (BUTTON) image processing (BUTTON) no-code (BUTTON) open source
+   (BUTTON) flowchart (BUTTON) data visualization (BUTTON) workflow
+   (BUTTON) LLM (BUTTON) automation (BUTTON) hardware (BUTTON) development
+   (BUTTON) CRM (BUTTON) data science (BUTTON) machine learning (BUTTON)
+   chatbot (BUTTON) data processing (BUTTON) robotics (BUTTON) dashboard
+   (BUTTON) marketing (BUTTON) whiteboard (BUTTON) 3D
+   Shaderfrog screenshot
+   Shaderfrog
+
+   (BUTTON) image processing (BUTTON) no-code (BUTTON) open source
+
+   An engine-agnostic no-code shader editor and composer
+   [9]Website [10]Demo
+   Stripe Docs screenshot
+   Stripe Docs
+
+   (BUTTON) flowchart
+
+   Diagrams for process documentation with interactive nodes
+   [11]Website [12]Demo
+   Supabase Schema Visualizer screenshot
+   Supabase Schema Visualizer
+
+   (BUTTON) open source (BUTTON) data visualization
+
+   Visualizes PostgreSQL table relations
+   [13]Website
+   Typeform screenshot
+   Typeform
+
+   (BUTTON) flowchart
+
+   Interactive tool to build and visualize complex survey logic
+   [14]Website [15]Demo
+   Agentok screenshot
+   Agentok
+
+   (BUTTON) workflow (BUTTON) LLM (BUTTON) open source
+
+   Visual tools for multi-agent development built on AutoGen
+   [16]Website [17]Demo
+   AppBlocks screenshot
+   AppBlocks
+
+   (BUTTON) no-code (BUTTON) automation (BUTTON) hardware
+
+   Drag and Drop Node Based Editor to Design Firmware for IoT Devices
+   [18]Website [19]Demo
+   Arroyo screenshot
+   Arroyo
+
+   (BUTTON) open source (BUTTON) development
+
+   Distributed stream processing engine written in Rust
+   [20]Website
+   Attio Automations screenshot
+   Attio Automations
+
+   (BUTTON) automation (BUTTON) no-code (BUTTON) CRM
+
+   Build out workflows to automate common actions across CRM processes
+   [21]Website
+   Baseten screenshot
+   Baseten
+
+   (BUTTON) data science (BUTTON) machine learning
+
+   Editor for orchestrating functions and integrations
+   [22]Website [23]Demo
+   Bit screenshot
+   Bit
+
+   (BUTTON) development (BUTTON) open source
+
+   Visualizer for component dependencies
+   [24]Website [25]Demo
+   Botfront screenshot
+   Botfront
+
+   (BUTTON) chatbot (BUTTON) open source
+
+   No-code editor for creating dialog flows
+   [26]Website [27]Demo
+   Carto Workflows screenshot
+   Carto Workflows
+
+   (BUTTON) data processing (BUTTON) data visualization (BUTTON)
+   automation
+
+   data preparation & analysis for geo data
+   [28]Website
+   Cascade screenshot
+   Cascade
+
+   (BUTTON) automation (BUTTON) data processing
+
+   No-code data transformation toolkit for translating data into tables,
+   charts or interactive apps
+   [29]Website
+   Chainner screenshot
+   Chainner
+
+   (BUTTON) image processing (BUTTON) machine learning (BUTTON) open
+   source
+
+   Node-based UI for chaining image processing workflows powered by neural
+   networks
+   [30]Website
+   ChartDB screenshot
+   ChartDB
+
+   (BUTTON) open source (BUTTON) LLM (BUTTON) data visualization
+
+   Open-source database diagrams editor, visualize and design your DB with
+   a single query.
+   [31]Website [32]Demo
+   Comflow screenshot
+   Comflow
+
+   (BUTTON) automation (BUTTON) robotics
+
+   Framework for controlling robotic systems
+   [33]Website
+   Controllerlab screenshot
+   Controllerlab
+
+   (BUTTON) no-code
+
+   Drag-and-drop tool for remapping input devices
+   [34]Website
+   Covalent screenshot
+   Covalent
+
+   (BUTTON) open source
+
+   Pythonic workflow orchestration platform for high-performance computing
+   [35]Website
+   Datablocks screenshot
+   Datablocks
+
+   (BUTTON) data processing (BUTTON) data visualization
+
+   Editor for exploring, analyzing and transforming data by the creators
+   of React Flow
+   [36]Website [37]Demo
+   Dify screenshot
+   Dify
+
+   (BUTTON) open source (BUTTON) LLM (BUTTON) workflow (BUTTON) machine
+   learning
+
+   An open-source LLM app development platform
+   [38]Website
+   Docugram screenshot
+   Docugram
+
+   (BUTTON) flowchart (BUTTON) LLM
+
+   App that transforms documents into dynamic flow charts.
+   [39]Website
+   Domino screenshot
+   Domino
+
+   (BUTTON) open source (BUTTON) no-code (BUTTON) automation
+
+   Open source platform for creating and monitoring advanced workflows.
+   [40]Website
+   Doubleloop screenshot
+   Doubleloop
+
+   (BUTTON) dashboard
+
+   Node-based dashboard builder to monitor business metrics
+   [41]Website [42]Demo
+   ffmpeg.guide screenshot
+   ffmpeg.guide
+
+   (BUTTON) image processing
+
+   Node-based UI to create FFmpeg filter graphs
+   [43]Website [44]Demo
+   Flojoy screenshot
+   Flojoy
+
+   (BUTTON) development (BUTTON) data science (BUTTON) no-code
+
+   No CodePython Programming for Test, Measurement, & Control
+   [45]Website
+   Flowiseai screenshot
+   Flowiseai
+
+   (BUTTON) no-code (BUTTON) LLM (BUTTON) open source
+
+   Drag & drop UI to build customized LLM flows
+   [46]Website
+   Geoplex screenshot
+   Geoplex
+
+   (BUTTON) data processing
+
+   Tool for creating automated workflows for geo data processing tasks
+   [47]Website [48]Demo
+   Graphologue screenshot
+   Graphologue
+
+   (BUTTON) open source (BUTTON) LLM
+
+   Convert text-based responses from LLMs into graphical diagrams in real
+   time
+   [49]Website [50]Demo
+   Heuristica screenshot
+   Heuristica
+
+   (BUTTON) LLM
+
+   AI-powered mind maps and concept maps for visual learning, thinking and
+   research.
+   [51]Website [52]Demo
+   JSON Sea screenshot
+   JSON Sea
+
+   (BUTTON) data visualization (BUTTON) open source
+
+   Import JSON files to visualize data structures as a graph
+   [53]Website [54]Demo
+   LangFlow screenshot
+   LangFlow
+
+   (BUTTON) open source (BUTTON) machine learning
+
+   Build apps with a drag and drop user interface powered by LangChain
+   [55]Website [56]Demo
+   Onesignal Journeys screenshot
+   Onesignal Journeys
+
+   (BUTTON) automation (BUTTON) marketing
+
+   Visual no-code workflow builder to automate messaging
+   [57]Website [58]Demo
+   Openmetadata screenshot
+   Openmetadata
+
+   (BUTTON) development (BUTTON) open source
+
+   Platform for metadata ingestion, exploration, and collaboration
+   [59]Website [60]Demo
+   OTelBin screenshot
+   OTelBin
+
+   (BUTTON) open source (BUTTON) data processing
+
+   Web-based tool to facilitate OpenTelemetry collector configuration
+   editing and verification
+   [61]Website [62]Demo
+   Otterize screenshot
+   Otterize
+
+   (BUTTON) development (BUTTON) open source
+
+   Kubernetes Cluster Mapping
+   [63]Website [64]Demo
+   Patterns screenshot
+   Patterns
+
+   (BUTTON) data processing
+
+   Visual platform with building blocks for developing AI applications
+   [65]Website [66]Demo
+   Primer screenshot
+   Primer
+
+   (BUTTON) automation (BUTTON) no-code
+
+   no-code commerce automation
+   [67]Website [68]Demo
+   Prismaliser screenshot
+   Prismaliser
+
+   (BUTTON) development (BUTTON) open source
+
+   Database schema visualiser for Prisma
+   [69]Website [70]Demo
+   Redata screenshot
+   Redata
+
+   (BUTTON) development (BUTTON) open source
+
+   Visual explorer to investigate anomalies, metrics, and schema changes
+   in data
+   [71]Website [72]Demo
+   Retool Workflows screenshot
+   Retool Workflows
+
+   (BUTTON) development (BUTTON) automation
+
+   Visual workflow automation with code
+   [73]Website
+   Stack AI screenshot
+   Stack AI
+
+   (BUTTON) machine learning (BUTTON) automation
+
+   Tool for integrating AI with data sources and build AI based
+   automations.
+   [74]Website
+   Strelka UI screenshot
+   Strelka UI
+
+   (BUTTON) open source (BUTTON) data visualization (BUTTON) development
+
+   File analysis interface for Strelka to upload and review file details,
+   highlights, and metadata.
+   [75]Website
+   Studio screenshot
+   Studio
+
+   (BUTTON) open source (BUTTON) whiteboard (BUTTON) data visualization
+
+   Inspiration board where users can add media and text to a canvas
+   [76]Website
+   Taktile screenshot
+   Taktile
+
+   (BUTTON) no-code
+
+   Build, run, and evaluate automated decision flows and risk models
+   [77]Website
+   threegn screenshot
+   threegn
+
+   (BUTTON) 3D (BUTTON) open source
+
+   In-browser procedural 3D graphics editor
+   [78]Website [79]Demo
+   Traverse screenshot
+   Traverse
+
+   (BUTTON) flowchart
+
+   Learning tool with Mindmaps, note-taking, and spaced repetition
+   flashcards
+   [80]Website [81]Demo
+   TSDiagram screenshot
+   TSDiagram
+
+   (BUTTON) development (BUTTON) data visualization
+
+   Draft diagrams and plan code with TypeScript
+   [82]Website
+   Vislabs Workflow screenshot
+   Vislabs Workflow
+
+   (BUTTON) no-code (BUTTON) flowchart (BUTTON) workflow
+
+   White-label workflow builder template for custom development
+   [83]Website
+   VisualFlows.io screenshot
+   VisualFlows.io
+
+   (BUTTON) whiteboard (BUTTON) flowchart (BUTTON) marketing
+
+   Whiteboard and flow-maker
+   [84]Website [85]Demo
+   [86]
+   Your project here?
+
+   Have you built something exciting you want to show off? We want to
+   feature it here!
+   Open an issue on GitHub
+
+Get Pro examples, prioritized bug reports, 1:1 support from the maintainers,
+and more with React Flow Pro
+
+   [87]React Flow Pro
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [88]Getting Started[89]API Reference[90]Examples[91]Showcase
+
+   Social
+   [92]Discord[93]Github[94]X / Twitter[95]Bluesky
+
+   xyflow
+   [96]Blog[97]Open Source[98]About[99]Contact[100]
+   Careers hiring
+
+   Legal
+   [101]MIT License[102]Code of Conduct[103]Imprint
+
+   [104]info@xyflow.com -- Copyright © 2024 [105]webkid GmbH. All rights
+   reserved -- website design by [106]Facu Montanaro
+

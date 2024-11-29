@@ -1,0 +1,265 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/types/node-props.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Usage
+     * [98]Fields
+     * [99]Notes
+
+   [100]Question? Give us feedback ->[101]Edit this page
+
+   What's new?
+   [102]Our examples have a fresh new look[103]React Flow
+   CLI[105]...and more!
+   [106]Reference[107]Types
+   NodeProps
+
+NodeProps<T>
+
+   [108]Source on GitHub
+
+   When you implement a [109]custom node it is wrapped in a component that
+   enables basic functionality like selection and dragging. Your custom
+   node receives the following props:
+export type NodeProps<NodeType extends Node = Node> = {
+  id: string;
+  data: Node['data'];
+  dragHandle?: boolean;
+  type?: string;
+  selected?: boolean;
+  isConnectable?: boolean;
+  zIndex?: number;
+  positionAbsoluteX: number;
+  positionAbsoluteY: number;
+  dragging: boolean;
+  targetPosition?: Position;
+  sourcePosition?: Position;
+};
+
+   (BUTTON)
+
+Usage
+
+import { useState } from 'react';
+import { NodeProps, Node } from '@xyflow/react';
+
+export type CounterNode = Node<
+  {
+    initialCount?: number;
+  },
+  'counter'
+>;
+
+export default function CounterNode(props: NodeProps<CounterNode>) {
+  const [count, setCount] = useState(props.data?.initialCount ?? 0);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button className="nodrag" onClick={() => setCount(count + 1)}>
+        Increment
+      </button>
+    </div>
+  );
+}
+
+   (BUTTON)
+
+   Remember to register your custom node by adding it to the
+   [110]nodeTypes prop of your <ReactFlow /> component.
+import { ReactFlow } from '@xyflow/react';
+import CounterNode from './CounterNode';
+
+const nodeTypes = {
+  counterNode: CounterNode,
+};
+
+export default function App() {
+  return <ReactFlow nodeTypes={nodeTypes} ... />
+}
+
+   (BUTTON)
+
+   You can read more in our [111]custom node guide.
+
+Fields
+
+            Name          Type
+   [112]#id
+   string;
+   [113]#data
+   T;
+   [114]#dragHandle?
+   string;
+   A class name that can be applied to elements inside the node that
+   allows those elements to act as drag handles, letting the user drag the
+   node by clicking and dragging on those elements.
+   [115]#type
+   string;
+   [116]#selected
+   boolean;
+   [117]#isConnectable
+   boolean;
+   [118]#zIndex
+   number;
+   [119]#positionAbsoluteX
+   number;
+   [120]#positionAbsoluteY
+   number;
+   [121]#dragging
+   boolean;
+   [122]#targetPosition
+   Position;
+   [123]#sourcePosition
+   Position;
+
+Notes
+
+     * If you have controls (like a slider) or other elements inside your
+       custom node that should not drag the node you can add the class
+       nodrag to those elements. This prevents the default drag behaviour
+       as well as the default node selection behvaiour when elements with
+       this class are clicked.
+export default function CustomNode(props: NodeProps) {
+  return (
+    <div>
+      <input className="nodrag" type="range" min={0} max={100} />
+    </div>
+  );
+}
+       (BUTTON)
+     * If you have scroll containers inside your custom node you can add
+       the class nowheel to disable the default canvas pan behaviour when
+       scrolling inside your custom nodes.
+export default function CustomNode(props: NodeProps) {
+  return (
+    <div className="nowheel" style={{ overflow: 'auto' }}>
+      <p>Scrollable content...</p>
+    </div>
+  );
+}
+       (BUTTON)
+     * When creating your own custom nodes, you will also need to remember
+       to style them! Custom nodes have no default styles unlike the
+       built-in nodes so you can use any styling method you like such as
+       [124]styled components or [125]tailwind.
+
+   [126]Types[127]getTransformForBounds()
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [128]Getting Started[129]API Reference[130]Examples[131]Showcase
+
+   Social
+   [132]Discord[133]Github[134]X / Twitter[135]Bluesky
+
+   xyflow
+   [136]Blog[137]Open Source[138]About[139]Contact[140]
+   Careers hiring
+
+   Legal
+   [141]MIT License[142]Code of Conduct[143]Imprint
+
+   [144]info@xyflow.com -- Copyright © 2024 [145]webkid GmbH. All rights
+   reserved -- website design by [146]Facu Montanaro
+

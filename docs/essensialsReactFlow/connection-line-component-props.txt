@@ -1,0 +1,187 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/types/connection-line-component-props.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Props
+
+   [98]Question? Give us feedback ->[99]Edit this page
+
+   What's new?
+   [100]Our examples have a fresh new look[101]React Flow
+   CLI[103]...and more!
+   [104]Reference[105]Types
+   ConnectionLineComponentProps
+
+ConnectionLineComponentProps
+
+   [106]Source on GitHub
+
+   If you want to render a custom component for connection lines, you can
+   set the connectionLineComponent prop on the [107]<ReactFlow />
+   component. The ConnectionLineComponentProps are passed to your custom
+   component.
+export type ConnectionLineComponentProps = {
+  connectionLineStyle?: React.CSSProperties;
+  connectionLineType: ConnectionLineType;
+  fromNode?: Node;
+  fromHandle?: Handle;
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+  fromPosition: Position;
+  toPosition: Position;
+  connectionStatus: 'valid' | 'invalid' | null;
+};
+
+   (BUTTON)
+
+Props
+
+              Name           Type
+   [108]#connectionLineStyle?
+   React.[109]CSSProperties
+   [110]#connectionLineType
+   ConnectionLineType
+   [111]#fromNode?
+   Node
+   The node the connection line originates from.
+   [112]#fromHandle?
+   Handle
+   The handle on the fromNode that the connection line originates from.
+   [113]#fromX
+   number
+   [114]#fromY
+   number
+   [115]#toX
+   number
+   [116]#toY
+   number
+   [117]#fromPosition
+   Position
+   [118]#toPosition
+   Position
+   [119]#connectionStatus
+   "valid" | "invalid" | null
+   If there is an isValidConnection callback, this prop will be set to
+   "valid" or "invalid" based on the return value of that callback.
+   Otherwise, it will be null.
+   [120]Types[121]getTransformForBounds()
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [122]Getting Started[123]API Reference[124]Examples[125]Showcase
+
+   Social
+   [126]Discord[127]Github[128]X / Twitter[129]Bluesky
+
+   xyflow
+   [130]Blog[131]Open Source[132]About[133]Contact[134]
+   Careers hiring
+
+   Legal
+   [135]MIT License[136]Code of Conduct[137]Imprint
+
+   [138]info@xyflow.com -- Copyright © 2024 [139]webkid GmbH. All rights
+   reserved -- website design by [140]Facu Montanaro
+

@@ -1,0 +1,168 @@
+Page: reactflow.dev_files/reactflow.dev/index.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+
+Wire Your Ideas with React Flow
+
+A customizable React component for building node-based editors and
+interactive diagrams
+
+   [9]Quickstart[10] React Flow Pro
+   Press enter or space to select a node.You can then use the arrow keys
+   to move the node around. Press delete to remove it and escape to
+   cancel.
+   Press enter or space to select an edge. You can then press delete to
+   remove it or escape to cancel.
+
+
+   Github Stars
+
+1071k
+
+   Weekly Installs
+
+MIT
+
+   License
+
+   React Flow is a MIT-licensed open source library. You can help us to
+   ensure the further development and maintenance by subscribing to React
+   Flow Pro.
+   [11]React Flow Pro
+
+   Getting Started with React Flow
+
+   Make sure you've installed npm, pnpm or yarn. Then you can install
+   React Flow via:
+   npm install @xyflow/react
+   [12]See full Quickstart guide
+
+Ready out-of-the-box
+
+   The things you need are already there: dragging nodes, zooming,
+   panning, selecting multiple nodes, and adding/removing elements are all
+   built-in.
+   [13]Get started
+   (BUTTON) (BUTTON) (BUTTON)
+   Press enter or space to select a node.You can then use the arrow keys
+   to move the node around. Press delete to remove it and escape to
+   cancel.
+   Press enter or space to select an edge. You can then press delete to
+   remove it or escape to cancel.
+
+Powered by us.
+Designed by you.
+
+   React Flow nodes are simply React components, ready for your
+   interactive elements. We play nice with Tailwind and plain old CSS.
+   [14]Custom nodes guide
+   (BUTTON) (BUTTON)
+   Press enter or space to select a node.You can then use the arrow keys
+   to move the node around. Press delete to remove it and escape to
+   cancel.
+   Press enter or space to select an edge. You can then press delete to
+   remove it or escape to cancel.
+
+All the right plugins
+
+   Make more advanced apps with the Background, Minimap, Controls, Panel,
+   NodeToolbar, and NodeResizer components.
+   [15]Read more
+   (BUTTON) (BUTTON) (BUTTON)
+   Press enter or space to select a node.You can then use the arrow keys
+   to move the node around. Press delete to remove it and escape to
+   cancel.
+   Press enter or space to select an edge. You can then press delete to
+   remove it or escape to cancel.
+
+   Used By
+   zapier stripe carto workflows close railway retool doubleloop onesignal
+
+   Project Showcase
+
+Used by thousands of people
+
+   From solo open-source developers, to companies like Stripe and
+   Typeform. We've seen the library used for data processing tools,
+   chatbot builders, machine learning, musical synthezisers, and more.
+   [16]See all projects
+   Stripe Docs
+   DoubleLoop
+   TypeForm
+   (BUTTON)
+
+   Stripe Docs
+
+   Diagrams for process documentation with interactive nodes
+   (BUTTON)
+
+   DoubleLoop
+
+   Node-based dashboard builder to monitor business metrics
+   (BUTTON)
+
+   TypeForm
+
+   Interactive tool to build and visualize complex survey logic
+
+       [18]xyflow team -
+       mV¸We've unified the styles across all examples and added a new
+       theme file to show you how to customize the styles and interactions
+       of your flows.
+       [19]Check it out here
+
+       [21]xyflow team -
+       mV¸Changelog for React Flow version 12.3.5
+
+       [23]xyflow team -
+       mV¸We've been interested in developing reusable components for
+       React Flow for a while now. With the recent releases of shadcn CLI,
+       we've made that happen!
+
+A project by the xyflow team
+
+   We are Christopher, Hayleigh, Peter, Abbey and Moritz. We are the
+   maintainers of React Flow, Svelte Flow, and the communities around them
+   [24]Blog [25]About us [26]Open Source [27]Contact Us
+   [28]
+
+   Svelte Flow
+
+   A customizable Svelte component for building node-based editors and
+   interactive diagrams
+   Visit Website [29]
+
+   xyflow
+
+   The team behind React Flow and Svelte Flow. Read updates and blog posts
+   from us and about how we approach open source development.
+   Visit Website
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [30]Getting Started[31]API Reference[32]Examples[33]Showcase
+
+   Social
+   [34]Discord[35]Github[36]X / Twitter[37]Bluesky
+
+   xyflow
+   [38]Blog[39]Open Source[40]About[41]Contact[42]
+   Careers hiring
+
+   Legal
+   [43]MIT License[44]Code of Conduct[45]Imprint
+
+   [46]info@xyflow.com -- Copyright © 2024 [47]webkid GmbH. All rights
+   reserved -- website design by [48]Facu Montanaro
+

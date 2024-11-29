@@ -1,0 +1,188 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/types/default-edge-options.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Fields
+
+   [98]Question? Give us feedback ->[99]Edit this page
+
+   What's new?
+   [100]Our examples have a fresh new look[101]React Flow
+   CLI[103]...and more!
+   [104]Reference[105]Types
+   DefaultEdgeOptions
+
+DefaultEdgeOptions
+
+   [106]Source on GitHub
+
+   Many properties on an [107]Edge are optional. When a new edge is
+   created, the properties that are not provided will be filled in with
+   the default values passed to the defaultEdgeOptions prop of the
+   [108]<ReactFlow /> component.
+export type DefaultEdgeOptions<T> = {
+  type?: string;
+  animated?: boolean;
+  hidden?: boolean;
+  deletable?: boolean;
+  selectable?: boolean;
+  data?: T;
+  selected?: boolean;
+  markerStart?: string | EdgeMarker;
+  markerEnd?: string | EdgeMarker;
+  zIndex?: number;
+  ariaLabel?: string;
+  interactionWidth?: number;
+  focusable?: boolean;
+};
+
+   (BUTTON)
+
+Fields
+
+            Name          Type
+   [109]#type?
+   string
+   [110]#animated?
+   boolean
+   [111]#hidden?
+   boolean
+   [112]#deletable?
+   boolean
+   [113]#selectable?
+   boolean
+   [114]#data?
+   T
+   [115]#selected?
+   boolean
+   [116]#markerStart?
+   string | EdgeMarker
+   [117]#markerEnd?
+   string | EdgeMarker
+   [118]#zIndex?
+   number
+   [119]#ariaLabel?
+   string
+   [120]#interactionWidth?
+   number
+   [121]#focusable?
+   boolean
+   [122]Types[123]getTransformForBounds()
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [124]Getting Started[125]API Reference[126]Examples[127]Showcase
+
+   Social
+   [128]Discord[129]Github[130]X / Twitter[131]Bluesky
+
+   xyflow
+   [132]Blog[133]Open Source[134]About[135]Contact[136]
+   Careers hiring
+
+   Legal
+   [137]MIT License[138]Code of Conduct[139]Imprint
+
+   [140]info@xyflow.com -- Copyright © 2024 [141]webkid GmbH. All rights
+   reserved -- website design by [142]Facu Montanaro
+

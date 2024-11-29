@@ -1,0 +1,238 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/types/internal-node.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Fields
+
+   [98]Question? Give us feedback ->[99]Edit this page
+
+   What's new?
+   [100]Our examples have a fresh new look[101]React Flow
+   CLI[103]...and more!
+   [104]Reference[105]Types
+   InternalNode
+
+InternalNode
+
+   [106]Source on GitHub
+
+   The InternalNode type is identical to the base [107]Node type but is
+   extended with some additional properties used internall by React Flow.
+   Some functions and callbacks that return nodes may return an
+   InternalNode.
+export type InternalNodeBase<NodeType extends NodeBase = NodeBase> =
+  NodeType & {
+    measured: {
+      width?: number;
+      height?: number;
+    };
+    internals: {
+      positionAbsolute: XYPosition;
+      z: number;
+      userNode: NodeType;
+      handleBounds?: NodeHandleBounds;
+      bounds?: NodeBounds;
+    };
+  };
+
+   (BUTTON)
+
+Fields
+
+                  Name                Type
+   [108]#id
+   string
+   [109]#position
+   XYPosition
+   [110]#data
+   T
+   [111]#type?
+   U
+   [112]#sourcePosition?
+   Position
+   [113]#targetPosition?
+   Position
+   [114]#hidden?
+   boolean
+   Whether or not the node should be visible on the canvas.
+   [115]#selected?
+   boolean
+   [116]#dragging?
+   boolean
+   Whether or not the node is currently being dragged.
+   [117]#draggable?
+   boolean
+   Whether or not the node is able to be dragged.
+   [118]#selectable?
+   boolean
+   [119]#connectable?
+   boolean
+   [120]#resizing?
+   boolean
+   [121]#deletable?
+   boolean
+   [122]#dragHandle?
+   string
+   [123]#width?
+   number | null
+   [124]#height?
+   number | null
+   [125]#parentNode?
+   string
+   [126]#parentId?
+   string
+   [127]#zIndex?
+   number
+   [128]#extent?
+   "parent" | CoordinateExtent
+   [129]#expandParent?
+   boolean
+   When true, the parent node will automatically expand if this node is
+   dragged to the edge of the parent node's bounds.
+   [130]#positionAbsolute?
+   XYPosition
+   [131]#ariaLabel?
+   string
+   [132]#focusable?
+   boolean
+   [133]#style?
+   React.[134]CSSProperties
+   [135]#className?
+   string
+   [136]#handles?
+   NodeHandle[]
+   [137]#origin?
+   NodeOrigin
+   [138]#measured?
+   { width?: number, height?: number }
+   [139]#internals
+   object
+   [140]#internals.positionAbsolute
+   XYPosition
+   [141]#internals.z
+   number
+   [142]#internals.userNode
+   NodeType
+   [143]#internals.handleBounds?
+   NodeHandleBounds
+   [144]#internals.bounds?
+   NodeBounds
+   [145]Types[146]getTransformForBounds()
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [147]Getting Started[148]API Reference[149]Examples[150]Showcase
+
+   Social
+   [151]Discord[152]Github[153]X / Twitter[154]Bluesky
+
+   xyflow
+   [155]Blog[156]Open Source[157]About[158]Contact[159]
+   Careers hiring
+
+   Legal
+   [160]MIT License[161]Code of Conduct[162]Imprint
+
+   [163]info@xyflow.com -- Copyright © 2024 [164]webkid GmbH. All rights
+   reserved -- website design by [165]Facu Montanaro
+

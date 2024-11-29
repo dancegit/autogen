@@ -1,0 +1,166 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/types/connection.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Fields
+
+   [98]Question? Give us feedback ->[99]Edit this page
+
+   What's new?
+   [100]Our examples have a fresh new look[101]React Flow
+   CLI[103]...and more!
+   [104]Reference[105]Types
+   Connection
+
+Connection
+
+   [106]Source on GitHub
+
+   The Connection type is the basic minimal description of an [107]Edge
+   between two nodes. The [108]addEdge util can be used to upgrade a
+   Connection to an [109]Edge.
+export type Connection = {
+  source: string;
+  target: string;
+  sourceHandle: string | null;
+  targetHandle: string | null;
+};
+
+   (BUTTON)
+
+Fields
+
+          Name       Type
+   [110]#source
+   string
+   The id of the node this connection originates from.
+   [111]#target
+   string
+   The id of the node this connection terminates at.
+   [112]#sourceHandle
+   string | null
+   When not null, the id of the handle on the source node that this
+   connection originates from.
+   [113]#targetHandle
+   string | null
+   When not null, the id of the handle on the target node that this
+   connection terminates at.
+   [114]Types[115]getTransformForBounds()
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [116]Getting Started[117]API Reference[118]Examples[119]Showcase
+
+   Social
+   [120]Discord[121]Github[122]X / Twitter[123]Bluesky
+
+   xyflow
+   [124]Blog[125]Open Source[126]About[127]Contact[128]
+   Careers hiring
+
+   Legal
+   [129]MIT License[130]Code of Conduct[131]Imprint
+
+   [132]info@xyflow.com -- Copyright © 2024 [133]webkid GmbH. All rights
+   reserved -- website design by [134]Facu Montanaro
+

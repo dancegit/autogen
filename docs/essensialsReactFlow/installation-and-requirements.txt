@@ -1,0 +1,133 @@
+Page: reactflow.dev_files/reactflow.dev/learn/getting-started/installation-and-requirements.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   On This Page
+     * [43]Hit the ground running
+     * [44]Prior Experience Needed
+
+   [45]Question? Give us feedback ->[46]Edit this page
+
+   What's new?
+   [47]Our examples have a fresh new look[48]React Flow
+   CLI[50]...and more!
+   [51]LearnGetting Started
+   Installation
+
+Installation and Requirements
+
+   For this set-up we assume you already have node.js and npm, yarn or
+   pnpm already installed. The React Flow package is published under
+   [52]@xyflow/react on npm and installable via:
+   (BUTTON)
+   (BUTTON) npm (BUTTON) pnpm (BUTTON) yarn (BUTTON) bun
+npm install @xyflow/react
+
+   (BUTTON) (BUTTON)
+pnpm add @xyflow/react
+
+   (BUTTON) (BUTTON)
+yarn add @xyflow/react
+
+   (BUTTON) (BUTTON)
+bun add @xyflow/react
+
+   (BUTTON) (BUTTON)
+
+   Now you can import the React Flow component and the styles in your
+   application:
+import { ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+   (BUTTON)
+
+Hit the ground running
+
+   To get folks building quickly, we have a template repository on GitHub
+   that uses Vite and TypeScript - we use this set up for all our own
+   React Flow work! You can find the template [53]here.
+
+   To use it, you can either create a new repository from the template, or
+   use degit to grab the template's files without the git history:
+npx degit xyflow/vite-react-flow-template your-app-name
+
+   (BUTTON)
+
+Prior Experience Needed
+
+   React Flow is a React library. That means React developers will feel
+   comfortable using it. If basic React terms and concepts like states,
+   props, components, and hooks are unfamiliar to you, you might need to
+   learn more about React before being able to use React Flow fully. If
+   you've never used React before, we recommend first getting to start on
+   React through tutorials like [54]Codecademy or [55]Reactjs.org.
+   [56]Quickstart[57]Slideshow App
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [58]Getting Started[59]API Reference[60]Examples[61]Showcase
+
+   Social
+   [62]Discord[63]Github[64]X / Twitter[65]Bluesky
+
+   xyflow
+   [66]Blog[67]Open Source[68]About[69]Contact[70]
+   Careers hiring
+
+   Legal
+   [71]MIT License[72]Code of Conduct[73]Imprint
+
+   [74]info@xyflow.com -- Copyright © 2024 [75]webkid GmbH. All rights
+   reserved -- website design by [76]Facu Montanaro
+

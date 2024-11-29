@@ -1,0 +1,218 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/components/controls.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Props
+     * [98]Notes
+
+   [99]Question? Give us feedback ->[100]Edit this page
+
+   What's new?
+   [101]Our examples have a fresh new look[102]React Flow
+   CLI[104]...and more!
+   [105]Reference[106]Components
+   <Controls />
+
+<Controls />
+
+   [107]Source on GitHub
+
+   The <Controls /> component renders a small panel that contain
+   convenient buttons to zoom in, zoom out, fit the view, and lock the
+   viewport.
+import { ReactFlow,  Controls } from '@xyflow/react'
+
+export default function Flow() {
+  return (
+    <ReactFlow nodes={[...]} edges={[...]}>
+      <Controls />
+    </ReactFlow>
+  )
+}
+
+   (BUTTON)
+
+Props
+
+   For TypeScript users, the props type for the <Controls /> component is
+   exported as ControlsProps.
+                   Name                Type Default
+   [108]#showZoom?
+   boolean
+   Whether or not to show the zoom in and zoom out buttons. These buttons
+   will adjust the viewport zoom by a fixed amount each press.
+   true
+
+   [109]#showFitView?
+   boolean
+   Whether or not to show the fit view button. By default this button will
+   adjust the viewport so that all nodes are visible at once.
+   true
+
+   [110]#showInteractive?
+   boolean
+   true
+
+   [111]#fitViewOptions?
+   FitViewOptions
+   Customise the options for the fit view button. These are the same
+   options you would pass to the fitView function.
+
+   [112]#onZoomIn?
+   () => void
+   Called in addition the default zoom behaviour when the zoom in button
+   is clicked.
+
+   [113]#onZoomOut?
+   () => void
+   Called in addition the default zoom behaviour when the zoom out button
+   is clicked.
+
+   [114]#onFitView?
+   () => void
+   Called when the fit view button is clicked. When this is not provided,
+   the viewport will be adjusted so that all nodes are visible.
+
+   [115]#onInteractiveChange?
+   (interactiveStatus: boolean) => void
+   Called when the interactive (lock) button is clicked.
+
+   [116]#position?
+   PanelPosition
+   "bottom-left"
+
+   [117]#ariaLabel?
+   string
+   "React Flow controls"
+
+   [118]#orientation?
+   "horizontal" | "vertical"
+   "vertical"
+
+   Additionally, the <Controls /> component accepts any prop valid on a
+   <div /> element.
+
+Notes
+
+     * To extend or customise the controls, you can use the
+       [119]<ControlButton /> component
+
+   [120]Components[121]Types
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [122]Getting Started[123]API Reference[124]Examples[125]Showcase
+
+   Social
+   [126]Discord[127]Github[128]X / Twitter[129]Bluesky
+
+   xyflow
+   [130]Blog[131]Open Source[132]About[133]Contact[134]
+   Careers hiring
+
+   Legal
+   [135]MIT License[136]Code of Conduct[137]Imprint
+
+   [138]info@xyflow.com -- Copyright © 2024 [139]webkid GmbH. All rights
+   reserved -- website design by [140]Facu Montanaro
+

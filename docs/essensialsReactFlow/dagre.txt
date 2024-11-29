@@ -1,0 +1,238 @@
+Page: reactflow.dev_files/reactflow.dev/examples/layout/dagre.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Examples
+     * [10]Feature Overview
+     * (BUTTON) Nodes
+          + [11]Custom Nodes
+          + [12]Updating Nodes
+          + [13]Stress Test
+          + [14]Hidden
+          + [15]Drag Handle
+          + [16]Easy Connect
+          + [17]Add Node On Edge Drop
+          + [18]Proximity Connect
+          + [19]Node Resizer
+          + [20]Node Toolbar
+          + [21]Rotatable Node
+          + [22]Dynamic Grouping
+          + [23]Intersections
+          + [24]Shapes
+          + [25]Connection Limit
+          + [26]Delete Middle Node
+     * (BUTTON) Edges
+          + [27]Custom Edges
+          + [28]Animating Edges
+          + [29]Edge Types
+          + [30]Editable Edge
+          + [31]Reconnect Edge
+          + [32]Connection Line
+          + [33]Multi Connection Line
+          + [34]Edge Markers
+          + [35]Delete Edge on Drop
+          + [36]Floating Edges
+          + [37]Simple Floating Edges
+          + [38]Edge Label Renderer
+          + [39]Temporary Edges
+     * (BUTTON) Layout
+          + [40]Sub Flow
+          + [41]Horizontal Flow
+          + [42]Dagre Tree
+          + [43]Entitree Flex Tree
+          + [44]Elkjs Tree
+          + [45]Elkjs Multiple Handles
+          + [46]Auto Layout
+          + [47]Force Layout
+          + [48]Expand and Collapse
+          + [49]Workflow Builder
+     * (BUTTON) Interaction
+          + [50]Interaction Props
+          + [51]Drag and Drop
+          + [52]Computing Flows
+          + [53]Validation
+          + [54]Connection Events
+          + [55]Preventing Cycles
+          + [56]Undo and Redo
+          + [57]Copy and Paste
+          + [58]Helper Lines
+          + [59]Touch Device
+          + [60]Save and Restore
+          + [61]Zoom Transitions
+          + [62]Collaborative
+          + [63]Contextual Zoom
+          + [64]Context Menu
+     * (BUTTON) Styling
+          + [65]Styled Components
+          + [66]Tailwind
+          + [67]Turbo Flow
+          + [68]Base Style
+          + [69]Dark Mode
+     * (BUTTON) Misc
+          + [70]Static Server Side Generation
+          + [71]Download Image
+          + [72]ReactFlowProvider
+          + [73]useReactFlow
+
+   [74]Examples[75]Layout
+   Dagre Tree
+
+Dagre Tree
+
+   This example shows how you can integrate [76]dagre.js with React Flow
+   to create simple tree layouts. Good alternatives to dagre are
+   [77]d3-hierarchy or [78]elkjs if you are looking for a more advanced
+   layouting library.
+
+   IFRAME:
+   [79]https://example-apps.xyflow.com/react/examples/layout/dagre/index.h
+   tml
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.tsx (BUTTON) index.css (BUTTON) index.tsx (BUTTON)
+   initialElements.ts (BUTTON) xy-theme.css
+import React, { useCallback } from 'react';
+import {
+  Background,
+  ReactFlow,
+  addEdge,
+  ConnectionLineType,
+  Panel,
+  useNodesState,
+  useEdgesState,
+} from '@xyflow/react';
+import dagre from '@dagrejs/dagre';
+
+import '@xyflow/react/dist/style.css';
+
+import { initialNodes, initialEdges } from './initialElements';
+
+const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+
+const nodeWidth = 172;
+const nodeHeight = 36;
+
+const getLayoutedElements = (nodes, edges, direction = 'TB') => {
+  const isHorizontal = direction === 'LR';
+  dagreGraph.setGraph({ rankdir: direction });
+
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
+
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  const newNodes = nodes.map((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    const newNode = {
+      ...node,
+      targetPosition: isHorizontal ? 'left' : 'top',
+      sourcePosition: isHorizontal ? 'right' : 'bottom',
+      // We are shifting the dagre node position (anchor=center center) to the t
+op left
+      // so it matches the React Flow node anchor point (top left).
+      position: {
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2,
+      },
+    };
+
+    return newNode;
+  });
+
+  return { nodes: newNodes, edges };
+};
+
+const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+  initialNodes,
+  initialEdges,
+);
+
+const Flow = () => {
+  const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
+
+  const onConnect = useCallback(
+    (params) =>
+      setEdges((eds) =>
+        addEdge(
+          { ...params, type: ConnectionLineType.SmoothStep, animated: true },
+          eds,
+        ),
+      ),
+    [],
+  );
+  const onLayout = useCallback(
+    (direction) => {
+      const { nodes: layoutedNodes, edges: layoutedEdges } =
+        getLayoutedElements(nodes, edges, direction);
+
+      setNodes([...layoutedNodes]);
+      setEdges([...layoutedEdges]);
+    },
+    [nodes, edges],
+  );
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      connectionLineType={ConnectionLineType.SmoothStep}
+      fitView
+      style={{ backgroundColor: "#F7F9FB" }}
+    >
+      <Panel position="top-right">
+        <button onClick={() => onLayout('TB')}>vertical layout</button>
+        <button onClick={() => onLayout('LR')}>horizontal layout</button>
+      </Panel>
+      <Background />
+    </ReactFlow>
+  );
+};
+
+export function App() {
+  return <Flow />;
+}
+
+   (BUTTON)
+
+   This example is a demonstration of static layouting. If the nodes or
+   edges in the graph change, the layout won't recalculate! It is possible
+   to do dynamic layouting with dagre (and other libraries), though: see
+   the [80]auto layout pro example for an example of this.
+   [81]Feature Overview[82]Dark Mode
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [83]Getting Started[84]API Reference[85]Examples[86]Showcase
+
+   Social
+   [87]Discord[88]Github[89]X / Twitter[90]Bluesky
+
+   xyflow
+   [91]Blog[92]Open Source[93]About[94]Contact[95]
+   Careers hiring
+
+   Legal
+   [96]MIT License[97]Code of Conduct[98]Imprint
+
+   [99]info@xyflow.com -- Copyright © 2024 [100]webkid GmbH. All rights
+   reserved -- website design by [101]Facu Montanaro
+

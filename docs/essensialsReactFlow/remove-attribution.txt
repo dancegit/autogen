@@ -1,0 +1,143 @@
+Page: reactflow.dev_files/reactflow.dev/learn/troubleshooting/remove-attribution.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   [43]Question? Give us feedback ->[44]Edit this page
+
+   What's new?
+   [45]Our examples have a fresh new look[46]React Flow
+   CLI[48]...and more!
+   [49]Learn[50]Troubleshooting
+   Remove Attribution
+
+Remove Attribution
+
+   This example demonstrates how you can remove the React Flow attribution
+   from the renderer.
+
+   If you're considering removing the attribution, we'd first like to
+   mention:
+
+   If you're using React Flow at your organization and making money from
+   it, we rely on your support to keep React Flow developed and maintained
+   under an MIT License. Before you remove the attribution, [51]see the
+   ways you can support React Flow to keep it running.
+
+   Are you using React Flow for a personal project? Great! Go ahead and
+   remove the attribution. You can support us by reporting any bugs you
+   find, sending us screenshots of your projects, and starring us on
+   [52]Github. If you start making money using React Flow or use it in an
+   organization in the future, we would ask that you re-add the
+   attribution or sign up for one of our subscriptions.
+
+   Thank you for supporting us mV¸»
+     * [53]the xyflow team
+
+   IFRAME:
+   [54]https://example-apps.xyflow.com/react/learn/remove-attribution/inde
+   x.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) index.css (BUTTON) index.html (BUTTON)
+   index.jsx (BUTTON) initialElements.js
+import React from 'react';
+import { ReactFlow, Background } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import { nodes, edges } from './initialElements';
+
+/**
+ * This example demonstrates how you can remove the attribution from the React F
+low renderer.
+ * Please only hide the attribution if you are subscribed to React Flow Pro: htt
+ps://reactflow.dev/pro
+ */
+const proOptions = { hideAttribution: true };
+
+function RemoveAttributionExample() {
+  return (
+    <ReactFlow
+      defaultNodes={nodes}
+      defaultEdges={edges}
+      fitView
+      proOptions={proOptions}
+      nodesDraggable
+    >
+      <Background />
+    </ReactFlow>
+  );
+}
+
+export default RemoveAttributionExample;
+
+   (BUTTON)
+   [55]Mind Map App
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [56]Getting Started[57]API Reference[58]Examples[59]Showcase
+
+   Social
+   [60]Discord[61]Github[62]X / Twitter[63]Bluesky
+
+   xyflow
+   [64]Blog[65]Open Source[66]About[67]Contact[68]
+   Careers hiring
+
+   Legal
+   [69]MIT License[70]Code of Conduct[71]Imprint
+
+   [72]info@xyflow.com -- Copyright © 2024 [73]webkid GmbH. All rights
+   reserved -- website design by [74]Facu Montanaro
+

@@ -1,0 +1,221 @@
+Page: reactflow.dev_files/reactflow.dev/examples/interaction/save-and-restore.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Examples
+     * [10]Feature Overview
+     * (BUTTON) Nodes
+          + [11]Custom Nodes
+          + [12]Updating Nodes
+          + [13]Stress Test
+          + [14]Hidden
+          + [15]Drag Handle
+          + [16]Easy Connect
+          + [17]Add Node On Edge Drop
+          + [18]Proximity Connect
+          + [19]Node Resizer
+          + [20]Node Toolbar
+          + [21]Rotatable Node
+          + [22]Dynamic Grouping
+          + [23]Intersections
+          + [24]Shapes
+          + [25]Connection Limit
+          + [26]Delete Middle Node
+     * (BUTTON) Edges
+          + [27]Custom Edges
+          + [28]Animating Edges
+          + [29]Edge Types
+          + [30]Editable Edge
+          + [31]Reconnect Edge
+          + [32]Connection Line
+          + [33]Multi Connection Line
+          + [34]Edge Markers
+          + [35]Delete Edge on Drop
+          + [36]Floating Edges
+          + [37]Simple Floating Edges
+          + [38]Edge Label Renderer
+          + [39]Temporary Edges
+     * (BUTTON) Layout
+          + [40]Sub Flow
+          + [41]Horizontal Flow
+          + [42]Dagre Tree
+          + [43]Entitree Flex Tree
+          + [44]Elkjs Tree
+          + [45]Elkjs Multiple Handles
+          + [46]Auto Layout
+          + [47]Force Layout
+          + [48]Expand and Collapse
+          + [49]Workflow Builder
+     * (BUTTON) Interaction
+          + [50]Interaction Props
+          + [51]Drag and Drop
+          + [52]Computing Flows
+          + [53]Validation
+          + [54]Connection Events
+          + [55]Preventing Cycles
+          + [56]Undo and Redo
+          + [57]Copy and Paste
+          + [58]Helper Lines
+          + [59]Touch Device
+          + [60]Save and Restore
+          + [61]Zoom Transitions
+          + [62]Collaborative
+          + [63]Contextual Zoom
+          + [64]Context Menu
+     * (BUTTON) Styling
+          + [65]Styled Components
+          + [66]Tailwind
+          + [67]Turbo Flow
+          + [68]Base Style
+          + [69]Dark Mode
+     * (BUTTON) Misc
+          + [70]Static Server Side Generation
+          + [71]Download Image
+          + [72]ReactFlowProvider
+          + [73]useReactFlow
+
+   [74]Examples[75]Interaction
+   Save and Restore
+
+Save and Restore
+
+   If you want to save and restore a flow you can use the [76]toObject
+   function of the React Flow instance or your local nodes and edges
+   state. In this example you can move nodes around, add ones and save the
+   diagram. Then reload the page and click restore to restore your
+   diagram.
+
+   IFRAME:
+   [77]https://example-apps.xyflow.com/react/examples/interaction/save-and
+   -restore/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) index.css (BUTTON) xy-theme.css
+import React, { useState, useCallback } from 'react';
+import {
+  Background,
+  ReactFlow,
+  ReactFlowProvider,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  useReactFlow,
+  Panel,
+} from '@xyflow/react';
+
+import '@xyflow/react/dist/style.css';
+
+
+const flowKey = 'example-flow';
+
+const getNodeId = () => `randomnode_${+new Date()}`;
+
+const initialNodes = [
+  { id: '1', data: { label: 'Node 1' }, position: { x: 0, y: -50 } },
+  { id: '2', data: { label: 'Node 2' }, position: { x: 0, y: 50 } },
+];
+
+const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+
+const SaveRestore = () => {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [rfInstance, setRfInstance] = useState(null);
+  const { setViewport } = useReactFlow();
+
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges],
+  );
+  const onSave = useCallback(() => {
+    if (rfInstance) {
+      const flow = rfInstance.toObject();
+      localStorage.setItem(flowKey, JSON.stringify(flow));
+    }
+  }, [rfInstance]);
+
+  const onRestore = useCallback(() => {
+    const restoreFlow = async () => {
+      const flow = JSON.parse(localStorage.getItem(flowKey));
+
+      if (flow) {
+        const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+        setNodes(flow.nodes || []);
+        setEdges(flow.edges || []);
+        setViewport({ x, y, zoom });
+      }
+    };
+
+    restoreFlow();
+  }, [setNodes, setViewport]);
+
+  const onAdd = useCallback(() => {
+    const newNode = {
+      id: getNodeId(),
+      data: { label: 'Added node' },
+      position: {
+        x: (Math.random() - 0.5) * 400,
+        y: (Math.random() - 0.5) * 400,
+      },
+    };
+    setNodes((nds) => nds.concat(newNode));
+  }, [setNodes]);
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onInit={setRfInstance}
+      fitView
+      fitViewOptions={{ padding: 2 }}
+      style={{ backgroundColor: "#F7F9FB" }}
+      >
+        <Background />
+      <Panel position="top-right">
+        <button onClick={onSave}>save</button>
+        <button onClick={onRestore}>restore</button>
+        <button onClick={onAdd}>add node</button>
+      </Panel>
+    </ReactFlow>
+  );
+};
+
+export default () => (
+  <ReactFlowProvider>
+    <SaveRestore />
+  </ReactFlowProvider>
+);
+
+   (BUTTON)
+   [78]Feature Overview[79]Dark Mode
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [80]Getting Started[81]API Reference[82]Examples[83]Showcase
+
+   Social
+   [84]Discord[85]Github[86]X / Twitter[87]Bluesky
+
+   xyflow
+   [88]Blog[89]Open Source[90]About[91]Contact[92]
+   Careers hiring
+
+   Legal
+   [93]MIT License[94]Code of Conduct[95]Imprint
+
+   [96]info@xyflow.com -- Copyright © 2024 [97]webkid GmbH. All rights
+   reserved -- website design by [98]Facu Montanaro
+

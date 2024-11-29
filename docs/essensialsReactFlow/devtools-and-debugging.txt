@@ -1,0 +1,242 @@
+Page: reactflow.dev_files/reactflow.dev/learn/advanced-use/devtools-and-debugging.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   On This Page
+     * [43]Node Inspector
+     * [44]Change Logger
+     * [45]Viewport Logger
+     * [46]Let us know what you think
+
+   [47]Question? Give us feedback ->[48]Edit this page
+
+   What's new?
+   [49]Our examples have a fresh new look[50]React Flow
+   CLI[52]...and more!
+   [53]Learn[54]Advanced Use
+   Devtools
+
+Devtools and Debugging
+
+   This is an ongoing experiment on implementing our own React Flow
+   devtools. While we are working on the actual package, we'd love to hear
+   about your feedback and ideas on [55]Discord or via mail at
+   [56]info@xyflow.com.
+
+   React Flow can often seem like a magic black box, but in reality you
+   can reveal quite a lot about its internal state if you know where to
+   look. In this guide we will show you three different ways to reveal the
+   internal state of your flow:
+     * A <ViewportLogger /> component that shows the current position and
+       zoom level of the viewport.
+     * A <NodeInspector /> component that reveals the state of each node.
+     * A <ChangeLogger /> that wraps your flow's onNodesChange handler and
+       logs each change as it is dispatched.
+
+   While we find these tools useful for making sure React Flow is working
+   properly, you might also find them useful for debugging your
+   applications as your flows and their interactions become more complex.
+
+   IFRAME:
+   [57]https://example-apps.xyflow.com/react/learn/devtools/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.tsx (BUTTON) ChangeLogger.tsx (BUTTON) Devtools.tsx
+   (BUTTON) NodeInspector.tsx (BUTTON) ViewportLogger.tsx (BUTTON)
+   index.css (BUTTON) index.html (BUTTON) index.tsx
+import { useCallback } from 'react';
+import {
+  ReactFlow,
+  addEdge,
+  useEdgesState,
+  useNodesState,
+  type Edge,
+  type OnConnect,
+  type Node,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import DevTools from './Devtools';
+
+const initNodes: Node[] = [
+  {
+    id: '1a',
+    type: 'input',
+    data: { label: 'Node 1' },
+    position: { x: 250, y: 5 },
+  },
+  {
+    id: '2a',
+    data: { label: 'Node 2' },
+    position: { x: 100, y: 120 },
+  },
+  {
+    id: '3a',
+    data: { label: 'Node 3' },
+    position: { x: 400, y: 120 },
+  },
+];
+
+const initEdges: Edge[] = [
+  { id: 'e1-2', source: '1a', target: '2a' },
+  { id: 'e1-3', source: '1a', target: '3a' },
+];
+
+const fitViewOptions = { padding: 0.5 };
+
+function Flow() {
+  const [nodes, , onNodesChange] = useNodesState(initNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
+
+  const onConnect: OnConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges],
+  );
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      fitView
+      fitViewOptions={fitViewOptions}
+    >
+      <DevTools />
+    </ReactFlow>
+  );
+}
+
+export default Flow;
+
+   (BUTTON)
+
+   We encourage you to copy any or all of the components from this example
+   into your own projects and modify them to suit your needs: each
+   component works independently!
+
+Node Inspector
+
+   The <NodeInspector /> component makes use of our [58]useNodes hook to
+   access all the nodes in the flow. Typically we discourage using this
+   hook because it will trigger a re-render any time any of your nodes
+   change, but that's exactly what makes it so useful for debugging!
+
+   The width and height properties are added to each node by React Flow
+   after it has measured the node's dimensions. We pass those dimensions,
+   as well as other information like the node's id and type, to a custom
+   <NodeInfo /> component.
+
+   We make use of the [59]<ViewportPortal /> component to let us render
+   the inspector into React Flow's viewport. That means it's content will
+   be positioned and transformed along with the rest of the flow as the
+   user pans and zooms.
+
+Change Logger
+
+   Any change to your nodes and edges that originates from React Flow
+   itself is communicated to you through the onNodesChange and
+   onEdgesChange callbacks. If you are working with a controlled flow
+   (that means you're managing the nodes and edges yourself), you need to
+   apply those changes to your state in order to keep everything in sync.
+
+   The <ChangeLogger /> component wraps your user-provided onNodesChange
+   handler with a custom function that intercepts and logs each change as
+   it is dispatched. We can do this by using the [60]useStore and
+   [61]useStoreApi hooks to access the store and and then update React
+   Flow's internal state accordingly. These two hooks give you powerful
+   access to React Flow's internal state and methods.
+
+   Beyond debugging, using the <ChangeLogger /> can be a great way to
+   learn more about how React Flow works and get you thinking about the
+   different functionality you can build on top of each change.
+
+   You can find documentation on the [62]NodeChange and [63]EdgeChange
+   types in the API reference.
+
+Viewport Logger
+
+   The <ViewportLogger /> is the simplest example of what state you can
+   pull out of React Flow's store if you know what to look for. The state
+   of the viewport is stored internally under the transform key (a name we
+   inherited from [64]d3-zoom). This component extracts the x, y, and zoom
+   components of the transform and renders them into a [65]<Panel />
+   component.
+
+Let us know what you think
+
+   As mentioned above, if you have any feedback or ideas on how to improve
+   the devtools, please let us know on [66]Discord or via mail at
+   [67]info@xyflow.com. If you build your own devtools using these ideas,
+   we'd love to hear about it!
+   [68]Quickstart[69]Slideshow App
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [70]Getting Started[71]API Reference[72]Examples[73]Showcase
+
+   Social
+   [74]Discord[75]Github[76]X / Twitter[77]Bluesky
+
+   xyflow
+   [78]Blog[79]Open Source[80]About[81]Contact[82]
+   Careers hiring
+
+   Legal
+   [83]MIT License[84]Code of Conduct[85]Imprint
+
+   [86]info@xyflow.com -- Copyright © 2024 [87]webkid GmbH. All rights
+   reserved -- website design by [88]Facu Montanaro
+

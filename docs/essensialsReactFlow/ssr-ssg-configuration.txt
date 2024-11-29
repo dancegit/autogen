@@ -1,0 +1,211 @@
+Page: reactflow.dev_files/reactflow.dev/learn/advanced-use/ssr-ssg-configuration.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   On This Page
+     * [43]Node dimensions
+     * [44]Handle positions
+     * [45]Using fitView on the server
+     * [46]Usage with the <ReactFlowProvider>
+
+   [47]Question? Give us feedback ->[48]Edit this page
+
+   What's new?
+   [49]Our examples have a fresh new look[50]React Flow
+   CLI[52]...and more!
+   [53]Learn[54]Advanced Use
+   Server Side Rendering
+
+Server side rendering, server side generation
+
+   Server side rendering is supported since React Flow 12
+
+   This is an advanced use case and assumes you are already familiar with
+   React Flow. If you're new to React Flow, check out our [55]getting
+   started guide.
+
+   In this guide you will learn how to configure React Flow to render a
+   flow on the server, which will allow you to
+     * Display static HTML diagrams in documentation
+     * Render React Flow diagrams in non-js environments
+     * Dynamically generate opengraph images that appear as embeds when
+       sharing a link to your flow
+
+   (If you want to download an image of your flow, there's an easier way
+   to do that on the client-side in our [56]download image example.)
+
+Node dimensions
+
+   You need to configure a few things to make React Flow work on the
+   server, the most important being the node dimensions. React Flow only
+   renders nodes if they have a width and height. Usually you pass nodes
+   without a specific width and height, they are then measured and the
+   dimensions get written to measured.width and measured.height. Since we
+   can't measure the dimensions on the server, we need to pass them
+   explicitly. This can be done with the width and height or the
+   initialWidth and initialHeight node properties.
+const nodes = [
+  {
+    id: '1',
+    type: 'default',
+    position: { x: 0, y: 0 },
+    data: { label: 'Node 1' },
+    width: 100,
+    height: 50,
+  },
+];
+
+   (BUTTON)
+
+   React Flow now knows the dimensions of the node and can render it on
+   the server. The width and height properties are used as an inline style
+   for the node. If you expect nodes to have different dimensions on the
+   client or if the dimensions should by dynamic based on the content, you
+   can use the initialWidth and initialHeight properties. They are only
+   used for the first render (on the server or on the client) as long as
+   the nodes are not measured and measured.width and measured.height are
+   not set.
+   ¡
+
+   There are two ways to specify node dimensions for server side
+   rendering:
+       and don't change.
+
+       known in advance or change.
+
+Handle positions
+
+   You probably also want to render the edges on the server. On the
+   client, React Flow checks the positions of the handles and stores that
+   information to draw the edges. Since we can't measure the handle
+   positions on the server, we need to pass this information, too. This
+   can be done with the handles property of a node.
+const nodes: Node[] = [
+  {
+    id: '1',
+    type: 'default',
+    position: { x: 0, y: 0 },
+    data: { label: 'Node 1' },
+    width: 100,
+    height: 50,
+    handles: [
+      {
+        type: 'target',
+        position: Position.Top,
+        x: 100 / 2,
+        y: 0,
+      },
+      {
+        type: 'source',
+        position: Position.Bottom,
+        x: 100 / 2,
+        y: 50,
+      },
+    ],
+  },
+];
+
+   (BUTTON)
+
+   With this additional information, React Flow knows enough about the
+   handles to render the edges on the server. If you are fine with just
+   rendering the nodes, you can skip this step.
+
+Using fitView on the server
+
+   If you know the dimensions of the React Flow container itself, you can
+   even use fitView on the server. For this, you need to pass the width
+   and height of the container to the ReactFlow component.
+<ReactFlow nodes={nodes} edges={edges} fitView width={1000} height={500} />
+
+   (BUTTON)
+
+   This will calculate the viewport and set the transform on the server in
+   order to include all nodes in the viewport.
+
+Usage with the <ReactFlowProvider>
+
+   If you are using the ReactFlowProvider, you can pass initialNodes,
+   initialEdges and optional wrapper dimensions (initialWidth and
+   initialHeight) and fitView to the provider.
+<ReactFlowProvider
+  initialNodes={nodes}
+  initialEdges={edges}
+  initialWidth={1000}
+  initialHeight={500}
+  fitView
+>
+  <App />
+</ReactFlowProvider>
+
+   (BUTTON)
+   [57]Quickstart[58]Slideshow App
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [59]Getting Started[60]API Reference[61]Examples[62]Showcase
+
+   Social
+   [63]Discord[64]Github[65]X / Twitter[66]Bluesky
+
+   xyflow
+   [67]Blog[68]Open Source[69]About[70]Contact[71]
+   Careers hiring
+
+   Legal
+   [72]MIT License[73]Code of Conduct[74]Imprint
+
+   [75]info@xyflow.com -- Copyright © 2024 [76]webkid GmbH. All rights
+   reserved -- website design by [77]Facu Montanaro
+

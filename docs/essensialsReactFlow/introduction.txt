@@ -1,0 +1,138 @@
+Page: reactflow.dev_files/reactflow.dev/learn/concepts/introduction.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   On This Page
+     * [43]Key Features
+     * [44]Moving on
+
+   [45]Question? Give us feedback ->[46]Edit this page
+
+   What's new?
+   [47]Our examples have a fresh new look[48]React Flow
+   CLI[50]...and more!
+   [51]LearnConcepts
+   Introduction
+
+Introduction
+
+   React Flow is a library for building node-based applications. These can
+   be anything from simple static diagrams to data visualisations to
+   complex visual editors. You can implement custom node types and edges
+   and it comes with components like a minimap and viewport controls out
+   of the box.
+
+   If you're looking to get started quickly check out the [52]quickstart
+   guide, otherwise, let's take a look at React Flow's key features.
+
+Key Features
+
+   Easy to use: React Flow already comes with many of the features you
+   want out of the box. Dragging nodes around, zooming and panning,
+   selecting multiple nodes and edges, and adding/removing edges are all
+   built-in.
+
+   ¨ Customizable: React Flow supports custom node types and edge types.
+   Because custom nodes are just React components, you can implement
+   anything you need: you're not locked in to the built-in node types.
+   Custom edges let you add labels, controls, and bespoke logic to node
+   edges.
+
+   !V! Fast rendering: React Flow only renders nodes that have changed,
+   and makes sures only those that are in the viewport are displayed at
+   all.
+
+   © Built-in plugins: We ship React Flow with a few plugins out of the
+   box:
+     * The [53]<Background /> plugin implements some basic customisable
+       background patterns.
+     * The [54]<MiniMap /> plugin displays a small version of the graph in
+       the corner of the screen.
+     * The [55]<Controls /> plugin adds controls to zoom, center, and lock
+       the viewport.
+     * The [56]<Panel /> plugin makes it easy to position content on top
+       of the viewport.
+     * The [57]<NodeToolbar /> plugin lets you render a toolbar attached
+       to a node.
+     * The [58]<NodeResizer /> plugin makes it easy to add resize
+       funtionality to your nodes.
+
+   ª Reliable: React Flow is entirely written in TypeScript to catch bugs
+   early and make fixes easy. For everything else, we have a robust
+   cypress test suite so you can depend on React Flow with confidence .
+
+Moving on
+
+   Now that you have a better idea of what React Flow is all about, the
+   next page will walk through some common terminology that you will see
+   repeated throughout the documentation: nodes, edges, and handles.
+   [59]Quickstart[60]Slideshow App
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [61]Getting Started[62]API Reference[63]Examples[64]Showcase
+
+   Social
+   [65]Discord[66]Github[67]X / Twitter[68]Bluesky
+
+   xyflow
+   [69]Blog[70]Open Source[71]About[72]Contact[73]
+   Careers hiring
+
+   Legal
+   [74]MIT License[75]Code of Conduct[76]Imprint
+
+   [77]info@xyflow.com -- Copyright © 2024 [78]webkid GmbH. All rights
+   reserved -- website design by [79]Facu Montanaro
+

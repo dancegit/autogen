@@ -1,0 +1,185 @@
+Page: reactflow.dev_files/reactflow.dev/examples/edges/floating-edges.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Examples
+     * [10]Feature Overview
+     * (BUTTON) Nodes
+          + [11]Custom Nodes
+          + [12]Updating Nodes
+          + [13]Stress Test
+          + [14]Hidden
+          + [15]Drag Handle
+          + [16]Easy Connect
+          + [17]Add Node On Edge Drop
+          + [18]Proximity Connect
+          + [19]Node Resizer
+          + [20]Node Toolbar
+          + [21]Rotatable Node
+          + [22]Dynamic Grouping
+          + [23]Intersections
+          + [24]Shapes
+          + [25]Connection Limit
+          + [26]Delete Middle Node
+     * (BUTTON) Edges
+          + [27]Custom Edges
+          + [28]Animating Edges
+          + [29]Edge Types
+          + [30]Editable Edge
+          + [31]Reconnect Edge
+          + [32]Connection Line
+          + [33]Multi Connection Line
+          + [34]Edge Markers
+          + [35]Delete Edge on Drop
+          + [36]Floating Edges
+          + [37]Simple Floating Edges
+          + [38]Edge Label Renderer
+          + [39]Temporary Edges
+     * (BUTTON) Layout
+          + [40]Sub Flow
+          + [41]Horizontal Flow
+          + [42]Dagre Tree
+          + [43]Entitree Flex Tree
+          + [44]Elkjs Tree
+          + [45]Elkjs Multiple Handles
+          + [46]Auto Layout
+          + [47]Force Layout
+          + [48]Expand and Collapse
+          + [49]Workflow Builder
+     * (BUTTON) Interaction
+          + [50]Interaction Props
+          + [51]Drag and Drop
+          + [52]Computing Flows
+          + [53]Validation
+          + [54]Connection Events
+          + [55]Preventing Cycles
+          + [56]Undo and Redo
+          + [57]Copy and Paste
+          + [58]Helper Lines
+          + [59]Touch Device
+          + [60]Save and Restore
+          + [61]Zoom Transitions
+          + [62]Collaborative
+          + [63]Contextual Zoom
+          + [64]Context Menu
+     * (BUTTON) Styling
+          + [65]Styled Components
+          + [66]Tailwind
+          + [67]Turbo Flow
+          + [68]Base Style
+          + [69]Dark Mode
+     * (BUTTON) Misc
+          + [70]Static Server Side Generation
+          + [71]Download Image
+          + [72]ReactFlowProvider
+          + [73]useReactFlow
+
+   [74]Examples[75]Edges
+   Floating Edges
+
+Floating Edges
+
+   This is an example implementation for floating edges. The source and
+   target position of the edges are getting calculated dynamically. You
+   can find the implementation details in the utils.js file.
+
+   IFRAME:
+   [76]https://example-apps.xyflow.com/react/examples/edges/floating-edges
+   /index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) FloatingConnectionLine.jsx (BUTTON)
+   FloatingEdge.jsx (BUTTON) index.css (BUTTON) initialElements.js
+   (BUTTON) xy-theme.css
+import React, { useCallback } from 'react';
+import {
+  ReactFlow,
+  addEdge,
+  Background,
+  useNodesState,
+  useEdgesState,
+  MarkerType,
+} from '@xyflow/react';
+
+import '@xyflow/react/dist/style.css';
+
+
+import FloatingEdge from './FloatingEdge';
+import FloatingConnectionLine from './FloatingConnectionLine';
+import { initialElements } from './initialElements';
+
+const { nodes: initialNodes, edges: initialEdges } = initialElements();
+
+const edgeTypes = {
+  floating: FloatingEdge,
+};
+
+const NodeAsHandleFlow = () => {
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const onConnect = useCallback(
+    (params) =>
+      setEdges((eds) =>
+        addEdge(
+          {
+            ...params,
+            type: 'floating',
+            markerEnd: { type: MarkerType.Arrow },
+          },
+          eds,
+        ),
+      ),
+    [setEdges],
+  );
+
+  return (
+    <div className="floating-edges">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        fitView
+        edgeTypes={edgeTypes}
+        connectionLineComponent={FloatingConnectionLine}
+        style={{ backgroundColor: "#F7F9FB" }}
+      >
+        <Background />
+      </ReactFlow>
+    </div>
+  );
+};
+
+export default NodeAsHandleFlow;
+
+   (BUTTON)
+   [77]Feature Overview[78]Dark Mode
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [79]Getting Started[80]API Reference[81]Examples[82]Showcase
+
+   Social
+   [83]Discord[84]Github[85]X / Twitter[86]Bluesky
+
+   xyflow
+   [87]Blog[88]Open Source[89]About[90]Contact[91]
+   Careers hiring
+
+   Legal
+   [92]MIT License[93]Code of Conduct[94]Imprint
+
+   [95]info@xyflow.com -- Copyright © 2024 [96]webkid GmbH. All rights
+   reserved -- website design by [97]Facu Montanaro
+

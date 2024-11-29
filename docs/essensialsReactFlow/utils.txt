@@ -1,0 +1,224 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/utils.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   [97]Question? Give us feedback ->[98]Edit this page
+
+   What's new?
+   [99]Our examples have a fresh new look[100]React Flow
+   CLI[102]...and more!
+   [103]ReferenceUtils
+
+Utils
+
+
+   This util is a convenience function to add a new Edge to an array of
+   edges. It also performs some validation to make sure you don't add an
+   invalid edge or duplicate an existing one.
+   [105]Read more
+
+
+   Various events on the ReactFlow component can produce an EdgeChange
+   that describes how to update the edges of your flow in some way. If you
+   don't need any custom behaviour, this util can be used to take an array
+   of these changes and apply them to your edges.
+   [107]Read more
+
+
+   Various events on the ReactFlow component can produce a NodeChange that
+   describes how to update the nodes of your flow in some way. If you
+   don't need any custom behaviour, this util can be used to take an array
+   of these changes and apply them to your nodes.
+   [109]Read more
+
+
+   The getBezierPath util returns everything you need to render a bezier
+   edge between two nodes.
+   [111]Read more
+
+
+   Given an array of nodes that may be connected to one another and an
+   array of all your edges, this util gives you an array of edges that
+   connect any of the given nodes together.
+   [113]Read more
+
+
+   This util is used to tell you what nodes, if any, are connected to the
+   given node as the source of an edge.
+   [115]Read more
+
+
+   Returns the bounding box that contains all the given nodes in an array.
+   This can be useful when combined with getTransformForBounds to
+   calculate the correct transform to fit the given nodes in a viewport.
+   [117]Read more
+
+
+   This util is used to tell you what nodes, if any, are connected to the
+   given node as the target of an edge.
+   [119]Read more
+
+
+   The getSimpleBezierPath util returns everything you need to render a
+   simple bezier edge between two nodes.
+   [121]Read more
+
+
+   The getSmoothStepPath util returns everything you need to render a
+   stepped path between two nodes. The borderRadius property can be used
+   to choose how rounded the corners of those steps are.
+   [123]Read more
+
+
+   Calculates the straight line path between two points.
+   [125]Read more
+
+
+   This util returns the viewport for the given bounds. You might use this
+   to pre-calculate the viewport for a given set of nodes on the server or
+   calculate the viewport for the given bounds _without_ changing the
+   viewport directly.
+   [127]Read more
+
+
+   Test whether an object is useable as an Edge. In TypeScript this is a
+   type guard that will narrow the type of whatever you pass in to Edge if
+   it returns true.
+   [129]Read more
+
+
+   Test whether an object is useable as an Node. In TypeScript this is a
+   type guard that will narrow the type of whatever you pass in to Node if
+   it returns true.
+   [131]Read more
+
+
+   A handy utility to reconnect an existing Edge with new properties. This
+   searches your edge array for an edge with a matching id and updates its
+   properties with the connection you provide.
+   [133]Read more
+
+
+   This util tells you what to set the viewport to in order to fit the
+   given bounds. You might use this to pre-calculate the viewport for a
+   given set of nodes on the server or calculate the viewport for the
+   given bounds _without_ changing the viewport directly.
+   [135]Read more
+   [136]Types[137]getTransformForBounds()
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [138]Getting Started[139]API Reference[140]Examples[141]Showcase
+
+   Social
+   [142]Discord[143]Github[144]X / Twitter[145]Bluesky
+
+   xyflow
+   [146]Blog[147]Open Source[148]About[149]Contact[150]
+   Careers hiring
+
+   Legal
+   [151]MIT License[152]Code of Conduct[153]Imprint
+
+   [154]info@xyflow.com -- Copyright © 2024 [155]webkid GmbH. All rights
+   reserved -- website design by [156]Facu Montanaro
+

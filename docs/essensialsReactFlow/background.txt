@@ -1,0 +1,240 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/components/background.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Props
+     * [98]Examples
+     * [99]Combining multiple backgrounds
+     * [100]Notes
+
+   [101]Question? Give us feedback ->[102]Edit this page
+
+   What's new?
+   [103]Our examples have a fresh new look[104]React Flow
+   CLI[106]...and more!
+   [107]Reference[108]Components
+   <Background />
+
+<Background />
+
+   [109]Source on GitHub
+
+   The <Background /> component makes it convenient to render different
+   types of backgrounds common in node-based UIs. It comes with three
+   variants: lines, dots and cross.
+import { useState } from 'react';
+import { ReactFlow, Background, BackgroundVariant } from '@xyflow/react';
+
+export default function Flow() {
+  return (
+    <ReactFlow defaultNodes={[...]} defaultEdges={[...]}>
+      <Background color="#ccc" variant={BackgroundVariant.Dots} />
+    </ReactFlow>
+  );
+}
+
+   (BUTTON)
+
+Props
+
+             Name           Type Default
+   [110]#id?
+   string
+   When multiple backgrounds are present on the page, each one should have
+   a unique id.
+
+   [111]#color?
+   string
+
+   [112]#className?
+   string
+
+   [113]#style?
+   React.[114]CSSProperties
+
+   [115]#patternClassName?
+   string
+
+   [116]#gap?
+   number | [number, number]
+   The gap between patterns. Passing in a tuple allows you to control the
+   x and y gap independently.
+   28
+
+   [117]#size?
+   number
+   The radius of each dot or the size of each rectangle if
+   BackgroundVariant.Dots or BackgroundVariant.Cross is used. This
+   defaults to 1 or 6 respectively, or ignored if BackgroundVariant.Lines
+   is used.
+
+   [118]#offset?
+   number
+   2
+
+   [119]#lineWidth?
+   number
+   The stroke thickness used when drawing the pattern.
+   1
+
+   [120]#variant?
+   BackgroundVariant
+   BackgroundVariant.Dots
+
+Examples
+
+Combining multiple backgrounds
+
+   It is possible to layer multiple <Background /> components on top of
+   one another to create something more interesting. The following example
+   shows how to render a square grid accented every 10th line.
+import { ReactFlow,  Background, BackgroundVariant } from '@xyflow/react';
+
+import '@xyflow/react/dist/style.css';
+
+export default function Flow() {
+  return (
+    <ReactFlow defaultNodes={[...]} defaultEdges={[...]}>
+      <Background
+        id="1"
+        gap={10}
+        color="#f1f1f1"
+        variant={BackgroundVariant.Lines}
+      />
+
+      <Background
+        id="2"
+        gap={100}
+        color="#ccc"
+        variant={BackgroundVariant.Lines}
+      />
+    </ReactFlow>
+  );
+}
+
+   (BUTTON)
+
+Notes
+
+     * When combining multiple <Background /> components it's important to
+       give each of them a unique id prop!
+
+   [121]Components[122]Types
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [123]Getting Started[124]API Reference[125]Examples[126]Showcase
+
+   Social
+   [127]Discord[128]Github[129]X / Twitter[130]Bluesky
+
+   xyflow
+   [131]Blog[132]Open Source[133]About[134]Contact[135]
+   Careers hiring
+
+   Legal
+   [136]MIT License[137]Code of Conduct[138]Imprint
+
+   [139]info@xyflow.com -- Copyright © 2024 [140]webkid GmbH. All rights
+   reserved -- website design by [141]Facu Montanaro
+

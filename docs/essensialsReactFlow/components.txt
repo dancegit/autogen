@@ -1,0 +1,114 @@
+Page: reactflow.dev_files/reactflow.dev/components.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Introduction
+     * (BUTTON) Nodes
+          + [10]Tooltip
+          + [11]Placeholder
+          + [12]Database Schema
+          + [13]Annotation
+          + [14]Group with Label
+          + [15]Base Node
+     * (BUTTON) Edges
+          + [16]Edge with Button
+          + [17]Animated SVG Edge
+     * (BUTTON) Controls
+          + [18]Zoom Slider
+          + [19]Zoom Select
+     * (BUTTON) Handles
+          + [20]Handle with Label
+          + [21]Base Handle
+     * (BUTTON) Misc
+          + [22]DevTools
+     *
+     * [23]Request a Component
+
+React Flow Components
+
+   This is a collection of useful components that you can easily integrate
+   into your React Flow application. It utilizes the new [24]shadcn CLI,
+   which builds on top of [25]Tailwind CSS and [26]shadcn/ui components.
+
+Prerequisites
+
+   You need to have shadcn and tailwind configured in your project. If you
+   haven't installed it, you can follow the steps explained in the
+   [27]shadcn installation guide. If shadcn and tailwind are part of your
+   project, you can initialize shadcn-ui by running:
+   (BUTTON)
+   (BUTTON) npm (BUTTON) pnpm (BUTTON) yarn (BUTTON) bun
+npx shadcn@latest init
+
+   (BUTTON) (BUTTON)
+pnpm dlx shadcn@latest init
+
+   (BUTTON) (BUTTON)
+yarn dlx shadcn@latest init
+
+   (BUTTON) (BUTTON)
+bun x shadcn@latest init
+
+   (BUTTON) (BUTTON)
+
+   If you want to learn more about the motivation behind this project, you
+   can find a detailed blog post [28]here.
+
+Usage
+
+   Find a component you like and run the command to add it to your
+   project.
+   (BUTTON)
+   (BUTTON) npm (BUTTON) pnpm (BUTTON) yarn (BUTTON) bun
+npx shadcn@latest add https://ui.reactflow.dev/component-name
+
+   (BUTTON) (BUTTON)
+pnpm dlx shadcn@latest add https://ui.reactflow.dev/component-name
+
+   (BUTTON) (BUTTON)
+yarn dlx shadcn@latest add https://ui.reactflow.dev/component-name
+
+   (BUTTON) (BUTTON)
+bun x shadcn@latest add https://ui.reactflow.dev/component-name
+
+   (BUTTON) (BUTTON)
+     * This command copies the component code inside your components
+       folder. You can change this folder by adding an alias inside your
+       components.json.
+     * It automatically installs all necessary dependencies
+     * It utilizes previously added and even modified components or asks
+       you if you'd like to overwrite them.
+     * It uses your existing tailwind configuration.
+     * The components are not black-boxes and can be modified and extended
+       to fit your needs.
+
+   For more information visit the [29]shadcn documentation.
+   [30]Tooltip
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [31]Getting Started[32]API Reference[33]Examples[34]Showcase
+
+   Social
+   [35]Discord[36]Github[37]X / Twitter[38]Bluesky
+
+   xyflow
+   [39]Blog[40]Open Source[41]About[42]Contact[43]
+   Careers hiring
+
+   Legal
+   [44]MIT License[45]Code of Conduct[46]Imprint
+
+   [47]info@xyflow.com -- Copyright © 2024 [48]webkid GmbH. All rights
+   reserved -- website design by [49]Facu Montanaro
+

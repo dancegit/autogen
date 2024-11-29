@@ -1,0 +1,121 @@
+Page: reactflow.dev_files/reactflow.dev/pro/case-studies/onesignal-case-study.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Pricing[4]Pro Examples[5]Case Studies[6]Contact Us
+   [7]Sign Up (BUTTON)
+   [8]Case Studies
+
+   OneSignal
+
+Automating OneSignal's customer engagement with a React Flow workflow builder
+
+   [9][onesignal-leemunroe.jpeg]
+   [10]Lee Munroe
+   Head of Design at OneSignal
+   Automating OneSignal's customer engagement with a React Flow workflow
+   builder screenshot
+
+   Can you tell us about OneSignal in a sentence or two?
+
+     OneSignal is a customer engagement platform. We offer messaging
+     solutions for mobile push notifications, web push, email, in-app
+     messages and SMS. We send over 12 billion messages daily, with 1 in
+     5 new apps now using our SDK.
+
+   What problem or decision were you facing that made you decide to use
+   our library?
+
+     Our customers use OneSignal to manage their users journey through
+     messaging, including onboarding campaigns, re-engagement campaigns,
+     one off promotions etc. A couple of years ago when we started
+     looking at offering a more robust tool for creating and managing
+     those messaging sequences, we started looking at open source
+     libraries, as well as considering building our own. After finding
+     React Flow and creating an early proof of concept, it was a no
+     brainer that we would use this over building something from scratch.
+
+   How are you currently using React Flow?
+
+     That feature turned into OneSignal Journeys, an easy-to-use visual
+     workflow builder to automate your messaging and guide your users. It
+     enables our customers to sequence campaigns with push, email,
+     in-app, SMS, webhooks, as well as adding key actions like wait
+     periods, scheduling, decision trees and A/B split branching.
+
+   Can you give an example of something about React Flow that you have
+   found especially useful?
+
+     The React Flow docs are amazing. We really appreciate their
+     attention to detail, examples, and CodeSandbox integration. We
+     invest a lot of time in ease of use and user experience, and out of
+     the box React Flow comes with all of that, but it was also very
+     straightforward to style and customize to match our visual style and
+     design system, which was important to us.
+
+   Have you experienced any issues or challenges while using the library?
+   If so, how were they resolved?
+
+     Anything that comes up we can usually resolve by referencing the
+     docs. They are great. The GitHub issues and community are also very
+     active which I appreciate, so often a quick search in GitHub we'll
+     find what we're looking for.
+
+   How have the features of React Flow Pro helped you so far?
+
+     We started using React Flow about 2 years ago, which I believe was
+     before many of the Pro functionality that exists today. If we were
+     to start from scratch today, these features would be amazing.
+     However we ended up coding some of our own workarounds at the time.
+     For example, I recall we had issues with auto-layout early on, or
+     dealing with hidden nodes.
+
+   [11]Check out OneSignal
+   [12]Flexible data model visualization with Hubql and React Flow
+   screenshot
+
+   Hubql
+   Flexible data model visualization with Hubql and React Flow
+
+   We were seeking a React library that helps us to turn data models into
+   visualization without spending too much time building abstractions and
+   interactive elements. To save time in development we opted for a
+   stable, mature and feature-rich library that we can extend with custom
+   rendering options.
+   Read more
+   [13]
+   React Flow Pro Case Studies
+
+   Case studies and success stories from some of our React Flow Pro
+   subscribers.
+   Read more
+
+Get Pro examples, prioritized bug reports, 1:1 support from the maintainers,
+and more with React Flow Pro
+
+   [14]React Flow Pro
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   React Flow Pro
+   [15]Pricing[16]Pro Examples[17]Case Studies[18]Request a Quote[19]Sign
+   Up[20]Sign In
+
+   Social
+   [21]Discord[22]Github[23]X / Twitter[24]Bluesky
+
+   xyflow
+   [25]Blog[26]Open Source[27]About[28]Contact[29]
+   Careers hiring
+
+   Legal
+   [30]Terms of Use[31]Ethical Standards[32]Privacy Policy[33]Imprint
+
+   [34]info@xyflow.com -- Copyright © 2024 [35]webkid GmbH. All rights
+   reserved -- website design by [36]Facu Montanaro
+

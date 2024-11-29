@@ -1,0 +1,180 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/utils/apply-edge-changes.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Signature
+     * [98]Notes
+
+   [99]Question? Give us feedback ->[100]Edit this page
+
+   What's new?
+   [101]Our examples have a fresh new look[102]React Flow
+   CLI[104]...and more!
+   [105]Reference[106]Utils
+   applyEdgeChanges()
+
+applyEdgeChanges()
+
+   [107]Source on GitHub
+
+   Various events on the [108]<ReactFlow /> component can produce an
+   [109]EdgeChange that describes how to update the edges of your flow in
+   some way. If you don't need any custom behaviour, this util can be used
+   to take an array of these changes and apply them to your edges.
+import { useState, useCallback } from 'react';
+import { ReactFlow, applyEdgeChanges } from '@xyflow/react';
+
+export default function Flow() {
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
+  const onEdgesChange = useCallback(
+    (changes) => {
+      setEdges((oldEdges) => applyEdgeChanges(changes, oldEdges));
+    },
+    [setEdges],
+  );
+
+  return (
+    <ReactFlow nodes={nodes} edges={edges} onEdgesChange={onEdgesChange} />
+  );
+}
+
+   (BUTTON)
+
+Signature
+
+       Name     Type
+   [110]#Params
+   [111]#changes
+   EdgeChange[]
+   [112]#edges
+   Edge[]
+   [113]#Returns
+   [114]#
+   Edge[]
+
+Notes
+
+     * If you don't need any custom behaviour, the [115]useEdgesState hook
+       conviniently wraps this util and React's useState hook for you and
+       might be simpler to use.
+
+   [116]Utils
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [117]Getting Started[118]API Reference[119]Examples[120]Showcase
+
+   Social
+   [121]Discord[122]Github[123]X / Twitter[124]Bluesky
+
+   xyflow
+   [125]Blog[126]Open Source[127]About[128]Contact[129]
+   Careers hiring
+
+   Legal
+   [130]MIT License[131]Code of Conduct[132]Imprint
+
+   [133]info@xyflow.com -- Copyright © 2024 [134]webkid GmbH. All rights
+   reserved -- website design by [135]Facu Montanaro
+

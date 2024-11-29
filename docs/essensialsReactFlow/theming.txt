@@ -1,0 +1,374 @@
+Page: reactflow.dev_files/reactflow.dev/learn/customization/theming.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   On This Page
+     * [43]Default styles
+     * [44]Built in dark and light mode
+     * [45]Customizing with style props
+     * [46]CSS variables
+     * [47]Overriding built-in classes
+     * [48]Third-party solutions
+     * [49]Styled Components
+     * [50]TailwindCSS
+
+   [51]Question? Give us feedback ->[52]Edit this page
+
+   What's new?
+   [53]Our examples have a fresh new look[54]React Flow
+   CLI[56]...and more!
+   [57]Learn[58]Customizing React Flow
+   Theming
+
+Theming
+
+   React Flow has been built with deep customization in mind. Many of our
+   users fully transform the look and feel of React Flow to match their
+   own brand or design system. This guide will introduce you to the
+   different ways you can customize React Flow's appearance.
+
+Default styles
+
+   React Flow's default styles are enough to get going with the built-in
+   nodes. They provide some sensible defaults for styles like padding,
+   border radius, and animated edges. You can see what they look like
+   below:
+
+   IFRAME:
+   [59]https://example-apps.xyflow.com/react/examples/styling/default-styl
+   e/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+
+   You'll typically load these default styles by importing them in you
+   App.jsx file or other entry point:
+import '@xyflow/react/dist/style.css';
+
+   (BUTTON)
+
+   Without dipping into [60]custom nodes and [61]edges, there are three
+   ways you can style React Flow's basic look:
+     * Passing inline styles through style props
+     * Overriding the built-in classes with custom CSS
+     * Overriding the CSS variables React Flow uses
+
+Built in dark and light mode
+
+   You can chose one of the built-in color modes by using the colorMode
+   prop (`dark', `light' or `system') as seen in the [62]dark mode
+   example.
+import ReactFlow from '@xyflow/react';
+
+export default function Flow() {
+  return <ReactFlow colorMode="dark" nodes={[...]} edges={[...]} />
+}
+
+   (BUTTON)
+
+   When you use the colorMode prop, React Flow adds a class to the root
+   element (.react-flow) that you can use to style your flow based on the
+   color mode:
+.dark .react-flow__node {
+  background: #777;
+  color: white;
+}
+
+.light .react-flow__node {
+  background: white;
+  color: #111;
+}
+
+   (BUTTON)
+
+Customizing with style props
+
+   The easiest way to start customising the look and feel of your flows is
+   to use the style prop found on many of React Flow's components to
+   inline your own CSS.
+import ReactFlow from '@xyflow/react'
+
+const styles = {
+  background: 'red',
+  width: '100%',
+  height: 300,
+};
+
+export default function Flow() {
+  return <ReactFlow style={styles} nodes={[...]} edges={[...]} />
+}
+
+   (BUTTON)
+
+CSS variables
+
+   If you don't want to replace the default styles entirely but just want
+   to tweak the overall look and feel, you can override some of the CSS
+   variables we use throughout the library. For an example of how to use
+   these CSS variables, check out our [63]Feature Overview example.
+
+   These variables are mostly self-explanatory. Below is a table of all
+   the variables you might want to tweak and their default values for
+   reference:
+   Variable name Default
+   --xy-edge-stroke-default #b1b1b7
+   --xy-edge-stroke-width-default 1
+   --xy-edge-stroke-selected-default #555
+   --xy-connectionline-stroke-default #b1b1b7
+   --xy-connectionline-stroke-width-default 1
+   --xy-attribution-background-color-default rgba(255, 255, 255, 0.5)
+   --xy-minimap-background-color-default #fff
+   --xy-background-pattern-dots-color-default #91919a
+   --xy-background-pattern-line-color-default #eee
+   --xy-background-pattern-cross-color-default #e2e2e2
+   --xy-node-color-default inherit
+   --xy-node-border-default 1px solid #1a192b
+   --xy-node-background-color-default #fff
+   --xy-node-group-background-color-default rgba(240, 240, 240, 0.25)
+   --xy-node-boxshadow-hover-default 0 1px 4px 1px rgba(0, 0, 0, 0.08)
+   --xy-node-boxshadow-selected-default 0 0 0 0.5px #1a192b
+   --xy-handle-background-color-default #1a192b
+   --xy-handle-border-color-default #fff
+   --xy-selection-background-color-default rgba(0, 89, 220, 0.08)
+   --xy-selection-border-default 1px dotted rgba(0, 89, 220, 0.8)
+   --xy-controls-button-background-color-default #fefefe
+   --xy-controls-button-background-color-hover-default #f4f4f4
+   --xy-controls-button-color-default inherit
+   --xy-controls-button-color-hover-default inherit
+   --xy-controls-button-border-color-default #eee
+   --xy-controls-box-shadow-default 0 0 2px 1px rgba(0, 0, 0, 0.08)
+   --xy-resize-background-color-default #3367d9
+
+   These variables are used to define the defaults for the various
+   elements of React Flow. This means they can still be overriden by
+   inline styles or custom classes on a per-element basis. If you want to
+   override these variables, you can do so by adding:
+.react-flow {
+  --xy-node-background-color-default: #ff5050;
+}
+
+   (BUTTON)
+   !!!
+
+   Be aware that these variables are defined under .react-flow and under
+   :root.
+
+Overriding built-in classes
+
+   Some consider heavy use of inline styles to be an anti-pattern. In that
+   case, you can override the built-in classes that React Flow uses with
+   your own CSS. There are many classes attached to all sorts of elements
+   in React Flow, but the ones you'll likely want to override are listed
+   below:
+   Class name Description
+   .react-flow The outermost container
+   .react-flow__renderer The inner container
+   .react-flow__zoompane Zoom & pan pane
+   .react-flow__selectionpane Selection pane
+   .react-flow__selection User selection
+   .react-flow__edges The element containing all edges in the flow
+   .react-flow__edge Applied to each [64]Edge in the flow
+   .react-flow__edge.selected Added to an [65]Edge when selected
+   .react-flow__edge.animated Added to an [66]Edge when its animated prop
+   is true
+   .react-flow__edge.updating Added to an [67]Edge while it gets updated
+   via onReconnect
+   .react-flow__edge-path The SVG <path /> element of an [68]Edge
+   .react-flow__edge-text The SVG <text /> element of an [69]Edge label
+   .react-flow__edge-textbg The SVG <text /> element behind an [70]Edge
+   label
+   .react-flow__connection Applied to the current connection line
+   .react-flow__connection-path The SVG <path /> of a connection line
+   .react-flow__nodes The element containing all nodes in the flow
+   .react-flow__node Applied to each [71]Node in the flow
+   .react-flow__node.selected Added to a [72]Node when selected.
+   .react-flow__node-default Added when [73]Node type is "default"
+   .react-flow__node-input Added when [74]Node type is "input"
+   .react-flow__node-output Added when [75]Node type is "output"
+   .react-flow__nodesselection Nodes selection
+   .react-flow__nodesselection-rect Nodes selection rect
+   .react-flow__handle Applied to each [76]<Handle /> component
+   .react-flow__handle-top Applied when a handle's [77]Position is set to
+   "top"
+   .react-flow__handle-right Applied when a handle's [78]Position is set
+   to "right"
+   .react-flow__handle-bottom Applied when a handle's [79]Position is set
+   to "bottom"
+   .react-flow__handle-left Applied when a handle's [80]Position is set to
+   "left"
+   .connectingfrom Added to a Handle when a connection line is above a
+   handle.
+   .connectingto Added to a Handle when a connection line is above a
+   handle.
+   .valid Added to a Handle when a connection line is above and the
+   connection is valid
+   .react-flow__background Applied to the [81]<Background /> component
+   .react-flow__minimap Applied to the [82]<MiniMap /> component
+   .react-flow__controls Applied to the [83]<Controls /> component
+   !!!
+
+   Be careful if you go poking around the source code looking for other
+   classes to override. Some classes are used internally and are required
+   in order for the library to be functional. If you replace them you may
+   end up with unexpected bugs or errors!
+
+Third-party solutions
+
+   You can choose to opt-out of React Flow's default styling altogether
+   and use a third-party styling solution instead. If you want to do this,
+   you must make sure you still import the base styles.
+import '@xyflow/react/dist/base.css';
+
+   (BUTTON)
+   !!!
+
+   These base styles are required for React Flow to function correctly. If
+   you don't import them or you override them with your own styles, some
+   things might not work as expected!
+
+   IFRAME:
+   [84]https://example-apps.xyflow.com/react/examples/styling/base-style/i
+   ndex.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+
+Styled Components
+
+   Many of the components you render directly, such as the [85]<MiniMap
+   />, accept both className and style props. This means you can use any
+   styling solution you like, such as [86]Styled Components:
+import { MiniMap } from '@xyflow/react';
+
+const StyledMiniMap = styled(MiniMap)`
+  background-color: ${(props) => props.theme.bg};
+
+  .react-flow__minimap-mask {
+    fill: ${(props) => props.theme.minimapMaskBg};
+  }
+
+  .react-flow__minimap-node {
+    fill: ${(props) => props.theme.nodeBg};
+    stroke: none;
+  }
+`;
+
+   (BUTTON)
+
+   For a complete example of using Styled Components with React Flow,
+   check out [87]the example!
+
+TailwindCSS
+
+   Custom nodes and edges are just React components, and you can use any
+   styling solution you'd like to style them. For example, you might want
+   to use [88]Tailwind to style your nodes:
+function CustomNode({ data }) {
+  return (
+    <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-ston
+e-400">
+      <div className="flex">
+        <div className="rounded-full w-12 h-12 flex justify-center items-center
+bg-gray-100">
+          {data.emoji}
+        </div>
+        <div className="ml-2">
+          <div className="text-lg font-bold">{data.name}</div>
+          <div className="text-gray-500">{data.job}</div>
+        </div>
+      </div>
+
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="w-16 !bg-teal-500"
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="w-16 !bg-teal-500"
+      />
+    </div>
+  );
+}
+
+   (BUTTON)
+   !!!
+
+   If you want to overwrite default styles, make sure to import Tailwinds
+   entry point after React Flows base styles.
+import '@xyflow/react/dist/style.css';
+import 'tailwind.css';
+
+   (BUTTON)
+
+   For a complete example of using Tailwind with React Flow, check out
+   [89]the example!
+   [90]Quickstart[91]Slideshow App
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [92]Getting Started[93]API Reference[94]Examples[95]Showcase
+
+   Social
+   [96]Discord[97]Github[98]X / Twitter[99]Bluesky
+
+   xyflow
+   [100]Blog[101]Open Source[102]About[103]Contact[104]
+   Careers hiring
+
+   Legal
+   [105]MIT License[106]Code of Conduct[107]Imprint
+
+   [108]info@xyflow.com -- Copyright © 2024 [109]webkid GmbH. All rights
+   reserved -- website design by [110]Facu Montanaro
+

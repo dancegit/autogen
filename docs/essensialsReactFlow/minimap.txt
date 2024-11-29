@@ -1,0 +1,323 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/components/minimap.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Props
+     * [98]Examples
+     * [99]Making the mini map interactive
+     * [100]Implement a custom mini map node
+     * [101]Customising mini map node color
+     * [102]Typescript
+
+   [103]Question? Give us feedback ->[104]Edit this page
+
+   What's new?
+   [105]Our examples have a fresh new look[106]React Flow
+   CLI[108]...and more!
+   [109]Reference[110]Components
+   <MiniMap />
+
+<MiniMap />
+
+   [111]Source on GitHub
+
+   The <MiniMap /> component can be used to render an overview of your
+   flow. It renders each node as an SVG element and visualizes where the
+   current viewport is in relation to the rest of the flow.
+import { ReactFlow, MiniMap } from '@xyflow/react';
+
+export default function Flow() {
+  return (
+    <ReactFlow nodes={[...]]} edges={[...]]}>
+      <MiniMap nodeStrokeWidth={3} />
+    </ReactFlow>
+  );
+}
+
+   (BUTTON)
+
+Props
+
+   For TypeScript users, the props type for the <MiniMap /> component is
+   exported as MiniMapProps.
+                               Name                            Type Default
+   [112]#nodeColor?
+   string | (node: Node<T>) => string
+   "#e2e2e2"
+
+   [113]#nodeStrokeColor?
+   string | (node: Node<T>) => string
+   "transparent"
+
+   [114]#nodeClassName?
+   string | (node: Node<T>) => string
+
+   [115]#nodeBorderRadius?
+   number
+   5
+
+   [116]#nodeStrokeWidth?
+   number
+   2
+
+   [117]#nodeComponent?
+   React.[118]ComponentType<[119]MiniMapNodeProps>
+   A custom component to render the nodes in the minimap. This component
+   must render an SVG element!
+
+   [120]#maskColor?
+   string
+   The color of the mask that covers the portion of the minimap not
+   currently visible in the viewport.
+   "rgb(240, 240, 240, 0.6)"
+
+   [121]#maskStrokeColor?
+   string
+   "none"
+
+   [122]#maskStrokeWidth?
+   number
+   1
+
+   [123]#position?
+   PanelPosition
+   "bottom-right"
+
+   [124]#onClick?
+   (event: React.[125]MouseEvent, position: XYPosition) => void
+
+   [126]#onNodeClick?
+   (event: React.[127]MouseEvent, node: Node<T>) => void
+
+   [128]#pannable?
+   boolean
+   Determines whether you can pan the viewport by dragging inside the
+   minimap.
+   false
+
+   [129]#zoomable?
+   boolean
+   Determines whether you can zoom the viewport by scrolling inside the
+   minimap.
+   false
+
+   [130]#ariaLabel?
+   string | null
+   There is no text inside the minimap for a screen reader to use as an
+   accessible name, so it's important we provide one to make the minimap
+   accessible. The default is sufficient but you may want to replace it
+   with something more relevant to your app or product.
+   "React Flow mini map"
+
+   [131]#inversePan?
+   boolean
+
+   [132]#zoomStep?
+   number
+   10
+
+   [133]#offsetScale?
+   number
+   5
+
+Examples
+
+Making the mini map interactive
+
+   By default, the mini map is non-interactive. To allow users to interact
+   with the viewport by panning or zooming the minimap, you can set either
+   of the zoomable or pannable (or both!) props to true.
+import { ReactFlow,  MiniMap } from '@xyflow/react';
+
+export default function Flow() {
+  return (
+    <ReactFlow nodes={[...]]} edges={[...]]}>
+      <MiniMap pannable zoomable />
+    </ReactFlow>
+  );
+}
+
+   (BUTTON)
+
+Implement a custom mini map node
+
+   It is possible to pass a custom component to the nodeComponent prop to
+   change how nodes are rendered in the mini map. If you do this you must
+   use only SVG elements in your component if you want it to work
+   correctly.
+import { ReactFlow,  MiniMap } from '@xyflow/react';
+
+export default function Flow() {
+  return (
+    <ReactFlow nodes={[...]]} edges={[...]]}>
+      <MiniMap nodeComponent={MiniMapNode} />
+    </ReactFlow>
+  );
+}
+
+function MiniMapNode({ x, y }) {
+  return <circle cx={x} cy={y} r="50" />;
+}
+
+   (BUTTON)
+
+   Check out the documentation for [134]MiniMapNodeProps to see what props
+   are passed to your custom component.
+
+Customising mini map node color
+
+   The nodeColor, nodeStrokeColor, and nodeClassName props can be a
+   function that takes a [135]Node and computes a value for the prop. This
+   can be used to customise the appearance of each mini map node.
+
+   This example shows how to color each mini map node based on the node's
+   type:
+import { ReactFlow,  MiniMap } from '@xyflow/react';
+
+export default function Flow() {
+  return (
+    <ReactFlow nodes={[...]]} edges={[...]]}>
+      <MiniMap nodeColor={nodeColor} />
+    </ReactFlow>
+  );
+}
+
+function nodeColor(node) {
+  switch (node.type) {
+    case 'input':
+      return '#6ede87';
+    case 'output':
+      return '#6865A5';
+    default:
+      return '#ff0072';
+  }
+}
+
+   (BUTTON)
+
+Typescript
+
+   This component accepts a generic type argument of custom node types.
+   See this [136]section in our Typescript guide for more information.
+<MiniMap<CustomNodeType> nodeColor={nodeColor} />
+
+   (BUTTON)
+   [137]Components[138]Types
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [139]Getting Started[140]API Reference[141]Examples[142]Showcase
+
+   Social
+   [143]Discord[144]Github[145]X / Twitter[146]Bluesky
+
+   xyflow
+   [147]Blog[148]Open Source[149]About[150]Contact[151]
+   Careers hiring
+
+   Legal
+   [152]MIT License[153]Code of Conduct[154]Imprint
+
+   [155]info@xyflow.com -- Copyright © 2024 [156]webkid GmbH. All rights
+   reserved -- website design by [157]Facu Montanaro
+

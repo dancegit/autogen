@@ -1,0 +1,80 @@
+Page: reactflow.dev_files/reactflow.dev/learn/tutorials.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+
+Tutorials
+
+Learn more with tutorials
+
+   Step-by-step instructions on how to build React Flow apps and
+   integrating with other libraries. Follow along to learn, or use them as
+   a starting template for your own projects.
+   [9]Create a slide show presentation with React Flow screenshot
+   Create a slide show presentation with React Flow
+   [hayleigh-dot-dev.png]
+   Hayleigh Thompson
+   Software Engineer
+
+   We recently published the results of our 2023 end of year survey using
+   React Flow. This tutorial is an opportunity to share what we learned
+   and show you how to build something similar!
+   Read more
+   [10]
+   Integrating React Flow and the Web Audio API screenshot
+   Integrating React Flow and the Web Audio API
+   [hayleigh-dot-dev.png]
+   Hayleigh Thompson
+   Software Engineer
+
+   Today we'll be looking at how to create an interactive audio playground
+   using React Flow and the Web Audio API. We'll start from scratch, first
+   learning about the Web Audio API before looking at how to handle many
+   common scenarios in React Flow: state management, implementing custom
+   nodes, and adding interactivity.
+   Read more
+   [11]
+   Build a Mind Map App with React Flow screenshot
+   Build a Mind Map App with React Flow
+   [moklick.png]
+   Moritz Klack
+   Co-Founder
+
+   In this tutorial, you will learn to create a simple mind map tool with
+   React Flow that can be used for brainstorming, organizing an idea, or
+   mapping your thoughts in a visual way. To build this app, we'll be
+   using state management, custom nodes and edges, and more.
+   Read more
+
+Get Pro examples, prioritized bug reports, 1:1 support from the maintainers,
+and more with React Flow Pro
+
+   [12]React Flow Pro
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [13]Getting Started[14]API Reference[15]Examples[16]Showcase
+
+   Social
+   [17]Discord[18]Github[19]X / Twitter[20]Bluesky
+
+   xyflow
+   [21]Blog[22]Open Source[23]About[24]Contact[25]
+   Careers hiring
+
+   Legal
+   [26]MIT License[27]Code of Conduct[28]Imprint
+
+   [29]info@xyflow.com -- Copyright © 2024 [30]webkid GmbH. All rights
+   reserved -- website design by [31]Facu Montanaro
+

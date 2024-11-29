@@ -1,0 +1,230 @@
+Page: reactflow.dev_files/reactflow.dev/examples/interaction/drag-and-drop.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Examples
+     * [10]Feature Overview
+     * (BUTTON) Nodes
+          + [11]Custom Nodes
+          + [12]Updating Nodes
+          + [13]Stress Test
+          + [14]Hidden
+          + [15]Drag Handle
+          + [16]Easy Connect
+          + [17]Add Node On Edge Drop
+          + [18]Proximity Connect
+          + [19]Node Resizer
+          + [20]Node Toolbar
+          + [21]Rotatable Node
+          + [22]Dynamic Grouping
+          + [23]Intersections
+          + [24]Shapes
+          + [25]Connection Limit
+          + [26]Delete Middle Node
+     * (BUTTON) Edges
+          + [27]Custom Edges
+          + [28]Animating Edges
+          + [29]Edge Types
+          + [30]Editable Edge
+          + [31]Reconnect Edge
+          + [32]Connection Line
+          + [33]Multi Connection Line
+          + [34]Edge Markers
+          + [35]Delete Edge on Drop
+          + [36]Floating Edges
+          + [37]Simple Floating Edges
+          + [38]Edge Label Renderer
+          + [39]Temporary Edges
+     * (BUTTON) Layout
+          + [40]Sub Flow
+          + [41]Horizontal Flow
+          + [42]Dagre Tree
+          + [43]Entitree Flex Tree
+          + [44]Elkjs Tree
+          + [45]Elkjs Multiple Handles
+          + [46]Auto Layout
+          + [47]Force Layout
+          + [48]Expand and Collapse
+          + [49]Workflow Builder
+     * (BUTTON) Interaction
+          + [50]Interaction Props
+          + [51]Drag and Drop
+          + [52]Computing Flows
+          + [53]Validation
+          + [54]Connection Events
+          + [55]Preventing Cycles
+          + [56]Undo and Redo
+          + [57]Copy and Paste
+          + [58]Helper Lines
+          + [59]Touch Device
+          + [60]Save and Restore
+          + [61]Zoom Transitions
+          + [62]Collaborative
+          + [63]Contextual Zoom
+          + [64]Context Menu
+     * (BUTTON) Styling
+          + [65]Styled Components
+          + [66]Tailwind
+          + [67]Turbo Flow
+          + [68]Base Style
+          + [69]Dark Mode
+     * (BUTTON) Misc
+          + [70]Static Server Side Generation
+          + [71]Download Image
+          + [72]ReactFlowProvider
+          + [73]useReactFlow
+
+   [74]Examples[75]Interaction
+   Drag and Drop
+
+Drag and Drop
+
+   A drag and drop user interface is very common for node-based workflow
+   editors. The drag and drop behaviour outside of the React Flow pane is
+   not built in but can be implemented with the native [76]HTML Drag and
+   Drop API (used in this example) or a third party library like
+   [77]react-draggable.
+
+   IFRAME:
+   [78]https://example-apps.xyflow.com/react/examples/interaction/drag-and
+   -drop/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) DnDContext.jsx (BUTTON) Sidebar.jsx (BUTTON)
+   index.css (BUTTON) xy-theme.css
+import React, { useRef, useCallback } from 'react';
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  addEdge,
+  useNodesState,
+  useEdgesState,
+  Controls,
+  useReactFlow,
+  Background,
+} from '@xyflow/react';
+
+import '@xyflow/react/dist/style.css';
+
+
+import Sidebar from './Sidebar';
+import { DnDProvider, useDnD } from './DnDContext';
+
+const initialNodes = [
+  {
+    id: '1',
+    type: 'input',
+    data: { label: 'input node' },
+    position: { x: 250, y: 5 },
+  },
+];
+
+let id = 0;
+const getId = () => `dndnode_${id++}`;
+
+const DnDFlow = () => {
+  const reactFlowWrapper = useRef(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const { screenToFlowPosition } = useReactFlow();
+  const [type] = useDnD();
+
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
+    [],
+  );
+
+  const onDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      // check if the dropped element is valid
+      if (!type) {
+        return;
+      }
+
+      // project was renamed to screenToFlowPosition
+      // and you don't need to subtract the reactFlowBounds.left/top anymore
+      // details: https://reactflow.dev/whats-new/2023-11-10
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      const newNode = {
+        id: getId(),
+        type,
+        position,
+        data: { label: `${type} node` },
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+    },
+    [screenToFlowPosition, type],
+  );
+
+  return (
+    <div className="dndflow">
+      <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          fitView
+          style={{ backgroundColor: "#F7F9FB" }}
+        >
+          <Controls />
+          <Background />
+        </ReactFlow>
+      </div>
+      <Sidebar />
+    </div>
+  );
+};
+
+export default () => (
+  <ReactFlowProvider>
+    <DnDProvider>
+      <DnDFlow />
+    </DnDProvider>
+  </ReactFlowProvider>
+);
+
+   (BUTTON)
+   [79]Feature Overview[80]Dark Mode
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [81]Getting Started[82]API Reference[83]Examples[84]Showcase
+
+   Social
+   [85]Discord[86]Github[87]X / Twitter[88]Bluesky
+
+   xyflow
+   [89]Blog[90]Open Source[91]About[92]Contact[93]
+   Careers hiring
+
+   Legal
+   [94]MIT License[95]Code of Conduct[96]Imprint
+
+   [97]info@xyflow.com -- Copyright © 2024 [98]webkid GmbH. All rights
+   reserved -- website design by [99]Facu Montanaro
+

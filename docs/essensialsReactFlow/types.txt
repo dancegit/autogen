@@ -1,0 +1,320 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/types.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   [97]Question? Give us feedback ->[98]Edit this page
+
+   What's new?
+   [99]Our examples have a fresh new look[100]React Flow
+   CLI[102]...and more!
+   [103]ReferenceTypes
+
+Types
+
+
+   The three variants are exported as an enum for convenience. You can
+   either import the enum and use it like BackgroundVariant.Lines or you
+   can use the raw string value directly.
+   [105]Read more
+
+
+   The Connection type is the basic minimal description of an Edge between
+   two nodes. The addEdge util can be used to upgrade a Connection to an
+   Edge.
+   [107]Read more
+
+
+   If you want to render a custom component for connection lines, you can
+   set the connectionLineComponent prop on the ReactFlow component. The
+   ConnectionLineComponentProps are passed to your custom component.
+   [109]Read more
+
+
+   If you set the connectionLineType prop on your ReactFlow component, it
+   will dictate the style of connection line rendered when creating new
+   edges.
+   [111]Read more
+
+
+   Data about an ongoing connection.
+   [113]Read more
+
+
+   A coordinate extent represents two points in a coordinate system: one
+   in the top left corner and one in the bottom right corner. It is used
+   to represent the bounds of nodes in the flow or the bounds of the
+   viewport.
+   [115]Read more
+
+
+   Many properties on an Edge are optional. When a new edge is created,
+   the properties that are not provided will be filled in with the default
+   values passed to the defaultEdgeOptions prop of the ReactFlow
+   component.
+   [117]Read more
+
+
+   DeleteElements deletes nodes and edges from the flow and return the
+   delted edges and nodes asynchronously.
+   [119]Read more
+
+
+   Where a Connection is the minimal description of an edge between two
+   nodes, an Edge is the complete description with everything React Flow
+   needs to know in order to render it.
+   [121]Read more
+
+
+   The onEdgesChange callback takes an array of EdgeChange objects that
+   you should use to update your flow's state. The EdgeChange type is a
+   union of four different object types that represent that various ways
+   an edge can change in a flow.
+   [123]Read more
+
+
+   Edges can optionally have markers at the start and end of an edge. The
+   EdgeMarker type is used to configure those markers! Check the docs for
+   MarkerType for details on what types of edge marker are available.
+   [125]Read more
+
+
+   When you implement a custom edge it is wrapped in a component that
+   enables some basic functionality. Your custom edge component receives
+   the following props:
+   [127]Read more
+
+
+   When calling fitView these options can be used to customize the
+   behaviour. For example, the duration option can be used to transform
+   the viewport smoothly over a given amount of time.
+   [129]Read more
+
+
+   Handle attributes like id, position, and type.
+   [131]Read more
+
+
+   The HandleConnection type is a Connection that includes the edgeId.
+   [133]Read more
+
+
+   The InternalNode is an extension of the base Node type with additional
+   properties React Flow uses internally for rendering. .
+   [135]Read more
+
+
+   Edges may optionally have a marker on either end. The MarkerType type
+   enumerates the options available to you when configuring a given
+   marker.
+   [137]Read more
+
+
+   [139]Read more
+
+
+   The Node type represents everything React Flow needs to know about a
+   given node. Many of these properties can be manipulated both by React
+   Flow or by you, but some such as width and height should be considered
+   read-only.
+   [141]Read more
+
+
+   The onNodesChange callback takes an array of NodeChange objects that
+   you should use to update your flow's state. The NodeChange type is a
+   union of six different object types that represent that various ways an
+   node can change in a flow.
+   [143]Read more
+
+
+   Edges may optionally have a marker on either end. The MarkerType type
+   enumerates the options available to you when configuring a given
+   marker.
+   [145]Read more
+
+
+   The origin of a Node determines how it is placed relative to its own
+   coordinates.
+   [147]Read more
+
+
+   When you implement a custom node it is wrapped in a component that
+   enables basic functionality like selection and dragging. Your custom
+   node receives the following props:
+   [149]Read more
+
+
+   [151]Read more
+
+
+   [153]Read more
+
+
+   This enum is used to set the different modes of panning the viewport
+   when the user scrolls.
+   [155]Read more
+
+
+   This type is mostly used to help position things on top of the flow
+   viewport. For example both the MiniMap and Controls components take a
+   position prop of this type.
+   [157]Read more
+
+
+   While PanelPosition can be used to place a component in the corners of
+   a container, the Position enum is less precise and used primarily in
+   relation to edges and handles.
+   [159]Read more
+
+
+   By default, we render a small attribution in the corner of your flows
+   that links back to the project. Anyone is free to remove this
+   attribution whether they're a Pro subscriber or not but we ask that you
+   take a quick look at our removing attribution guide before doing so.
+   [161]Read more
+
+
+   The ReactFlowInstance provides a collection of methods to query and
+   manipulate the internal state of your flow. You can get an instance by
+   using the useReactFlow hook or attaching a listener to the onInit
+   event.
+   [163]Read more
+
+
+   A JSON-compatible representation of your flow. You can use this to save
+   the flow to a database for example and load it back in later.
+   [165]Read more
+
+
+   The ResizeParams type is used to type the various events that are
+   emitted by the NodeResizer component. You'll sometimes see this type
+   extended with an additional direction field too.
+   [167]Read more
+
+
+   Internally, React Flow maintains a coordinate system that is
+   independent of the rest of the page. The Viewport type tells you where
+   in that system your flow is currently being display at and how zoomed
+   in or out it is.
+   [169]Read more
+
+
+   All positions are stored in an object with x and y coordinates.
+   [171]Read more
+   [172]Hooks[173]Utils
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [174]Getting Started[175]API Reference[176]Examples[177]Showcase
+
+   Social
+   [178]Discord[179]Github[180]X / Twitter[181]Bluesky
+
+   xyflow
+   [182]Blog[183]Open Source[184]About[185]Contact[186]
+   Careers hiring
+
+   Legal
+   [187]MIT License[188]Code of Conduct[189]Imprint
+
+   [190]info@xyflow.com -- Copyright © 2024 [191]webkid GmbH. All rights
+   reserved -- website design by [192]Facu Montanaro
+

@@ -1,0 +1,178 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/hooks/use-connection.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Signature
+
+   [98]Question? Give us feedback ->[99]Edit this page
+
+   What's new?
+   [100]Our examples have a fresh new look[101]React Flow
+   CLI[103]...and more!
+   [104]Reference[105]Hooks
+   useConnection()
+
+useConnection
+
+   [106]Source on GitHub
+
+   The useConnection hook returns the current connection state when there
+   is an active connection interaction. If no connection interaction is
+   active, it returns null for every property. A typical use case for this
+   hook is to colorize handles based on a certain condition (e.g. if the
+   connection is valid or not).
+import { useConnection } from '@xyflow/react';
+
+export default function () {
+  const connection = useConnection();
+
+  return (
+    {connection &&
+      <div>
+        Someone is trying to make a connection from {connection.fromNode} to thi
+s one.
+      </div>
+    }
+    {!connection &&
+      <div>
+        There are currently no incoming connections!
+      </div>
+    }
+    )
+}
+
+   (BUTTON)
+
+Signature
+
+                              Name                           Type
+   [107]#Params
+   [108]#selector?
+   (connection: ConnectionState<InternalNode<NodeType>>) => T
+   An optional selector function used to extract a slice of the
+   ConnectionState data. Using a selector can prevent component re-renders
+   where data you don't otherwise care about might change. If a selector
+   is not provided, the entire ConnectionState object is returned
+   unchanged.
+   [109]#Returns
+   [110]#
+   T
+   [111]Hooks[112]Utils
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [113]Getting Started[114]API Reference[115]Examples[116]Showcase
+
+   Social
+   [117]Discord[118]Github[119]X / Twitter[120]Bluesky
+
+   xyflow
+   [121]Blog[122]Open Source[123]About[124]Contact[125]
+   Careers hiring
+
+   Legal
+   [126]MIT License[127]Code of Conduct[128]Imprint
+
+   [129]info@xyflow.com -- Copyright © 2024 [130]webkid GmbH. All rights
+   reserved -- website design by [131]Facu Montanaro
+

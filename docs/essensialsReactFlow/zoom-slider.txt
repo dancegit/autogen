@@ -1,0 +1,93 @@
+Page: reactflow.dev_files/reactflow.dev/components/controls/zoom-slider.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Introduction
+     * (BUTTON) Nodes
+          + [10]Tooltip
+          + [11]Placeholder
+          + [12]Database Schema
+          + [13]Annotation
+          + [14]Group with Label
+          + [15]Base Node
+     * (BUTTON) Edges
+          + [16]Edge with Button
+          + [17]Animated SVG Edge
+     * (BUTTON) Controls
+          + [18]Zoom Slider
+          + [19]Zoom Select
+     * (BUTTON) Handles
+          + [20]Handle with Label
+          + [21]Base Handle
+     * (BUTTON) Misc
+          + [22]DevTools
+     *
+     * [23]Request a Component
+
+   [24]Question? Give us feedback ->[25]Edit this page
+
+   What's new?
+   [26]Our examples have a fresh new look[27]React Flow
+   CLI[29]...and more!
+   [30]ComponentsControlsZoom Slider
+
+Zoom Slider
+
+   A zoom control that lets you zoom in and out seamlessly using a slider.
+   (BUTTON) Preview (BUTTON) Demo Code
+
+   IFRAME: [31]https://ui.reactflow.dev/components/zoom-slider
+
+   Dependencies:
+   [32]@xyflow/react[33]lucide-react[34]shadcn/ui/button[35]shadcn/ui/slid
+   er
+
+Installation
+
+   (BUTTON) CLI (BUTTON) Manual
+
+   Make sure to follow the [36]prerequisites before installing the
+   component.
+   (BUTTON)
+   (BUTTON) npm (BUTTON) pnpm (BUTTON) yarn (BUTTON) bun
+npx shadcn@latest add https://ui.reactflow.dev/zoom-slider
+
+   (BUTTON) (BUTTON)
+pnpm dlx shadcn@latest add https://ui.reactflow.dev/zoom-slider
+
+   (BUTTON) (BUTTON)
+yarn dlx shadcn@latest add https://ui.reactflow.dev/zoom-slider
+
+   (BUTTON) (BUTTON)
+bun x shadcn@latest add https://ui.reactflow.dev/zoom-slider
+
+   (BUTTON) (BUTTON)
+   [37]Animated SVG Edge[38]Zoom Select
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [39]Getting Started[40]API Reference[41]Examples[42]Showcase
+
+   Social
+   [43]Discord[44]Github[45]X / Twitter[46]Bluesky
+
+   xyflow
+   [47]Blog[48]Open Source[49]About[50]Contact[51]
+   Careers hiring
+
+   Legal
+   [52]MIT License[53]Code of Conduct[54]Imprint
+
+   [55]info@xyflow.com -- Copyright © 2024 [56]webkid GmbH. All rights
+   reserved -- website design by [57]Facu Montanaro
+

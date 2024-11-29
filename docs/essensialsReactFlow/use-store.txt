@@ -1,0 +1,240 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/hooks/use-store.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Signature
+     * [98]Examples
+     * [99]Triggering store actions
+     * [100]Typescript
+     * [101]Notes
+
+   [102]Question? Give us feedback ->[103]Edit this page
+
+   What's new?
+   [104]Our examples have a fresh new look[105]React Flow
+   CLI[107]...and more!
+   [108]Reference[109]Hooks
+   useStore()
+
+useStore
+
+   [110]Source on GitHub
+
+   This hook can be used to subscribe to internal state changes of the
+   React Flow component. The useStore hook is re-exported from the
+   [111]Zustand state management library, so you should check out their
+   docs for more details.
+
+   This hook should only be used if there is no other way to access the
+   internal state. For many of the common use cases, there are dedicated
+   hooks available such as [112]useReactFlow, [113]useViewport, etc.
+import { ReactFlow, useStore } from '@xyflow/react';
+
+const nodesLengthSelector = (state) =>
+  state.nodes.length || 0;
+
+const NodesLengthDisplay = () => {
+  const nodesLength = useStore(nodesLengthSelector);
+
+  return <div>The current number of nodes is: {nodesLength}</div>;
+};
+
+function Flow() {
+  return (
+    <ReactFlow nodes={[...]}>
+      <NodesLengthDisplay />
+    </ReactFlow>
+  );
+}
+
+   (BUTTON)
+
+   This example computes the number of nodes eagerly. Whenever the number
+   of nodes in the flow changes, the <NodesLengthDisplay /> component will
+   re-render. This is in contrast to the example in the [114]useStoreApi
+   hook that only computes the number of nodes when a button is clicked.
+
+   Choosing whether to calculate values on-demand or to subscribe to
+   changes as they happen is a bit of a balancing act. On the one hand,
+   putting too many heavy calculations in an event handler can make your
+   app feel sluggish or unresponsive. On the other hand, computing values
+   eagerly can lead to slow or unnecessary re-renders.
+
+   We make both this hook and [115]useStoreApi available so that you can
+   choose the approach that works best for your use-case.
+
+Signature
+
+               Name             Type
+   [116]#Params
+   [117]#selector
+   (state: ReactFlowState) => T
+   A selector function that returns a slice of the flow's internal state.
+   Extracting or transforming just the state you need is a good practice
+   to avoid unnecessary re-renders.
+   [118]#equalityFn?
+   (prev: T, next: T) => boolean
+   A function to compare the previous and next value. This is incredibly
+   useful for preventing unnecessary re-renders. Good sensible defaults
+   are using Object.is or importing zustand/shallow, but you can be as
+   granular as you like.
+   [119]#Returns
+   [120]#
+   T
+
+Examples
+
+Triggering store actions
+
+   You can manipulate the internal React Flow state by triggering internal
+   actions through the useStore hook. These actions are already used
+   internally throughout the library, but you can also use them to
+   implement custom functionality.
+import { useStore } from '@xyflow/react';
+
+const setMinZoomSelector = (state) => state.setMinZoom;
+
+function MinZoomSetter() {
+  const setMinZoom = useStore(setMinZoomSelector);
+
+  return <button onClick={() => setMinZoom(6)}>set min zoom</button>;
+}
+
+   (BUTTON)
+
+Typescript
+
+   This hook can be typed by typing the selector function. See this
+   [121]section in our Typescript guide for more information.
+const nodes = useStore((s: ReactFlowState<CustomNodeType>) => ({
+  nodes: s.nodes,
+}));
+
+   (BUTTON)
+
+Notes
+
+     * You should define your store selector function outside of the
+       component that uses it, or use React's useCallback hook to memoize
+       the function. Not doing this can incur a slight performance
+       penalty.
+
+   [122]Hooks[123]Utils
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [124]Getting Started[125]API Reference[126]Examples[127]Showcase
+
+   Social
+   [128]Discord[129]Github[130]X / Twitter[131]Bluesky
+
+   xyflow
+   [132]Blog[133]Open Source[134]About[135]Contact[136]
+   Careers hiring
+
+   Legal
+   [137]MIT License[138]Code of Conduct[139]Imprint
+
+   [140]info@xyflow.com -- Copyright © 2024 [141]webkid GmbH. All rights
+   reserved -- website design by [142]Facu Montanaro
+

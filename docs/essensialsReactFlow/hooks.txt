@@ -1,0 +1,239 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/hooks.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   [97]Question? Give us feedback ->[98]Edit this page
+
+   What's new?
+   [99]Our examples have a fresh new look[100]React Flow
+   CLI[102]...and more!
+   [103]ReferenceHooks
+
+Hooks
+
+
+   The useConnection hook returns the current connection when there is an
+   active connection interaction. If no connection interaction is active,
+   it returns null for every property. A typical use case for this hook is
+   to colorize handles based on a certain condition (e.g. if the
+   connection is valid or not).
+   [105]Read more
+
+
+   This hook returns an array of the current edges. Components that use
+   this hook will re-render whenever any edge changes.
+   [107]Read more
+
+
+   This hook makes it easy to prototype a controlled flow where you manage
+   the state of nodes and edges outside the ReactFlowInstance. You can
+   think of it like React's useState hook with an additional helper
+   callback.
+   [109]Read more
+
+
+   This hook returns an array of the current edges. Components that use
+   this hook will re-render whenever any edge changes.
+   [111]Read more
+
+
+   This hook lets you listen for specific key codes and tells you whether
+   they are currently pressed or not.
+   [113]Read more
+
+
+   You can use this hook to get the id of the node it is used inside. It
+   is useful if you need the node's id deeper in the render tree but don't
+   want to manually drill down the id as a prop.
+   [115]Read more
+
+
+   This hook returns an array of the current nodes. Components that use
+   this hook will re-render whenever any node changes, including when a
+   node is selected or moved.
+   [117]Read more
+
+
+   This hook returns an InternalNode object for the given node ID.
+   [119]Read more
+
+
+   With this hook you can subscribe to changes of a node data of a
+   specific node.
+   [121]Read more
+
+
+   This hook tells you whether all the nodes in a flow have been measured
+   and given a width and height. When you add a node to the flow, this
+   hook will return false and then true again once the node has been
+   measured.
+   [123]Read more
+
+
+   This hook makes it easy to prototype a controlled flow where you manage
+   the state of nodes and edges outside the ReactFlowInstance. You can
+   think of it like React's useState hook with an additional helper
+   callback.
+   [125]Read more
+
+
+   This hook lets you listen for changes to both node and edge selection.
+   As the name implies, the callback you provide will be called whenever
+   the selection of either nodes or edges changes.
+   [127]Read more
+
+
+   The useOnViewportChange hook lets you listen for changes to the
+   viewport such as panning and zooming. You can provide a callback for
+   each phase of a viewport change: onStart, onChange, and onEnd.
+   [129]Read more
+
+
+   This hook returns a ReactFlowInstance that can be used to update nodes
+   and edges, manipulate the viewport, or query the current state of the
+   flow.
+   [131]Read more
+
+
+   This hook can be used to subscribe to internal state changes of the
+   React Flow component. The useStore hook is re-exported from the Zustand
+   state management library, so you should check out their docs for more
+   details.
+   [133]Read more
+
+
+   In some cases, you might need to access the store directly. This hook
+   returns the store object which can be used on demand to access the
+   state or dispatch actions.
+   [135]Read more
+
+
+   When you programmatically add or remove handles to a node or update a
+   node's handle position, you need to let React Flow know about it using
+   this hook. This will update the internal dimensions of the node and
+   properly reposition handles on the canvas if necessary.
+   [137]Read more
+
+
+   The useViewport hook is a convenient way to read the current state of
+   the Viewport in a component. Components that use this hook will
+   re-render whenever the viewport changes.
+   [139]Read more
+   [140]Components[141]Types
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [142]Getting Started[143]API Reference[144]Examples[145]Showcase
+
+   Social
+   [146]Discord[147]Github[148]X / Twitter[149]Bluesky
+
+   xyflow
+   [150]Blog[151]Open Source[152]About[153]Contact[154]
+   Careers hiring
+
+   Legal
+   [155]MIT License[156]Code of Conduct[157]Imprint
+
+   [158]info@xyflow.com -- Copyright © 2024 [159]webkid GmbH. All rights
+   reserved -- website design by [160]Facu Montanaro
+

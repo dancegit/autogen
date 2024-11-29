@@ -1,0 +1,217 @@
+Page: reactflow.dev_files/reactflow.dev/api-reference/utils/get-simple-bezier-path.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]API Reference
+     * [10]<ReactFlow />
+     * [11]<ReactFlowProvider />
+     * [12]Components
+          + [13]<Background />
+          + [14]<BaseEdge />
+          + [15]<ControlButton />
+          + [16]<Controls />
+          + [17]<EdgeLabelRenderer />
+          + [18]<EdgeText />
+          + [19]<Handle />
+          + [20]<MiniMap />
+          + [21]<NodeResizer />
+          + [22]<NodeResizeControl />
+          + [23]<NodeToolbar />
+          + [24]<Panel />
+          + [25]<ViewportPortal />
+     * [26]Hooks
+          + [27]useConnection()
+          + [28]useEdges()
+          + [29]useEdgesState()
+          + [30]useHandleConnections()
+          + [31]useKeyPress()
+          + [32]useNodeId()
+          + [33]useNodes()
+          + [34]useInternalNode()
+          + [35]useNodesData()
+          + [36]useNodesInitialized()
+          + [37]useNodesState()
+          + [38]useOnSelectionChange()
+          + [39]useOnViewportChange()
+          + [40]useReactFlow()
+          + [41]useStore()
+          + [42]useStoreApi()
+          + [43]useUpdateNodeInternals()
+          + [44]useViewport()
+     * [45]Types
+          + [46]BackgroundVariant
+          + [47]Connection
+          + [48]ConnectionLineComponentProps
+          + [49]ConnectionLineType
+          + [50]ConnectionState
+          + [51]CoordinateExtent
+          + [52]DefaultEdgeOptions
+          + [53]DeleteElements
+          + [54]Edge
+          + [55]EdgeChange
+          + [56]EdgeMarker
+          + [57]EdgeProps
+          + [58]FitViewOptions
+          + [59]Handle
+          + [60]HandleConnection
+          + [61]InternalNode
+          + [62]MarkerType
+          + [63]MiniMapNodeProps
+          + [64]Node
+          + [65]NodeChange
+          + [66]NodeHandle
+          + [67]NodeOrigin
+          + [68]NodeProps
+          + [69]OnEdgesChange
+          + [70]OnNodesChange
+          + [71]PanOnScrollMode
+          + [72]PanelPosition
+          + [73]Position
+          + [74]ProOptions
+          + [75]ReactFlowInstance
+          + [76]ReactFlowJsonObject
+          + [77]ResizeParams
+          + [78]Viewport
+          + [79]XYPosition
+     * [80]Utils
+          + [81]addEdge()
+          + [82]applyEdgeChanges()
+          + [83]applyNodeChanges()
+          + [84]getBezierPath()
+          + [85]getConnectedEdges()
+          + [86]getIncomers()
+          + [87]getNodesBounds()
+          + [88]getOutgoers()
+          + [89]getSimpleBezierPath()
+          + [90]getSmoothStepPath()
+          + [91]getStraightPath()
+          + [92]getViewportForBounds()
+          + [93]isEdge()
+          + [94]isNode()
+          + [95]reconnectEdge()
+          + [96]getTransformForBounds()
+
+   On This Page
+     * [97]Signature
+     * [98]Notes
+
+   [99]Question? Give us feedback ->[100]Edit this page
+
+   What's new?
+   [101]Our examples have a fresh new look[102]React Flow
+   CLI[104]...and more!
+   [105]Reference[106]Utils
+   getSimpleBezierPath()
+
+getSimpleBezierPath()
+
+   [107]Source on Github
+
+   The getSimpleBezierPath util returns everything you need to render a
+   simple bezier edge between two nodes.
+import { Position, getSimpleBezierPath } from '@xyflow/react';
+
+const source = { x: 0, y: 20 };
+const target = { x: 150, y: 100 };
+
+const [path, labelX, labelY, offsetX, offsetY] = getSimpleBezierPath({
+  sourceX: source.x,
+  sourceY: source.y,
+  sourcePosition: Position.Right,
+  targetX: target.x,
+  targetY: target.y,
+  targetPosition: Position.Left,
+});
+
+console.log(path); //=> "M0,20 C75,20 75,100 150,100"
+console.log(labelX, labelY); //=> 75, 60
+console.log(offsetX, offsetY); //=> 75, 40
+
+   (BUTTON)
+
+Signature
+
+               Name            Type Default
+   [108]#Params
+
+   [109]#params
+   object
+
+   [110]#params.sourceX
+   number
+
+   [111]#params.sourceY
+   number
+
+   [112]#params.sourcePosition?
+   Position
+   Position.Bottom
+
+   [113]#params.targetX
+   number
+
+   [114]#params.targetY
+   number
+
+   [115]#params.targetPosition?
+   Position
+   Position.Top
+
+   [116]#Returns
+
+   [117]#[0]
+   string
+   The path to use in an SVG <path> element.
+
+   [118]#[1]
+   number
+   The x position you can use to render a label for this edge.
+
+   [119]#[2]
+   number
+   The y position you can use to render a label for this edge.
+
+   [120]#[3]
+   number
+   The absolute difference between the source x position and the x
+   position of the middle of this path.
+
+   [121]#[4]
+   number
+   The absolute difference between the source y position and the y
+   position of the middle of this path.
+
+Notes
+
+     * This function returns a tuple (aka a fixed-size array) to make it
+       easier to work with multiple edge paths at once.
+
+   [122]Utils
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [123]Getting Started[124]API Reference[125]Examples[126]Showcase
+
+   Social
+   [127]Discord[128]Github[129]X / Twitter[130]Bluesky
+
+   xyflow
+   [131]Blog[132]Open Source[133]About[134]Contact[135]
+   Careers hiring
+
+   Legal
+   [136]MIT License[137]Code of Conduct[138]Imprint
+
+   [139]info@xyflow.com -- Copyright © 2024 [140]webkid GmbH. All rights
+   reserved -- website design by [141]Facu Montanaro
+

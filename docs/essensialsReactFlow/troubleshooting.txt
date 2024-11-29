@@ -1,0 +1,571 @@
+Page: reactflow.dev_files/reactflow.dev/learn/troubleshooting.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   On This Page
+     * [43]Warning: Seems like you have not used zustand provider as an
+       ancestor
+     * [44]Solution for A
+     * [45]Solution for B
+     * [46]It looks like you have created a new nodeTypes or edgeTypes
+       object. If this
+     * [47]Node type not found. Using fallback type "default".
+     * [48]The React Flow parent container needs a width and a height to
+       render the
+     * [49]Only child nodes can use a parent extent.
+     * [50]Can't create edge. An edge needs a source and a target.
+     * [51]The old edge with id="some-id" does not exist.
+     * [52]Couldn't create edge for source/target handle id: "some-id";
+       edge id:
+     * [53]Marker type doesn't exist.
+     * [54]Handle: No node id found.
+     * [55]I get an error when building my app with webpack 4.
+     * [56]Mouse events aren't working consistently when my nodes contain
+       a <canvas /> element.
+
+   [57]Question? Give us feedback ->[58]Edit this page
+
+   What's new?
+   [59]Our examples have a fresh new look[60]React Flow
+   CLI[62]...and more!
+   [63]LearnTroubleshooting
+   Common Errors
+
+Troubleshooting
+
+   This guide contains warnings and errors that can occur when using React
+   Flow. We are also adding common questions and pitfalls that we collect
+   from our [64]Discord Server, [65]Github Issues and [66]Github
+   Discussions.
+
+Warning: Seems like you have not used zustand provider as an ancestor
+
+   This usually happens when:
+
+   A: You have two different version of @reactflow/core installed.
+   B: You are trying to access the internal React Flow state outside of
+   the React Flow context.
+
+Solution for A
+
+   Update reactflow and @reactflow/node-resizer (in case you are using
+   it), remove node_modules and package-lock.json and reinstall the
+   dependencies.
+
+Solution for B
+
+   A possible solution is to wrap your component with a
+   [67]<ReactFlowProvider /> or move the code that is accessing the state
+   inside a child of your React Flow instance.
+   «
+   This will cause an error:
+import { ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+function FlowWithoutProvider(props) {
+  // cannot access the state here
+  const reactFlowInstance = useReactFlow();
+
+  return <ReactFlow {...props} />;
+}
+
+export default FlowWithoutProvider;
+
+   (BUTTON)
+   «
+   This will cause an error, too:
+import { ReactFlow, ReactFlowProvider } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+function Flow(props) {
+  // still cannot access the state here
+  // only child components of this component can access the state
+  const reactFlowInstance = useReactFlow();
+
+  return (
+    <ReactFlowProvider>
+      <ReactFlow {...props} />
+    </ReactFlowProvider>
+  );
+}
+
+export default FlowWithProvider;
+
+   (BUTTON)
+   This works:
+
+   As soon as you want to access the internal state of React Flow (for
+   example by using the useReactFlow hook), you need to wrap your
+   component with a <ReactFlowProvider />. Here the wrapping is done
+   outside of the component:
+import { ReactFlow, ReactFlowProvider } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+function Flow(props) {
+  // you can access the internal state here
+  const reactFlowInstance = useReactFlow();
+
+  return <ReactFlow {...props} />;
+}
+
+// wrapping with ReactFlowProvider is done outside of the component
+function FlowWithProvider(props) {
+  return (
+    <ReactFlowProvider>
+      <Flow {...props} />
+    </ReactFlowProvider>
+  );
+}
+
+export default FlowWithProvider;
+
+   (BUTTON)
+
+It looks like you have created a new nodeTypes or edgeTypes object. If
+this
+
+   wasn't on purpose please define the nodeTypes/edgeTypes outside of the
+   component or memoize them.
+
+   This warning appears when the nodeTypes or edgeTypes properties change
+   after the initial render. The nodeTypes or edgeTypes should only be
+   changed dynamically in very rare cases. Usually they are defined once
+   with all the types that you are using in your application. It can
+   happen easily that you are defining the nodeTypes or edgeTypes object
+   inside of your component render function, which will cause React Flow
+   to re-render every time your component re-renders.
+   «
+   Causes a warning:
+import { ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import MyCustomNode from './MyCustomNode';
+
+function Flow(props) {
+  // new object being created on every render
+  // causing unneccessary re-renders
+  const nodeTypes = {
+    myCustomNode: MyCustomNode,
+  };
+
+  return <ReactFlow nodeTypes={nodeTypes} />;
+}
+
+export default Flow;
+
+   (BUTTON)
+   Recommended implementation:
+import { ReactFlow } from '@xyflow/react';
+import MyCustomNode from './MyCustomNode';
+
+// defined outside of the component
+const nodeTypes = {
+  myCustomNode: MyCustomNode,
+};
+
+function Flow(props) {
+  return <ReactFlow nodeTypes={nodeTypes} />;
+}
+
+export default Flow;
+
+   (BUTTON)
+   Alternative implementation:
+
+   You can use this if you want to change your nodeTypes dynamically
+   without causing unneccessary re-renders.
+import { useMemo } from 'react';
+import { ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import MyCustomNode from './MyCustomNode';
+
+function Flow(props) {
+  const nodeTypes = useMemo(
+    () => ({
+      myCustomNode: MyCustomNode,
+    }),
+    [],
+  );
+
+  return <ReactFlow nodeTypes={nodeTypes} />;
+}
+
+export default Flow;
+
+   (BUTTON)
+
+Node type not found. Using fallback type "default".
+
+   This usually happens when you are specifying a custom node type for one
+   of your nodes but not passing the correct nodeTypes property to React
+   Flow. The string for the type option of your custom node needs to be
+   exactly the same as the key of the nodeTypes object.
+   «
+   Doesn't work:
+import { ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import MyCustomNode from './MyCustomNode';
+
+const nodes = [
+  {
+    id: 'mycustomnode',
+    type: 'custom',
+    // ...
+  },
+];
+
+function Flow(props) {
+  // nodeTypes property is missing, so React Flow cannot find the custom node co
+mponent to render
+  return <ReactFlow nodes={nodes} />;
+}
+
+   (BUTTON)
+   «
+   Doesn't work either:
+import { ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import MyCustomNode from './MyCustomNode';
+
+const nodes = [
+  {
+    id: 'mycustomnode',
+    type: 'custom',
+    // ...
+  },
+];
+
+const nodeTypes = {
+  Custom: MyCustomNode,
+};
+
+function Flow(props) {
+  // node.type and key in nodeTypes object are not exactly the same (capitalized
+)
+  return <ReactFlow nodes={nodes} nodeTypes={nodeTypes} />;
+}
+
+   (BUTTON)
+   This does work:
+import { ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import MyCustomNode from './MyCustomNode';
+
+const nodes = [
+  {
+    id: 'mycustomnode',
+    type: 'custom',
+    // ...
+  },
+];
+
+const nodeTypes = {
+  custom: MyCustomNode,
+};
+
+function Flow(props) {
+  return <ReactFlow nodes={nodes} nodeTypes={nodeTypes} />;
+}
+
+   (BUTTON)
+
+The React Flow parent container needs a width and a height to render the
+
+   graph.
+
+   Under the hood, React Flow measures the parent DOM element to adjust
+   the renderer. If you try to render React Flow in a regular div without
+   a height, we cannot display the graph. If you encounter this warning,
+   you need to make sure that your wrapper component has some CSS attached
+   to it so that it gets a fixed height or inherits the height of its
+   parent.
+   «
+   This will cause the warning:
+import { ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+function Flow(props) {
+  return (
+    <div>
+      <ReactFlow {...props} />
+    </div>
+  );
+}
+
+   (BUTTON)
+   Working example:
+import { ReactFlow } from '@xyflow/react';
+
+function Flow(props) {
+  return (
+    <div style={{ height: 800 }}>
+      <ReactFlow {...props} />
+    </div>
+  );
+}
+
+   (BUTTON)
+
+Only child nodes can use a parent extent.
+
+   This warning appears when you are trying to add the extent option to a
+   node that does not have a parent node. Depending on what you are trying
+   to do, you can remove the extent option or specify a parentNode.
+   «
+   Does show a warning:
+import { ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+const nodes = [
+  {
+    id: 'mycustomnode',
+    extent: 'parent',
+    // ...
+  },
+];
+
+function Flow(props) {
+  return <ReactFlow nodes={nodes} />;
+}
+
+   (BUTTON)
+   Warning resolved:
+const nodes = [
+  {
+    id: 'mycustomnode',
+    parentNode: 'someothernode',
+    extent: 'parent',
+    // ...
+  },
+];
+
+function Flow(props) {
+  return <ReactFlow nodes={nodes} />;
+}
+
+   (BUTTON)
+
+Can't create edge. An edge needs a source and a target.
+
+   This happens when you do not pass a source and a target option to the
+   edge object. Without the source and target, the edge cannot be
+   rendered.
+   «
+   Will show a warning:
+import { ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+const nodes = [
+  /* ... */
+];
+
+const edges = [
+  {
+    nosource: '1',
+    notarget: '2',
+  },
+];
+
+function Flow(props) {
+  return <ReactFlow nodes={nodes} edges={edges} />;
+}
+
+   (BUTTON)
+   This works:
+import { ReactFlow } from '@xyflow/react';
+
+const nodes = [
+  /* ... */
+];
+
+const edges = [
+  {
+    source: '1',
+    target: '2',
+  },
+];
+
+function Flow(props) {
+  return <ReactFlow nodes={nodes} edges={edges} />;
+}
+
+   (BUTTON)
+
+The old edge with id="some-id" does not exist.
+
+   This can happen when you are trying to [68]reconnect an edge but the
+   edge you want to update is already removed from the state. This is a
+   very rare case. Please see the [69]Reconnect Edge example for
+   implementation details.
+
+Couldn't create edge for source/target handle id: "some-id"; edge id:
+
+   "some-id".
+
+   This can happen if you are working with multiple handles and a handle
+   is not found by its id property or if you haven't [70]updated the node
+   internals after adding or removing handles programmatically. Please see
+   the [71]Custom Node Example for an example of working with multiple
+   handles.
+
+Marker type doesn't exist.
+
+   This warning occurs when you are trying to specify a marker type that
+   is not built into React Flow. The existing marker types are documented
+   [72]here.
+
+Handle: No node id found.
+
+   This warning occurs when you try to use a <Handle /> component outside
+   of a custom node component.
+
+I get an error when building my app with webpack 4.
+
+   If you're using webpack 4, you'll likely run into an error like this:
+ERROR in /node_modules/@reactflow/core/dist/esm/index.js 16:19
+Module parse failed: Unexpected token (16:19)
+You may need an appropriate loader to handle this file type, currently no loader
+s are configured to process this file. See https://webpack.js.org/concepts#loade
+rs
+
+   (BUTTON)
+
+   React Flow is a modern JavaScript code base and makes use of lots of
+   newer JavaScript features. By default, webpack 4 does not transpile
+   your code and it doesn't know how to handle React Flow.
+
+   You need to add a number of babel plugins to your webpack config to
+   make it work:
+   (BUTTON)
+   (BUTTON) npm (BUTTON) pnpm (BUTTON) yarn (BUTTON) bun
+npm i --save-dev babel-loader@8.2.5 @babel/preset-env @babel/preset-react @babel
+/plugin-proposal-optional-chaining @babel/plugin-proposal-nullish-coalescing-ope
+rator
+
+   (BUTTON) (BUTTON)
+pnpm add --save-dev babel-loader@8.2.5 @babel/preset-env @babel/preset-react @ba
+bel/plugin-proposal-optional-chaining @babel/plugin-proposal-nullish-coalescing-
+operator
+
+   (BUTTON) (BUTTON)
+yarn add --dev babel-loader@8.2.5 @babel/preset-env @babel/preset-react @babel/p
+lugin-proposal-optional-chaining @babel/plugin-proposal-nullish-coalescing-opera
+tor
+
+   (BUTTON) (BUTTON)
+bun add --dev babel-loader@8.2.5 @babel/preset-env @babel/preset-react @babel/pl
+ugin-proposal-optional-chaining @babel/plugin-proposal-nullish-coalescing-operat
+or
+
+   (BUTTON) (BUTTON)
+
+   and configure the loader like this:
+{
+  test: /node_modules[\/\\]@?reactflow[\/\\].*.js$/,
+  use: {
+    loader: 'babel-loader',
+    options: {
+      presets: ['@babel/preset-env', "@babel/preset-react"],
+      plugins: [
+        "@babel/plugin-proposal-optional-chaining",
+        "@babel/plugin-proposal-nullish-coalescing-operator",
+      ]
+    }
+  }
+}
+
+   (BUTTON)
+
+   If you're using webpack 5, you don't need to do anything! React Flow
+   will work out of the box.
+
+Mouse events aren't working consistently when my nodes contain a <canvas />
+element.
+
+   If you're using a <canvas /> element inside your custom node, you might
+   run into problems with seemingly-incorrect coordinates in mouse events
+   from the cavnas.
+
+   React Flow uses CSS transforms to scale nodes as you zoom in and out.
+   From the DOM's perspective, however, the element is still the same
+   size. This can cause problems if you have event listeners that want to
+   calcuate the mouse position relative to the canvas element.
+
+   To remedy this in event handlers you control, you can scale your
+   computed relative position by 1 / zoom where zoom is the current zoom
+   level of the flow. To get the current zoom level, you can use the
+   getZoom method from the [73]useReactFlow hook.
+   [74]Mind Map App
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [75]Getting Started[76]API Reference[77]Examples[78]Showcase
+
+   Social
+   [79]Discord[80]Github[81]X / Twitter[82]Bluesky
+
+   xyflow
+   [83]Blog[84]Open Source[85]About[86]Contact[87]
+   Careers hiring
+
+   Legal
+   [88]MIT License[89]Code of Conduct[90]Imprint
+
+   [91]info@xyflow.com -- Copyright © 2024 [92]webkid GmbH. All rights
+   reserved -- website design by [93]Facu Montanaro
+

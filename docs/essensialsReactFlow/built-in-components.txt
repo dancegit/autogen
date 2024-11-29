@@ -1,0 +1,242 @@
+Page: reactflow.dev_files/reactflow.dev/learn/concepts/built-in-components.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   On This Page
+     * [43]MiniMap
+     * [44]Controls
+     * [45]Background
+     * [46]Panel
+
+   [47]Question? Give us feedback ->[48]Edit this page
+
+   What's new?
+   [49]Our examples have a fresh new look[50]React Flow
+   CLI[52]...and more!
+   [53]Learn[54]Concepts
+   Built-In Components
+
+Built-In Components
+
+   React Flow comes with several additional components. In this guide we
+   show you how to use them. We are using our [55]previous example code
+   here.
+
+MiniMap
+
+   If your flow gets bigger, you might want to get an overview quickly.
+   For this we have built the [56]MiniMap component. You can easily add it
+   to your flow by adding it as a children:
+
+   IFRAME:
+   [57]https://example-apps.xyflow.com/react/learn/mini-map/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) edges.js (BUTTON) index.css (BUTTON)
+   index.html (BUTTON) index.jsx (BUTTON) nodes.jsx
+import { ReactFlow, MiniMap } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import { defaultNodes } from './nodes';
+import { defaultEdges } from './edges';
+
+const nodeColor = (node) => {
+  switch (node.type) {
+    case 'input':
+      return '#6ede87';
+    case 'output':
+      return '#6865A5';
+    default:
+      return '#ff0072';
+  }
+};
+
+function Flow() {
+  return (
+    <ReactFlow defaultNodes={defaultNodes} defaultEdges={defaultEdges} fitView>
+      <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable />
+    </ReactFlow>
+  );
+}
+
+export default Flow;
+
+   (BUTTON)
+
+Controls
+
+   React Flow comes with a customizable controls bar, that you can use by
+   importing the [58]Controls component
+
+   IFRAME:
+   [59]https://example-apps.xyflow.com/react/learn/controls/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) edges.js (BUTTON) index.css (BUTTON)
+   index.html (BUTTON) index.jsx (BUTTON) nodes.jsx
+import { ReactFlow, Controls } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import { defaultNodes } from './nodes';
+import { defaultEdges } from './edges';
+
+function Flow() {
+  return (
+    <ReactFlow defaultNodes={defaultNodes} defaultEdges={defaultEdges} fitView>
+      <Controls />
+    </ReactFlow>
+  );
+}
+
+export default Flow;
+
+   (BUTTON)
+
+Background
+
+   If you want to display the pattern background, you can use the
+   [60]Background component
+
+   IFRAME:
+   [61]https://example-apps.xyflow.com/react/learn/background/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) edges.jsx (BUTTON) index.css (BUTTON)
+   index.html (BUTTON) index.jsx (BUTTON) nodes.jsx
+import { useState } from 'react';
+import { ReactFlow, Background, Panel } from '@xyflow/react';
+
+import '@xyflow/react/dist/style.css';
+
+import { defaultNodes } from './nodes';
+import { defaultEdges } from './edges';
+
+function Flow() {
+  const [variant, setVariant] = useState('cross');
+
+  return (
+    <ReactFlow defaultNodes={defaultNodes} defaultEdges={defaultEdges} fitView>
+      <Background color="#ccc" variant={variant} />
+      <Panel>
+        <div>variant:</div>
+        <button onClick={() => setVariant('dots')}>dots</button>
+        <button onClick={() => setVariant('lines')}>lines</button>
+        <button onClick={() => setVariant('cross')}>cross</button>
+      </Panel>
+    </ReactFlow>
+  );
+}
+
+export default Flow;
+
+   (BUTTON)
+
+Panel
+
+   A helper component to display content on top of the React Flow
+   viewport. [62]Panel component
+
+   IFRAME:
+   [63]https://example-apps.xyflow.com/react/learn/panel/index.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.jsx (BUTTON) index.css (BUTTON) index.html (BUTTON)
+   index.jsx
+import { ReactFlow, Background, Panel } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+const nodes = [
+  {
+    id: '1',
+    data: { label: 'this is an example flow for the <Panel /> component' },
+    position: { x: 0, y: 0 },
+  },
+];
+
+function Flow() {
+  return (
+    <ReactFlow nodes={nodes} fitView>
+      <Panel position="top-left">top-left</Panel>
+      <Panel position="top-center">top-center</Panel>
+      <Panel position="top-right">top-right</Panel>
+      <Panel position="bottom-left">bottom-left</Panel>
+      <Panel position="bottom-center">bottom-center</Panel>
+      <Panel position="bottom-right">bottom-right</Panel>
+      <Background variant="cross" />
+    </ReactFlow>
+  );
+}
+
+export default Flow;
+
+   (BUTTON)
+   [64]Quickstart[65]Slideshow App
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [66]Getting Started[67]API Reference[68]Examples[69]Showcase
+
+   Social
+   [70]Discord[71]Github[72]X / Twitter[73]Bluesky
+
+   xyflow
+   [74]Blog[75]Open Source[76]About[77]Contact[78]
+   Careers hiring
+
+   Legal
+   [79]MIT License[80]Code of Conduct[81]Imprint
+
+   [82]info@xyflow.com -- Copyright © 2024 [83]webkid GmbH. All rights
+   reserved -- website design by [84]Facu Montanaro
+

@@ -1,0 +1,663 @@
+Page: reactflow.dev_files/reactflow.dev/examples.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Examples
+     * [10]Feature Overview
+     * (BUTTON) Nodes
+          + [11]Custom Nodes
+          + [12]Updating Nodes
+          + [13]Stress Test
+          + [14]Hidden
+          + [15]Drag Handle
+          + [16]Easy Connect
+          + [17]Add Node On Edge Drop
+          + [18]Proximity Connect
+          + [19]Node Resizer
+          + [20]Node Toolbar
+          + [21]Rotatable Node
+          + [22]Dynamic Grouping
+          + [23]Intersections
+          + [24]Shapes
+          + [25]Connection Limit
+          + [26]Delete Middle Node
+     * (BUTTON) Edges
+          + [27]Custom Edges
+          + [28]Animating Edges
+          + [29]Edge Types
+          + [30]Editable Edge
+          + [31]Reconnect Edge
+          + [32]Connection Line
+          + [33]Multi Connection Line
+          + [34]Edge Markers
+          + [35]Delete Edge on Drop
+          + [36]Floating Edges
+          + [37]Simple Floating Edges
+          + [38]Edge Label Renderer
+          + [39]Temporary Edges
+     * (BUTTON) Layout
+          + [40]Sub Flow
+          + [41]Horizontal Flow
+          + [42]Dagre Tree
+          + [43]Entitree Flex Tree
+          + [44]Elkjs Tree
+          + [45]Elkjs Multiple Handles
+          + [46]Auto Layout
+          + [47]Force Layout
+          + [48]Expand and Collapse
+          + [49]Workflow Builder
+     * (BUTTON) Interaction
+          + [50]Interaction Props
+          + [51]Drag and Drop
+          + [52]Computing Flows
+          + [53]Validation
+          + [54]Connection Events
+          + [55]Preventing Cycles
+          + [56]Undo and Redo
+          + [57]Copy and Paste
+          + [58]Helper Lines
+          + [59]Touch Device
+          + [60]Save and Restore
+          + [61]Zoom Transitions
+          + [62]Collaborative
+          + [63]Contextual Zoom
+          + [64]Context Menu
+     * (BUTTON) Styling
+          + [65]Styled Components
+          + [66]Tailwind
+          + [67]Turbo Flow
+          + [68]Base Style
+          + [69]Dark Mode
+     * (BUTTON) Misc
+          + [70]Static Server Side Generation
+          + [71]Download Image
+          + [72]ReactFlowProvider
+          + [73]useReactFlow
+
+Examples
+
+   Browse our examples for practical copy-paste solutions to common use
+   cases with React Flow. Here you can find our MIT Licensed examples,
+   which you are free to use in your projects without restrictions, as
+   well as our Pro examples that come with our React Flow Pro subscription
+   plans.
+   [74]Feature Overview Example Preview
+
+Feature Overview
+
+   This is an overview example React Flow's basic features. You can see
+   built-in node and edge types, sub flows as well as NodeToolbar and
+   NodeResizer components.
+   See example
+
+Nodes
+
+   [75]
+   [object Object] screenshot
+
+   NODES
+   Custom Nodes
+
+   Display any content inside of a node
+   See example
+   [76]
+   [object Object] screenshot
+
+   NODES
+   Updating Nodes
+
+   Update the data field of a specific node
+   See example
+   [77]
+   [object Object] screenshot
+
+   NODES
+   Stress Test
+
+   Render hundreds of nodes and edges at once
+   See example
+   [78]
+   [object Object] screenshot
+
+   NODES
+   Hidden
+
+   Hide a node or edge for expandable/collapsible diagrams
+   See example
+   [79]
+   [object Object] screenshot
+
+   NODES
+   Drag Handle
+
+   Restrict dragging to a specific part of node
+   See example
+   [80]
+   [object Object] screenshot
+
+   NODES
+   Easy Connect
+
+   Make the whole node into a handle
+   See example
+   [81]
+   [object Object] screenshot
+
+   NODES
+   Add Node On Edge Drop
+
+   A new node appears wherever you drop the connection line
+   See example
+   [82]
+   [object Object] screenshot
+
+   NODES
+   Proximity Connect
+
+   Automatically create edges when nodes get close to each other
+   See example
+   [83]
+   [object Object] screenshot
+
+   NODES
+   Node Resizer
+
+   Change the size of a node with a bounding box or draggable icon
+   See example
+   [84]
+   [object Object] screenshot
+
+   NODES
+   Node Toolbar
+
+   A toolbar with buttons appears next to the selected node
+   See example
+   [85]
+   [object Object] screenshot
+
+   NODES
+   Rotatable Node
+
+   A custom node that can be rotated using CSS transforms
+   See example
+   [86]
+   [object Object] screenshot
+
+   NODES
+   Dynamic GroupingPro
+
+   Group nodes together by dragging them into the same container
+   See example
+   [87]
+   [object Object] screenshot
+
+   NODES
+   Intersections
+
+   Detect when a node overlaps with another node
+   See example
+   [88]
+   [object Object] screenshot
+
+   NODES
+   ShapesPro
+
+   Custom node that can render different shapes like a circle, diamond or
+   hexagon that are commonly used in flow charts
+   See example
+   [89]
+   [object Object] screenshot
+
+   NODES
+   Connection Limit
+
+   Use the `isConnectable` prop to limit the number of connections a
+   handle can have
+   See example
+   [90]
+   [object Object] screenshot
+
+   NODES
+   Delete Middle Node
+
+   Remove a node without breaking the flow
+   See example
+
+Edges
+
+   [91]
+   [object Object] screenshot
+
+   EDGES
+   Custom Edges
+
+   Create edges with special routing or controls along the edge
+   See example
+   [92]
+   [object Object] screenshot
+
+   EDGES
+   Animating Edges
+
+   Create edge animations that go beyond the built in animated edge.
+   See example
+   [93]
+   [object Object] screenshot
+
+   EDGES
+   Edge Types
+
+   Make edges straight, stepped, smooth-stepped, or bezier curved
+   See example
+   [94]
+   [object Object] screenshot
+
+   EDGES
+   Editable EdgePro
+
+   Implement a custom edge with draggable control points to change the
+   path of an edge
+   See example
+   [95]
+   [object Object] screenshot
+
+   EDGES
+   Reconnect Edge
+
+   Click-drag to move an existing edge from one handle to another
+   See example
+   [96]
+   [object Object] screenshot
+
+   EDGES
+   Connection Line
+
+   Change the appearance and behavior of the connection line
+   See example
+   [97]
+   [object Object] screenshot
+
+   EDGES
+   Multi Connection Line
+
+   Draw multiple connection lines at once from any selected nodes.
+   See example
+   [98]
+   [object Object] screenshot
+
+   EDGES
+   Edge Markers
+
+   Make your edges into arrows, add custom icons, or SVGs
+   See example
+   [99]
+   [object Object] screenshot
+
+   EDGES
+   Delete Edge on Drop
+
+   Delete an edge when it doesn't find a handle
+   See example
+   [100]
+   [object Object] screenshot
+
+   EDGES
+   Floating Edges
+
+   Instead of having the handle at a fixed point, let it move with the
+   connected edge
+   See example
+   [101]
+   [object Object] screenshot
+
+   EDGES
+   Simple Floating Edges
+
+   Edges connect to the closest available handle
+   See example
+   [102]
+   [object Object] screenshot
+
+   EDGES
+   Edge Label Renderer
+
+   Render edge labels as divs on top of edges
+   See example
+   [103]
+   [object Object] screenshot
+
+   EDGES
+   Temporary Edges
+
+   Push what React Flow edges are capable of by rendering invisible ghost
+   nodes.
+   See example
+
+Layout
+
+   [104]
+   [object Object] screenshot
+
+   LAYOUT
+   Sub Flow
+
+   Render nested graphs and group nodes, and configure the behavior of
+   child nodes
+   See example
+   [105]
+   [object Object] screenshot
+
+   LAYOUT
+   Horizontal Flow
+
+   A diagram that flows from left to right
+   See example
+   [106]
+   [object Object] screenshot
+
+   LAYOUT
+   Dagre Tree
+
+   Integrate dagre js with React Flow to create simple tree layouts
+   See example
+   [107]
+   [object Object] screenshot
+
+   LAYOUT
+   Entitree Flex Tree
+
+   Create tree layouts that have sibling nodes and support nodes with
+   different dimensions for family tree type layouts
+   See example
+   [108]
+   [object Object] screenshot
+
+   LAYOUT
+   Elkjs Tree
+
+   For a more powerful alternative to dagre, you can also use elkjs to
+   layout your graphs
+   See example
+   [109]
+   [object Object] screenshot
+
+   LAYOUT
+   Elkjs Multiple Handles
+
+   Use multiple handles with the elkjs layouting engine to reduce edge
+   crossings
+   See example
+   [110]
+   [object Object] screenshot
+
+   LAYOUT
+   Auto LayoutPro
+
+   Automatically arrange nodes after adding items from a sidebar.
+   See example
+   [111]
+   [object Object] screenshot
+
+   LAYOUT
+   Force LayoutPro
+
+   Newly added nodes never overlap with existing nodes using d3-force
+   See example
+   [112]
+   [object Object] screenshot
+
+   LAYOUT
+   Expand and CollapsePro
+
+   Click on parent nodes to toggle the visibility of their children
+   See example
+   [113]
+   [object Object] screenshot
+
+   LAYOUT
+   Workflow BuilderPro
+
+   Add and auto-layout new nodes in a vertical tree flow
+   See example
+
+Interaction
+
+   [114]
+   [object Object] screenshot
+
+   INTERACTION
+   Interaction Props
+
+   The most popular props used for interactivity of a diagram
+   See example
+   [115]
+   [object Object] screenshot
+
+   INTERACTION
+   Drag and Drop
+
+   Drag and drop outside of the React Flow pane with native HTML Drag and
+   Drop API or react-draggable.
+   See example
+   [116]
+   [object Object] screenshot
+
+   INTERACTION
+   Computing Flows
+
+   This examples demonstrates how to use the helpers to handle data flow
+   See example
+   [117]
+   [object Object] screenshot
+
+   INTERACTION
+   Validation
+
+   Check if a new connection is valid and should be added
+   See example
+   [118]
+   [object Object] screenshot
+
+   INTERACTION
+   Connection Events
+
+   React Flow emits different events during the connection process. Use
+   this example to get an overview of those events and what order they are
+   called in.
+   See example
+   [119]
+   [object Object] screenshot
+
+   INTERACTION
+   Preventing Cycles
+
+   Check if a new connection would cause a cycle in the graph
+   See example
+   [120]
+   [object Object] screenshot
+
+   INTERACTION
+   Undo and RedoPro
+
+   Implement an undo and redo functionality for moving, adding, and
+   deleting nodes and edges
+   See example
+   [121]
+   [object Object] screenshot
+
+   INTERACTION
+   Copy and PastePro
+
+   Select nodes and edges to cut, copy, and paste
+   See example
+   [122]
+   [object Object] screenshot
+
+   INTERACTION
+   Helper LinesPro
+
+   Display lines that help to visually align nodes, and enable nodes to be
+   snapped into place when dropped
+   See example
+   [123]
+   [object Object] screenshot
+
+   INTERACTION
+   Touch Device
+
+   Tap two handles to connect them, and make handles bigger for smaller
+   devices
+   See example
+   [124]
+   [object Object] screenshot
+
+   INTERACTION
+   Save and Restore
+
+   Save the state of the diagram, and reload it after refreshing the page
+   See example
+   [125]
+   [object Object] screenshot
+
+   INTERACTION
+   Zoom Transitions
+
+   Change the animation speed when the viewport is zoomed or moved
+   See example
+   [126]
+   [object Object] screenshot
+
+   INTERACTION
+   CollaborativePro
+
+   Build a collaborative graph for multiple users with React Flow and yjs
+   See example
+   [127]
+   [object Object] screenshot
+
+   INTERACTION
+   Contextual Zoom
+
+   Only display the content of a node when you are zoomed in close enough
+   See example
+   [128]
+   [object Object] screenshot
+
+   INTERACTION
+   Context Menu
+
+   Right-click a node to display custom actions
+   See example
+
+Styling
+
+   [129]
+   [object Object] screenshot
+
+   STYLING
+   Styled Components
+
+   Change the color of the background and nodes with the Styled Components
+   library
+   See example
+   [130]
+   [object Object] screenshot
+
+   STYLING
+   Tailwind
+
+   Use Tailwind CDN to easily make nice looking flows
+   See example
+   [131]
+   [object Object] screenshot
+
+   STYLING
+   Turbo Flow
+
+   Nodes with glowing animated gradient borders, inspired by the
+   turbo.build website
+   See example
+   [132]
+   [object Object] screenshot
+
+   STYLING
+   Base Style
+
+   Show the bare-bones base style that is built into React Flow, but is
+   not used by default
+   See example
+   [133]
+   [object Object] screenshot
+
+   STYLING
+   Dark Mode
+
+   React Flow comes with a color mode prop that allows you to switch
+   between dark, light and system mode.
+   See example
+
+Misc
+
+   [134]
+   [object Object] screenshot
+
+   MISC
+   Static Server Side GenerationPro
+
+   A full-stack app that demonstrates how to use React Flow to statically
+   generate a flow on the server.
+   See example
+   [135]
+   [object Object] screenshot
+
+   MISC
+   Download Image
+
+   Save a flow as a png with the html-to-image library
+   See example
+   [136]
+   [object Object] screenshot
+
+   MISC
+   ReactFlowProvider
+
+   For working with multiple flows on a page, so that each has a separate
+   store instance
+   See example
+   [137]
+   [object Object] screenshot
+
+   MISC
+   useReactFlow
+
+   A hook with useful helpers for your nodes, edges, and the viewport
+   See example
+   [138]Feature Overview
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [139]Getting Started[140]API Reference[141]Examples[142]Showcase
+
+   Social
+   [143]Discord[144]Github[145]X / Twitter[146]Bluesky
+
+   xyflow
+   [147]Blog[148]Open Source[149]About[150]Contact[151]
+   Careers hiring
+
+   Legal
+   [152]MIT License[153]Code of Conduct[154]Imprint
+
+   [155]info@xyflow.com -- Copyright © 2024 [156]webkid GmbH. All rights
+   reserved -- website design by [157]Facu Montanaro
+

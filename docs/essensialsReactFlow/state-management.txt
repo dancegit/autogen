@@ -1,0 +1,274 @@
+Page: reactflow.dev_files/reactflow.dev/learn/advanced-use/state-management.html
+----------------------------------------
+   [1]¥ We just released React Flow Components powered by shadcn CLI
+   (BUTTON)
+   [2]
+
+   React Flow
+   [3]Learn[4]Reference[5]Examples[6]Components[7]Showcase (BUTTON) More
+   (BUTTON) Search
+   [8]React Flow Pro (BUTTON)
+   (BUTTON) Search
+     * [9]Quickstart
+     * (BUTTON) Concepts
+          + [10]Introduction
+          + [11]Terms and Definitions
+          + [12]Core Concepts
+          + [13]The Viewport
+          + [14]Built-In Components
+     * (BUTTON) Getting Started
+          + [15]Installation
+          + [16]Building a Flow
+          + [17]Adding Interactivity
+     * (BUTTON) Customizing React Flow
+          + [18]Custom Nodes
+          + [19]Custom Node Props
+          + [20]Custom Edges
+          + [21]Custom Edge Props
+          + [22]Theming
+     * (BUTTON) Layouting
+          + [23]Layouting Libraries
+          + [24]Sub-Flows
+     * (BUTTON) Advanced Use
+          + [25]Accessibility
+          + [26]Testing
+          + [27]TypeScript
+          + [28]Uncontrolled Flows
+          + [29]State Management
+          + [30]Computing Flows
+          + [31]Server Side Rendering
+          + [32]Devtools
+     * [33]Tutorials
+          + [34]Slideshow App
+          + [35]Web Audio API
+          + [36]Mind Map App
+     * (BUTTON) Troubleshooting
+          + [37]Common Errors
+          + [38]Remove Attribution
+          + [39]Migrate to v12
+          + [40]Migrate to v11
+          + [41]Migrate to v10
+     * [42]API Reference
+
+   On This Page
+     * [43]Install Zustand
+     * [44]Create a Store
+     * [45]Implement a Color Change Action
+     * [46]Add a Color Chooser Node
+
+   [47]Question? Give us feedback ->[48]Edit this page
+
+   What's new?
+   [49]Our examples have a fresh new look[50]React Flow
+   CLI[52]...and more!
+   [53]Learn[54]Advanced Use
+   State Management
+
+Using a State Management Library
+
+   For this guide we assume that you already know about the [55]core
+   concepts of React Flow and how to implement [56]custom nodes. You
+   should also be familiar with the concepts of state management libraries
+   and how to use them.
+
+   In this guide, we explain how to use React Flow with the state
+   management library [57]Zustand. We will build a small app where each
+   node features a color chooser that updates its background color. We
+   chose Zustand for this guide because React Flow already uses it
+   internally, but you can easily use other state management libraries
+   such as [58]Redux, [59]Recoil or [60]Jotai
+
+   As demonstrated in previous guides and examples, React Flow can easily
+   be used with a local component state to manage nodes and edges in your
+   diagram. However, as your application grows and you need to update the
+   state from within individual nodes, managing this state can become more
+   complex. Instead of passing functions through the node's data field,
+   you can use a [61]React context or integrate a state management library
+   like Zustand, as outlined in this guide.
+
+Install Zustand
+
+   As mentioned above we are using Zustand in this example. Zustand is a
+   bit like Redux: you have a central store with actions to alter your
+   state and hooks to access your state. You can install Zustand via:
+   (BUTTON)
+   (BUTTON) npm (BUTTON) pnpm (BUTTON) yarn (BUTTON) bun
+npm install --save zustand
+
+   (BUTTON) (BUTTON)
+pnpm add zustand
+
+   (BUTTON) (BUTTON)
+yarn add zustand
+
+   (BUTTON) (BUTTON)
+bun add zustand
+
+   (BUTTON) (BUTTON)
+
+Create a Store
+
+   Zustand lets you create a hook for accessing the values and functions
+   of your store. We put the nodes and edges and the onNodesChange,
+   onEdgesChange, onConnect, setNodes and setEdges functions in the store
+   to get the basic interactivity for our graph:
+
+   IFRAME:
+   [62]https://example-apps.xyflow.com/react/learn/state-management/index.
+   html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.tsx (BUTTON) edges.ts (BUTTON) index.css (BUTTON)
+   index.html (BUTTON) index.tsx (BUTTON) nodes.ts (BUTTON) store.ts
+   (BUTTON) types.ts
+import React from 'react';
+import { useShallow } from 'zustand/react/shallow';
+import { ReactFlow } from '@xyflow/react';
+
+import '@xyflow/react/dist/style.css';
+
+import useStore from './store';
+
+const selector = (state) => ({
+  nodes: state.nodes,
+  edges: state.edges,
+  onNodesChange: state.onNodesChange,
+  onEdgesChange: state.onEdgesChange,
+  onConnect: state.onConnect,
+});
+
+function Flow() {
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useStore(
+    useShallow(selector),
+  );
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      fitView
+    />
+  );
+}
+
+export default Flow;
+
+   (BUTTON)
+
+   That's the basic setup. We now have a store with nodes and edges that
+   can handle the changes (dragging, selecting or removing a node or edge)
+   triggered by React Flow. When you take a look at the App.tsx file, you
+   can see that it's kept nice and clean. All the data and actions are now
+   part of the store and can be accessed with the useStore hook.
+
+Implement a Color Change Action
+
+   We add a new updateNodeColor action to update the data.color field of a
+   specific node. For this we pass the node id and the new color to the
+   action, iterate over the nodes and update the matching one with the new
+   color:
+updateNodeColor: (nodeId: string, color: string) => {
+  set({
+    nodes: get().nodes.map((node) => {
+      if (node.id === nodeId) {
+        // it's important to create a new object here, to inform React Flow abou
+t the changes
+        return { ...node, data: { ...node.data, color } };
+      }
+
+      return node;
+    }),
+  });
+};
+
+   (BUTTON)
+
+   This new action can now be used in a React component like this:
+const updateNodeColor = useStore((s) => s.updateNodeColor);
+...
+<button onClick={() => updateNodeColor(nodeId, color)} />;
+
+   (BUTTON)
+
+Add a Color Chooser Node
+
+   In this step we implement the ColorChooserNode component and call the
+   updateNodeColor when the user changes the color. The custom part of the
+   color chooser node is the color input.
+<input
+  type="color"
+  defaultValue={data.color}
+  onChange={(evt) => updateNodeColor(id, evt.target.value)}
+  className="nodrag"
+/>
+
+   (BUTTON)
+
+   We add the nodrag class name so that the user doesn't drag the node by
+   mistake when changing the color and call the updateNodeColor in the
+   onChange event handler.
+
+   IFRAME:
+   [63]https://example-apps.xyflow.com/react/learn/state-management-2/inde
+   x.html
+
+   (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
+   (BUTTON) App.tsx (BUTTON) ColorChooserNode.tsx (BUTTON) edges.ts
+   (BUTTON) index.css (BUTTON) index.html (BUTTON) index.tsx (BUTTON)
+   nodes.ts (BUTTON) store.ts (BUTTON) types.ts
+import React from 'react';
+import { Handle, type NodeProps, Position } from '@xyflow/react';
+
+import useStore from './store';
+import { type ColorNode } from './types';
+
+function ColorChooserNode({ id, data }: NodeProps<ColorNode>) {
+  const updateNodeColor = useStore((state) => state.updateNodeColor);
+
+  return (
+    <div style={{ backgroundColor: data.color, borderRadius: 10 }}>
+      <Handle type="target" position={Position.Top} />
+      <div style={{ padding: 20 }}>
+        <input
+          type="color"
+          defaultValue={data.color}
+          onChange={(evt) => updateNodeColor(id, evt.target.value)}
+          className="nodrag"
+        />
+      </div>
+      <Handle type="source" position={Position.Bottom} />
+    </div>
+  );
+}
+
+export default ColorChooserNode;
+
+   (BUTTON)
+
+   You can now click on a color chooser and change the background of a
+   node.
+   [64]Quickstart[65]Slideshow App
+
+   A project by the xyflow team
+   We are building and maintaining open source software for node-based UIs
+   since 2019.
+
+   Docs
+   [66]Getting Started[67]API Reference[68]Examples[69]Showcase
+
+   Social
+   [70]Discord[71]Github[72]X / Twitter[73]Bluesky
+
+   xyflow
+   [74]Blog[75]Open Source[76]About[77]Contact[78]
+   Careers hiring
+
+   Legal
+   [79]MIT License[80]Code of Conduct[81]Imprint
+
+   [82]info@xyflow.com -- Copyright © 2024 [83]webkid GmbH. All rights
+   reserved -- website design by [84]Facu Montanaro
+
