@@ -85,8 +85,11 @@
             }
             .react-flow__renderer {
                 background-color: #d3d3d3;
-                background-image: 
-                    linear-gradient(to right, #c0c0c0 1px, transparent 1px),
+                background-image: linear-gradient(
+                        to right,
+                        #c0c0c0 1px,
+                        transparent 1px
+                    ),
                     linear-gradient(to bottom, #c0c0c0 1px, transparent 1px);
                 background-size: 20px 20px;
             }
@@ -164,7 +167,10 @@
         <script src="{{ url_for('static', path='reactflow/react-dom.production.min.js') }}"></script>
         <script src="{{ url_for('static', path='reactflow/umd/reactflow.production.min.js') }}"></script>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-        <link rel="stylesheet" href="{{ url_for('static', path='reactflow/style.css') }}">
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', path='reactflow/style.css') }}"
+        />
         <script>
             // Ensure ReactFlow is available globally
             window.ReactFlow = window.ReactFlow || {};
@@ -179,7 +185,7 @@
                 }
             }
             // Run the check after a short delay to ensure all scripts have had a chance to load
-            setTimeout(checkReactFlow, 1000);
+            setTimeout(checkReactFlow, 10000);
         </script>
         <script>
             function loadScript(src) {
@@ -201,19 +207,33 @@
             async function loadLibraries() {
                 try {
                     console.log("Starting to load libraries...");
-                    await loadScript("{{ url_for('static', path='reactflow/react.production.min.js') }}");
-                    await loadScript("{{ url_for('static', path='reactflow/react-dom.production.min.js') }}");
-                    await loadScript("{{ url_for('static', path='reactflow/umd/reactflow.production.min.js') }}");
-                    console.log("React, ReactDOM, and ReactFlow loaded successfully");
+                    await loadScript(
+                        "{{ url_for('static', path='reactflow/react.production.min.js') }}",
+                    );
+                    await loadScript(
+                        "{{ url_for('static', path='reactflow/react-dom.production.min.js') }}",
+                    );
+                    await loadScript(
+                        "{{ url_for('static', path='reactflow/umd/reactflow.production.min.js') }}",
+                    );
+                    console.log(
+                        "React, ReactDOM, and ReactFlow loaded successfully",
+                    );
 
                     // Load main.js after libraries are loaded
-                    const response = await fetch("{{ url_for('static', path='main.js') }}");
+                    const response = await fetch(
+                        "{{ url_for('static', path='main.js') }}",
+                    );
                     const mainJsContent = await response.text();
-                    const transpiledCode = Babel.transform(mainJsContent, { presets: ['react'] }).code;
-                    const scriptElement = document.createElement('script');
+                    const transpiledCode = Babel.transform(mainJsContent, {
+                        presets: ["react"],
+                    }).code;
+                    const scriptElement = document.createElement("script");
                     scriptElement.textContent = transpiledCode;
                     document.body.appendChild(scriptElement);
-                    console.log("All libraries and main.js loaded and transpiled successfully");
+                    console.log(
+                        "All libraries and main.js loaded and transpiled successfully",
+                    );
                 } catch (error) {
                     console.error("Failed to load libraries:", error);
                     // Display error on the page
@@ -224,11 +244,11 @@
                 }
             }
 
-            window.onload = async function() {
+            window.onload = async function () {
                 await loadLibraries();
                 console.log("Libraries loaded, waiting for dependencies");
-                await new Promise(resolve => setTimeout(resolve, 500)); // Add a small delay
-                if (typeof initializeApp === 'function') {
+                await new Promise((resolve) => setTimeout(resolve, 500)); // Add a small delay
+                if (typeof initializeApp === "function") {
                     console.log("Initializing app");
                     initializeApp();
                 } else {
