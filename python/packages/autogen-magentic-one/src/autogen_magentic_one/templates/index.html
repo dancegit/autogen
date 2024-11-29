@@ -166,14 +166,21 @@
                 return new Promise((resolve, reject) => {
                     const script = document.createElement('script');
                     script.src = src;
-                    script.onload = resolve;
-                    script.onerror = reject;
+                    script.onload = () => {
+                        console.log(`Loaded: ${src}`);
+                        resolve();
+                    };
+                    script.onerror = (error) => {
+                        console.error(`Error loading ${src}:`, error);
+                        reject(error);
+                    };
                     document.head.appendChild(script);
                 });
             }
 
             async function loadLibraries() {
                 try {
+                    console.log('Starting to load libraries...');
                     await loadScript('https://unpkg.com/react@18/umd/react.production.min.js');
                     await loadScript('https://unpkg.com/react-dom@18/umd/react-dom.production.min.js');
                     await loadScript('https://unpkg.com/reactflow@11.7.4/dist/umd/reactflow.min.js');
@@ -181,8 +188,14 @@
                     
                     // Load main.js after libraries are loaded
                     await loadScript("{{ url_for('static', path='main.js') }}");
+                    console.log('All libraries and main.js loaded successfully');
                 } catch (error) {
                     console.error('Failed to load libraries:', error);
+                    // Display error on the page
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.color = 'red';
+                    errorDiv.textContent = `Error loading libraries: ${error.message}`;
+                    document.body.prepend(errorDiv);
                 }
             }
 
