@@ -13,7 +13,7 @@ function waitForDependencies() {
 }
 
 // FlowChart component using ReactFlow
-function FlowChart({ agents, messages }) {
+const FlowChart = React.memo(({ agents, messages }) => {
     const [nodes, setNodes] = React.useState([]);
     const [edges, setEdges] = React.useState([]);
 
@@ -48,20 +48,18 @@ function FlowChart({ agents, messages }) {
         []
     );
 
-    return React.createElement(
-        ReactFlow.ReactFlowProvider,
-        null,
-        React.createElement(ReactFlow.default, {
-            nodes: nodes,
-            edges: edges,
-            onNodesChange: onNodesChange,
-            onEdgesChange: onEdgesChange,
-            onConnect: onConnect
-        })
+    return (
+        <ReactFlow.ReactFlowProvider>
+            <ReactFlow.default
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+            />
+        </ReactFlow.ReactFlowProvider>
     );
-}
-
-const FlowChartMemo = React.memo(FlowChart);
+});
 
 async function initializeApp() {
     await waitForDependencies();
@@ -82,11 +80,9 @@ async function initializeApp() {
         if (window.React && window.ReactDOM && window.ReactFlow) {
             const root = window.ReactDOM.createRoot(graphicalView);
             root.render(
-                React.createElement(
-                    React.StrictMode,
-                    null,
-                    React.createElement(FlowChart, { agents: agents, messages: messages })
-                )
+                <React.StrictMode>
+                    <FlowChart agents={agents} messages={messages} />
+                </React.StrictMode>
             );
         } else {
             console.error('React, ReactDOM, or ReactFlow is not available');
@@ -209,6 +205,11 @@ async function initializeApp() {
                             }
                             break;
                         case 'agents_loaded':
+                            updateLoadedAgents(data.agents);
+                            agents = ['Orchestrator', ...data.agents];
+                            updateGraphicalView();
+                            break;
+                        case 'loaded_agents':
                             updateLoadedAgents(data.agents);
                             agents = ['Orchestrator', ...data.agents];
                             updateGraphicalView();
