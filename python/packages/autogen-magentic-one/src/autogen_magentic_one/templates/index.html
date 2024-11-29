@@ -162,7 +162,7 @@
 
         <script src="{{ url_for('static', path='reactflow/react.production.min.js') }}"></script>
         <script src="{{ url_for('static', path='reactflow/react-dom.production.min.js') }}"></script>
-        <script src="{{ url_for('static', path='reactflow/reactflow.production.min.js') }}"></script>
+        <script src="{{ url_for('static', path='reactflow/index.js') }}"></script>
         <link rel="stylesheet" href="{{ url_for('static', path='reactflow/style.css') }}">
         <script>
             function loadScript(src) {
@@ -184,9 +184,9 @@
             async function loadLibraries() {
                 try {
                     console.log("Starting to load libraries...");
-                    await loadScript("{{ url_for('static', path='reactflow/umd/react.production.min.js') }}");
-                    await loadScript("{{ url_for('static', path='reactflow/umd/react-dom.production.min.js') }}");
-                    await loadScript("{{ url_for('static', path='reactflow/reactflow.production.min.js') }}");
+                    await loadScript("{{ url_for('static', path='reactflow/react.production.min.js') }}");
+                    await loadScript("{{ url_for('static', path='reactflow/react-dom.production.min.js') }}");
+                    await loadScript("{{ url_for('static', path='reactflow/index.js') }}");
                     console.log("React, ReactDOM, and ReactFlow loaded successfully");
 
                     // Load main.js after libraries are loaded

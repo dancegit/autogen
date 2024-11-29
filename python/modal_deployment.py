@@ -83,9 +83,10 @@ image = (
         "npm install react react-dom reactflow --no-fund --no-audit",
         "echo 'Contents of /root/node_modules:' && find /root/node_modules -print",
         "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd",
-        "cp /root/node_modules/react/umd/react.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/",
-        "cp /root/node_modules/react-dom/umd/react-dom.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/",
-        "cp -r /root/node_modules/reactflow/dist/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/"
+        "cp /root/node_modules/react/umd/react.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
+        "cp /root/node_modules/react-dom/umd/react-dom.production.min.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
+        "cp -r /root/node_modules/reactflow/dist/* /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
+        "ls -R /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/"
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
