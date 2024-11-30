@@ -30,6 +30,10 @@ ls -la
 #echo "Installing dependencies..."
 #uv pip install -e ./python
 
+# Generate WebSocket API documentation
+echo "Generating WebSocket API documentation..."
+python "$SCRIPT_DIR/python/packages/autogen-magentic-one/src/autogen_magentic_one/generate_ws_api_docs.py"
+
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
 modal deploy "$SCRIPT_DIR/python/modal_deployment.py"
