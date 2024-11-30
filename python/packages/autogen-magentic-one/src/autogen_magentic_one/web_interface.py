@@ -77,13 +77,6 @@ if os.path.exists(main_js_path):
 else:
     logger.error(f"main.js file not found at {main_js_path}")
 
-# Ensure static files are included in the deployment
-static_mount = modal.Mount.from_local_dir(
-    static_dir,
-    remote_path="/root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static"
-)
-project_mounts.append(static_mount)
-
 # Log the contents of the static directory
 logger.info("Contents of static directory:")
 for item in os.listdir(static_dir):
@@ -96,17 +89,18 @@ logger.info(f"Templates directory: {templates_dir}")
 # Ensure the package data is included
 import autogen_magentic_one
 
-@modal_app.function(
-    image=image,
-    gpu="T4",
-    timeout=600,
-    memory=1024,
-    cpu=1,
-    mounts=project_mounts
-)
-@asgi_app()
-def fastapi_app():
-    return app
+# The following code is commented out as it's not needed for WebSocket API documentation generation
+# @modal_app.function(
+#     image=image,
+#     gpu="T4",
+#     timeout=600,
+#     memory=1024,
+#     cpu=1,
+#     mounts=project_mounts
+# )
+# @asgi_app()
+# def fastapi_app():
+#     return app
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
