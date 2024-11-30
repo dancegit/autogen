@@ -127,7 +127,12 @@ def modal_fastapi_app():
     try:
         import autogen_magentic_one
         print(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
-        from autogen_magentic_one.web_interface import app
+        from autogen_magentic_one.web_interface import app, generate_ws_api_docs
+        
+        # Generate WebSocket API documentation
+        generate_ws_api_docs()
+        print("WebSocket API documentation generated successfully.")
+        
         return app
     except ImportError as e:
         print(f"Error importing app: {e}")
