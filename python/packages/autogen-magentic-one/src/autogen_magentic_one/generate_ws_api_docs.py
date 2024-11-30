@@ -56,18 +56,25 @@ def main():
     current_dir = Path(__file__).parent
     web_interface_path = current_dir / "web_interface.py"
     
-    api_docs = parse_websocket_endpoint(web_interface_path)
-    
-    if api_docs:
-        markdown_docs = generate_markdown_docs(api_docs)
-        output_path = current_dir / "ws_api_docs.md"
+    try:
+        api_docs = parse_websocket_endpoint(web_interface_path)
         
-        with open(output_path, 'w') as f:
-            f.write(markdown_docs)
-        
-        print(f"WebSocket API documentation generated: {output_path}")
-    else:
-        print("Failed to generate WebSocket API documentation.")
+        if api_docs:
+            markdown_docs = generate_markdown_docs(api_docs)
+            output_path = current_dir / "ws_api_docs.md"
+            
+            with open(output_path, 'w') as f:
+                f.write(markdown_docs)
+            
+            print(f"WebSocket API documentation generated: {output_path}")
+            return True
+        else:
+            print("Failed to generate WebSocket API documentation: No API docs parsed.")
+            return False
+    except Exception as e:
+        print(f"Error generating WebSocket API documentation: {str(e)}")
+        return False
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    sys.exit(0 if success else 1)
