@@ -64,6 +64,13 @@ def generate_markdown_docs(api_docs):
     markdown += f"Description: {api_docs['description']}\n\n"
     markdown += "## Messages\n\n"
 
+    # Add a list of all message types
+    markdown += "Message types:\n"
+    for message in api_docs['messages']:
+        markdown += f"- type: \"{message['type']}\" - {message['description']}\n"
+    markdown += "\n"
+
+    # Detailed message descriptions
     for message in api_docs['messages']:
         markdown += f"### {message['type']}\n\n"
         markdown += f"Description: {message['description']}\n\n"
