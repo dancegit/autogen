@@ -1,6 +1,7 @@
 import ast
 import inspect
 import json
+import sys
 from pathlib import Path
 
 def parse_websocket_endpoint(file_path):
