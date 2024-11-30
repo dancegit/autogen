@@ -29,7 +29,12 @@ ls -la
 # Install dependencies
 echo "Installing dependencies..."
 pip install -e ./python/packages/autogen-core
+pip install -e ./python/packages/autogen-ext
 pip install -e ./python/packages/autogen-magentic-one
+pip install -e ./python/packages/autogen-agentchat
+pip install -e ./python/packages/agbench
+pip install -e ./python/packages/autogen-studio
+pip install -r ./python/requirements.txt
 
 # Generate WebSocket API documentation
 echo "Generating WebSocket API documentation..."
