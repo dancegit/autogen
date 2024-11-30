@@ -29,13 +29,16 @@ ls -la
 # Upgrade pip and install dependencies
 echo "Upgrading pip and installing dependencies..."
 pip install --upgrade pip
-pip install -e ./python/packages/autogen-core
-pip install -e ./python/packages/autogen-ext
-pip install -e ./python/packages/autogen-magentic-one
-pip install -e ./python/packages/autogen-agentchat
-pip install -e ./python/packages/agbench
-pip install -e ./python/packages/autogen-studio
-pip install -r ./requirements.txt
+for package in autogen-core autogen-ext autogen-magentic-one autogen-agentchat agbench autogen-studio; do
+    if [ -f "./python/packages/$package/pyproject.toml" ]; then
+        pip install -e "./python/packages/$package"
+    elif [ -f "./python/packages/$package/requirements.txt" ]; then
+        pip install -r "./python/packages/$package/requirements.txt"
+        pip install -e "./python/packages/$package"
+    else
+        echo "Warning: No pyproject.toml or requirements.txt found for $package"
+    fi
+done
 pip install PyGithub tenacity
 
 # Generate WebSocket API documentation
