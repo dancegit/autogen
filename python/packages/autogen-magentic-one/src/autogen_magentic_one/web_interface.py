@@ -1,12 +1,9 @@
 import asyncio
 import logging
-import modal
 from fastapi import FastAPI, Request, Form, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from modal import asgi_app, Function
-from modal_deployment import app as modal_app, image, project_mounts
 import os
 import sys
 import json
