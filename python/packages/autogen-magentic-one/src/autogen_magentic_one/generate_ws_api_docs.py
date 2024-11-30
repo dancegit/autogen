@@ -56,6 +56,80 @@ def parse_websocket_endpoint(file_path: Path) -> Dict[str, Any]:
     logger.debug(f"Parsed {len(api_docs['messages'])} messages")
     return api_docs
 
+def generate_example_messages(api_docs: Dict[str, Any]) -> Dict[str, Any]:
+    for message in api_docs['messages']:
+        message_type = message['type']
+        if message_type == 'error':
+            message['example'] = {
+                "type": "error",
+                "message": "An error occurred during task execution",
+                "details": "Traceback: ..."
+            }
+        elif message_type == 'loaded_agents':
+            message['example'] = {
+                "type": "loaded_agents",
+                "agents": ["Agent1", "Agent2", "Agent3"]
+            }
+        elif message_type == 'warning':
+            message['example'] = {
+                "type": "warning",
+                "message": "Warning: Task execution may be slow due to high load"
+            }
+        elif message_type == 'pong':
+            message['example'] = {
+                "type": "pong"
+            }
+        elif message_type == 'ping':
+            message['example'] = {
+                "type": "ping"
+            }
+        elif message_type == 'status':
+            message['example'] = {
+                "type": "status",
+                "message": "Task execution 50% complete"
+            }
+        elif message_type == 'final_answer':
+            message['example'] = {
+                "type": "final_answer",
+                "message": "The sentiment of the text is positive."
+            }
+        elif message_type == 'log':
+            message['example'] = {
+                "type": "log",
+                "data": {
+                    "agent": "Agent1",
+                    "message": "Processing input data..."
+                }
+            }
+        elif message_type == 'agent_called':
+            message['example'] = {
+                "type": "agent_called",
+                "agent": "Agent2"
+            }
+        elif message_type == 'orchestrator_output':
+            message['example'] = {
+                "type": "orchestrator_output",
+                "message": "Orchestrator: Delegating task to Agent3"
+            }
+        elif message_type == 'agent_output':
+            message['example'] = {
+                "type": "agent_output",
+                "agent": "Agent3",
+                "message": "Agent3: Task completed successfully"
+            }
+        elif message_type == 'active_agents':
+            message['example'] = {
+                "type": "active_agents",
+                "agents": ["Agent1", "Agent3"]
+            }
+        elif message_type == 'retry':
+            message['example'] = {
+                "type": "retry",
+                "attempt": 2,
+                "max_retries": 3
+            }
+    return api_docs
+
 def generate_markdown_docs(api_docs: Dict[str, Any]) -> str:
     markdown = f"# WebSocket API Documentation\n\n"
     markdown += f"Endpoint: `{api_docs['endpoint']}`\n\n"
@@ -108,6 +182,7 @@ def main() -> bool:
         api_docs = parse_websocket_endpoint(web_interface_path)
         
         if api_docs:
+            api_docs = generate_example_messages(api_docs)
             markdown_docs = generate_markdown_docs(api_docs)
             output_path = current_dir / "ws_api_docs.md"
             
