@@ -26,15 +26,17 @@ echo "Current directory: $(pwd)"
 echo "Files in current directory:"
 ls -la
 
-# Install dependencies
-echo "Installing dependencies..."
+# Upgrade pip and install dependencies
+echo "Upgrading pip and installing dependencies..."
+pip install --upgrade pip
 pip install -e ./python/packages/autogen-core
 pip install -e ./python/packages/autogen-ext
 pip install -e ./python/packages/autogen-magentic-one
 pip install -e ./python/packages/autogen-agentchat
 pip install -e ./python/packages/agbench
 pip install -e ./python/packages/autogen-studio
-pip install -r ./python/requirements.txt
+pip install -r ./requirements.txt
+pip install PyGithub
 
 # Generate WebSocket API documentation
 echo "Generating WebSocket API documentation..."
