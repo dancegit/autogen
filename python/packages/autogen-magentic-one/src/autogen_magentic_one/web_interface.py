@@ -245,7 +245,14 @@ async def websocket_endpoint(websocket: WebSocket):
     - type: "warning" - Sent when there are no loaded agents
     - type: "pong" - Sent in response to a ping message
     - type: "ping" - Sent to keep the connection alive
-    - Other message types are handled by the _run_task function
+    - type: "status" - Sent to update the client on the current status of the task
+    - type: "final_answer" - Sent when the task is completed with a final answer
+    - type: "log" - Sent to provide detailed logs of the task execution
+    - type: "agent_called" - Sent when a specific agent is called during task execution
+    - type: "orchestrator_output" - Sent to provide output from the orchestrator
+    - type: "agent_output" - Sent to provide output from individual agents
+    - type: "active_agents" - Sent to update the list of currently active agents
+    - type: "retry" - Sent when a task execution is being retried
 
     Args:
         websocket (WebSocket): The WebSocket connection object.
