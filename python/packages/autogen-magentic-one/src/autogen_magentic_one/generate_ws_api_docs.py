@@ -21,7 +21,7 @@ def parse_websocket_endpoint(file_path):
 
     websocket_function = None
     for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef) and node.name == 'websocket_endpoint':
+        if isinstance(node, ast.AsyncFunctionDef) and node.name == 'websocket_endpoint':
             websocket_function = node
             logger.debug("Found websocket_endpoint function")
             break
@@ -82,6 +82,14 @@ def main():
     logger.debug(f"Web interface path: {web_interface_path}")
     
     try:
+        if not web_interface_path.exists():
+            logger.error(f"Web interface file not found: {web_interface_path}")
+            return False
+
+        with open(web_interface_path, 'r') as file:
+            content = file.read()
+            logger.debug(f"Web interface file content (first 500 chars): {content[:500]}")
+
         api_docs = parse_websocket_endpoint(web_interface_path)
         
         if api_docs:
