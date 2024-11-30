@@ -32,7 +32,7 @@ ls -la
 
 # Generate WebSocket API documentation
 echo "Generating WebSocket API documentation..."
-if python "$SCRIPT_DIR/python/packages/autogen-magentic-one/src/autogen_magentic_one/generate_ws_api_docs.py"; then
+if "$SCRIPT_DIR/venv/bin/python" "$SCRIPT_DIR/python/packages/autogen-magentic-one/src/autogen_magentic_one/generate_ws_api_docs.py"; then
     echo "WebSocket API documentation generated successfully."
 else
     echo "Warning: Failed to generate WebSocket API documentation. Continuing with deployment..."
