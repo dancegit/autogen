@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/types/mini-map-node-props.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -181,6 +181,6 @@ Fields
    Legal
    [138]MIT License[139]Code of Conduct[140]Imprint
 
-   [141]info@xyflow.com -- Copyright © 2024 [142]webkid GmbH. All rights
+   [141]info@xyflow.com -- Copyright Â© 2024 [142]webkid GmbH. All rights
    reserved -- website design by [143]Facu Montanaro
 

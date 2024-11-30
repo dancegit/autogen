@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/examples/layout/auto-layout.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -124,6 +124,6 @@ About this Pro Example
    Legal
    [100]MIT License[101]Code of Conduct[102]Imprint
 
-   [103]info@xyflow.com -- Copyright © 2024 [104]webkid GmbH. All rights
+   [103]info@xyflow.com -- Copyright Â© 2024 [104]webkid GmbH. All rights
    reserved -- website design by [105]Facu Montanaro
 

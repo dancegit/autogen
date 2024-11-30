@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/index.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -114,16 +114,16 @@ Used by thousands of people
    Interactive tool to build and visualize complex survey logic
 
        [18]xyflow team -
-       mV¸We've unified the styles across all examples and added a new
+       mVÂ¸We've unified the styles across all examples and added a new
        theme file to show you how to customize the styles and interactions
        of your flows.
        [19]Check it out here
 
        [21]xyflow team -
-       mV¸Changelog for React Flow version 12.3.5
+       mVÂ¸Changelog for React Flow version 12.3.5
 
        [23]xyflow team -
-       mV¸We've been interested in developing reusable components for
+       mVÂ¸We've been interested in developing reusable components for
        React Flow for a while now. With the recent releases of shadcn CLI,
        we've made that happen!
 
@@ -163,6 +163,6 @@ A project by the xyflow team
    Legal
    [43]MIT License[44]Code of Conduct[45]Imprint
 
-   [46]info@xyflow.com -- Copyright © 2024 [47]webkid GmbH. All rights
+   [46]info@xyflow.com -- Copyright Â© 2024 [47]webkid GmbH. All rights
    reserved -- website design by [48]Facu Montanaro
 

@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/customization/custom-nodes.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -343,6 +343,6 @@ export default Flow;
    Legal
    [74]MIT License[75]Code of Conduct[76]Imprint
 
-   [77]info@xyflow.com -- Copyright © 2024 [78]webkid GmbH. All rights
+   [77]info@xyflow.com -- Copyright Â© 2024 [78]webkid GmbH. All rights
    reserved -- website design by [79]Facu Montanaro
 

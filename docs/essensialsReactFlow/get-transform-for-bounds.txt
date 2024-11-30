@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/utils/get-transform-for-bounds.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -200,6 +200,6 @@ Notes
    Legal
    [137]MIT License[138]Code of Conduct[139]Imprint
 
-   [140]info@xyflow.com -- Copyright © 2024 [141]webkid GmbH. All rights
+   [140]info@xyflow.com -- Copyright Â© 2024 [141]webkid GmbH. All rights
    reserved -- website design by [142]Facu Montanaro
 

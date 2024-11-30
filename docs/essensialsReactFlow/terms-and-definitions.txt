@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/concepts/terms-and-definitions.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -184,6 +184,6 @@ Viewport
    Legal
    [83]MIT License[84]Code of Conduct[85]Imprint
 
-   [86]info@xyflow.com -- Copyright © 2024 [87]webkid GmbH. All rights
+   [86]info@xyflow.com -- Copyright Â© 2024 [87]webkid GmbH. All rights
    reserved -- website design by [88]Facu Montanaro
 

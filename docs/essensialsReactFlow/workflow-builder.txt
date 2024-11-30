@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/examples/layout/workflow-builder.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -120,6 +120,6 @@ About this Pro Example
    Legal
    [97]MIT License[98]Code of Conduct[99]Imprint
 
-   [100]info@xyflow.com -- Copyright © 2024 [101]webkid GmbH. All rights
+   [100]info@xyflow.com -- Copyright Â© 2024 [101]webkid GmbH. All rights
    reserved -- website design by [102]Facu Montanaro
 

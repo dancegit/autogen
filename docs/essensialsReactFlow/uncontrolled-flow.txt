@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/docs/guides/uncontrolled-flow.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -125,7 +125,7 @@ Updating Nodes and Edges
    [54]useReactFlow hook. Let's create a button that adds a new node at a
    random position. For this, we are wrapping our flow with the
    [55]ReactFlowProvider and use the [56]addNodes function.
-   ¡
+   Â¡
 
    The Flow component in this example is wrapped with the
    ReactFlowProvider to use the useReactFlow hook.
@@ -219,6 +219,6 @@ export default function () {
    Legal
    [73]MIT License[74]Code of Conduct[75]Imprint
 
-   [76]info@xyflow.com -- Copyright © 2024 [77]webkid GmbH. All rights
+   [76]info@xyflow.com -- Copyright Â© 2024 [77]webkid GmbH. All rights
    reserved -- website design by [78]Facu Montanaro
 

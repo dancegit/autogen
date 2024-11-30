@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/utils/apply-node-changes.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -175,6 +175,6 @@ Notes
    Legal
    [130]MIT License[131]Code of Conduct[132]Imprint
 
-   [133]info@xyflow.com -- Copyright © 2024 [134]webkid GmbH. All rights
+   [133]info@xyflow.com -- Copyright Â© 2024 [134]webkid GmbH. All rights
    reserved -- website design by [135]Facu Montanaro
 

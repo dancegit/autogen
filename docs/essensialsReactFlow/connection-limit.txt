@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/examples/nodes/connection-limit.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -186,6 +186,6 @@ export default CustomNodeFlow;
    Legal
    [92]MIT License[93]Code of Conduct[94]Imprint
 
-   [95]info@xyflow.com -- Copyright © 2024 [96]webkid GmbH. All rights
+   [95]info@xyflow.com -- Copyright Â© 2024 [96]webkid GmbH. All rights
    reserved -- website design by [97]Facu Montanaro
 

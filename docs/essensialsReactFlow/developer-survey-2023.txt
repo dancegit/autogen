@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/developer-survey-2023.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -33,6 +33,6 @@ Page: reactflow.dev_files/reactflow.dev/developer-survey-2023.html
    Legal
    [23]MIT License[24]Code of Conduct[25]Imprint
 
-   [26]info@xyflow.com -- Copyright © 2024 [27]webkid GmbH. All rights
+   [26]info@xyflow.com -- Copyright Â© 2024 [27]webkid GmbH. All rights
    reserved -- website design by [28]Facu Montanaro
 

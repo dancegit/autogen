@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/hooks/use-on-viewport-change.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -172,6 +172,6 @@ Notes
    Legal
    [132]MIT License[133]Code of Conduct[134]Imprint
 
-   [135]info@xyflow.com -- Copyright © 2024 [136]webkid GmbH. All rights
+   [135]info@xyflow.com -- Copyright Â© 2024 [136]webkid GmbH. All rights
    reserved -- website design by [137]Facu Montanaro
 

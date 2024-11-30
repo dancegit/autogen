@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/types/node-props.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -260,6 +260,6 @@ export default function CustomNode(props: NodeProps) {
    Legal
    [141]MIT License[142]Code of Conduct[143]Imprint
 
-   [144]info@xyflow.com -- Copyright © 2024 [145]webkid GmbH. All rights
+   [144]info@xyflow.com -- Copyright Â© 2024 [145]webkid GmbH. All rights
    reserved -- website design by [146]Facu Montanaro
 

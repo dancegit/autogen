@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/advanced-use/typescript.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -360,6 +360,6 @@ const numberNodes = nodes.filter(isNumberNode);
    Legal
    [79]MIT License[80]Code of Conduct[81]Imprint
 
-   [82]info@xyflow.com -- Copyright © 2024 [83]webkid GmbH. All rights
+   [82]info@xyflow.com -- Copyright Â© 2024 [83]webkid GmbH. All rights
    reserved -- website design by [84]Facu Montanaro
 

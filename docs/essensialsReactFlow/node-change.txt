@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/types/node-change.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -217,6 +217,6 @@ NodeReplaceChange
    Legal
    [149]MIT License[150]Code of Conduct[151]Imprint
 
-   [152]info@xyflow.com -- Copyright © 2024 [153]webkid GmbH. All rights
+   [152]info@xyflow.com -- Copyright Â© 2024 [153]webkid GmbH. All rights
    reserved -- website design by [154]Facu Montanaro
 

@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/examples/layout/dagre.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -233,6 +233,6 @@ export function App() {
    Legal
    [96]MIT License[97]Code of Conduct[98]Imprint
 
-   [99]info@xyflow.com -- Copyright © 2024 [100]webkid GmbH. All rights
+   [99]info@xyflow.com -- Copyright Â© 2024 [100]webkid GmbH. All rights
    reserved -- website design by [101]Facu Montanaro
 

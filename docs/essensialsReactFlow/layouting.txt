@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/layouting/layouting.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -151,12 +151,12 @@ Layouting Nodes
    For layouting nodes, there are a few third-party libraries that we
    think are worth checking out:
    Library Dynamic node sizes Sub-flow layouting Edge routing Bundle size
-   [58]Dagre Yes Yes¹ No [59]Bundle size for @dagrejs/dagre
+   [58]Dagre Yes YesÂ¹ No [59]Bundle size for @dagrejs/dagre
    [60]D3-Hierarchy No No No [61]Bundle size for d3-hierarchy
    [62]D3-Force Yes No No [63]Bundle size for d3-force
    [64]ELK Yes Yes Yes [65]Bundle size for elkjs
 
-   ¹ Dagre currently has an [66]open issue that prevents it from laying
+   Â¹ Dagre currently has an [66]open issue that prevents it from laying
    out sub-flows correctly if any nodes in the sub-flow are connected to
    nodes outside the sub-flow.
 
@@ -390,7 +390,7 @@ export default function () {
 }
 
    (BUTTON)
-   ¡
+   Â¡
 
    D3-hierarchy expects your graphs to have a single root node, so it
    won't work in all cases. It's also important to note that d3-hierarchy
@@ -598,7 +598,7 @@ export default function () {
    so you can see how they interact: play around in your own code to see
    how you want to configure those forces. You can find the documentation
    and some different examples of d3-force [79]here.
-   ¡
+   Â¡
 
    Rectangular collisions D3-Force has a built-in collision force, but it
    assumes nodes are circles. We've thrown together a custom force in
@@ -610,7 +610,7 @@ export default function () {
    updates React Flow with the new node positions. We've also included a
    demonstration on how to handle node dragging while the simulation is
    running: if your flow isn't interactive you can ignore that part!
-   ¡
+   Â¡
 
    For larger graphs, computing the force layout every render forever is
    going to incur a big performance hit. In this example we have a simple
@@ -758,7 +758,7 @@ export default function () {
    At it's most basic we can compute layouts similar to dagre, but because
    the layouting algorithm runs asynchronously we need to create a
    useLayoutedElements hook similar to the one we created for d3-force.
-   ¡
+   Â¡
 
    The ELK reference is your new best friend We don't often recommend
    elkjs because it's complexity makes it difficult for us to support
@@ -821,6 +821,6 @@ Routing Edges
    Legal
    [106]MIT License[107]Code of Conduct[108]Imprint
 
-   [109]info@xyflow.com -- Copyright © 2024 [110]webkid GmbH. All rights
+   [109]info@xyflow.com -- Copyright Â© 2024 [110]webkid GmbH. All rights
    reserved -- website design by [111]Facu Montanaro
 

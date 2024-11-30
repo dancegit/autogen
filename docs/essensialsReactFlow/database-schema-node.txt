@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/components/nodes/database-schema-node.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -87,6 +87,6 @@ bun x shadcn@latest add https://ui.reactflow.dev/database-schema-node
    Legal
    [53]MIT License[54]Code of Conduct[55]Imprint
 
-   [56]info@xyflow.com -- Copyright © 2024 [57]webkid GmbH. All rights
+   [56]info@xyflow.com -- Copyright Â© 2024 [57]webkid GmbH. All rights
    reserved -- website design by [58]Facu Montanaro
 

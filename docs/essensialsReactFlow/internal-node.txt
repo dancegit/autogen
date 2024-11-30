@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/types/internal-node.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -233,6 +233,6 @@ Fields
    Legal
    [160]MIT License[161]Code of Conduct[162]Imprint
 
-   [163]info@xyflow.com -- Copyright © 2024 [164]webkid GmbH. All rights
+   [163]info@xyflow.com -- Copyright Â© 2024 [164]webkid GmbH. All rights
    reserved -- website design by [165]Facu Montanaro
 

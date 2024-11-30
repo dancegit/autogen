@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/components/base-edge.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -203,6 +203,6 @@ Notes
    Legal
    [144]MIT License[145]Code of Conduct[146]Imprint
 
-   [147]info@xyflow.com -- Copyright © 2024 [148]webkid GmbH. All rights
+   [147]info@xyflow.com -- Copyright Â© 2024 [148]webkid GmbH. All rights
    reserved -- website design by [149]Facu Montanaro
 

@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/customization/theming.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -369,6 +369,6 @@ import 'tailwind.css';
    Legal
    [105]MIT License[106]Code of Conduct[107]Imprint
 
-   [108]info@xyflow.com -- Copyright © 2024 [109]webkid GmbH. All rights
+   [108]info@xyflow.com -- Copyright Â© 2024 [109]webkid GmbH. All rights
    reserved -- website design by [110]Facu Montanaro
 

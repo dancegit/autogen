@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/advanced-use/ssr-ssg-configuration.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -113,7 +113,7 @@ const nodes = [
    used for the first render (on the server or on the client) as long as
    the nodes are not measured and measured.width and measured.height are
    not set.
-   ¡
+   Â¡
 
    There are two ways to specify node dimensions for server side
    rendering:
@@ -206,6 +206,6 @@ Usage with the <ReactFlowProvider>
    Legal
    [72]MIT License[73]Code of Conduct[74]Imprint
 
-   [75]info@xyflow.com -- Copyright © 2024 [76]webkid GmbH. All rights
+   [75]info@xyflow.com -- Copyright Â© 2024 [76]webkid GmbH. All rights
    reserved -- website design by [77]Facu Montanaro
 

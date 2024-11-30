@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/types.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -315,6 +315,6 @@ Types
    Legal
    [187]MIT License[188]Code of Conduct[189]Imprint
 
-   [190]info@xyflow.com -- Copyright © 2024 [191]webkid GmbH. All rights
+   [190]info@xyflow.com -- Copyright Â© 2024 [191]webkid GmbH. All rights
    reserved -- website design by [192]Facu Montanaro
 

@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/concepts/introduction.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -80,7 +80,7 @@ Key Features
    selecting multiple nodes and edges, and adding/removing edges are all
    built-in.
 
-   ¨ Customizable: React Flow supports custom node types and edge types.
+   Â¨ Customizable: React Flow supports custom node types and edge types.
    Because custom nodes are just React components, you can implement
    anything you need: you're not locked in to the built-in node types.
    Custom edges let you add labels, controls, and bespoke logic to node
@@ -90,7 +90,7 @@ Key Features
    and makes sures only those that are in the viewport are displayed at
    all.
 
-   © Built-in plugins: We ship React Flow with a few plugins out of the
+   Â© Built-in plugins: We ship React Flow with a few plugins out of the
    box:
      * The [53]<Background /> plugin implements some basic customisable
        background patterns.
@@ -105,7 +105,7 @@ Key Features
      * The [58]<NodeResizer /> plugin makes it easy to add resize
        funtionality to your nodes.
 
-   ª Reliable: React Flow is entirely written in TypeScript to catch bugs
+   Âª Reliable: React Flow is entirely written in TypeScript to catch bugs
    early and make fixes easy. For everything else, we have a robust
    cypress test suite so you can depend on React Flow with confidence .
 
@@ -133,6 +133,6 @@ Moving on
    Legal
    [74]MIT License[75]Code of Conduct[76]Imprint
 
-   [77]info@xyflow.com -- Copyright © 2024 [78]webkid GmbH. All rights
+   [77]info@xyflow.com -- Copyright Â© 2024 [78]webkid GmbH. All rights
    reserved -- website design by [79]Facu Montanaro
 

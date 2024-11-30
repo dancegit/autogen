@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/tutorials/mind-map-app-with-react-flow.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -63,7 +63,7 @@ Build a Mind Map App with React Flow
    mapping your thoughts in a visual way. To build this app, we'll be
    using state management, custom nodes and edges, and more.
 
-¬ It's Demo Time!
+Â¬ It's Demo Time!
 
    Before we get our hands dirty, I want to show you the mindmapping tool
    we'll have by the end of this tutorial:
@@ -77,7 +77,7 @@ Build a Mind Map App with React Flow
    If you'd like to live dangerously and dive right into the code, you can
    find the source code on [46]Github.
 
-©»» Getting started
+Â©Â»Â» Getting started
 
    To do this tutorial you will need some knowledge of [47]React and
    [48]React Flow (hi, that's us! it's an open source library for building
@@ -226,7 +226,7 @@ body,
 
    (BUTTON) Open in Stackblitz (BUTTON) Open in Codesandbox
 
-ª A store for nodes and edges
+Âª A store for nodes and edges
 
    As mentioned above, we are using Zustand for state management. For
    this, we create a new file in our src/App folder called store.ts:
@@ -407,7 +407,7 @@ export default Flow;
    You can move the node around and zoom in and out, we are getting
    somewhere Now let's add some more functionality.
 
-¨ Custom nodes and edges
+Â¨ Custom nodes and edges
 
    We want to use a custom type called `mindmap' for our nodes. We need to
    add a new component for this. Let's create a new folder called
@@ -1788,7 +1788,7 @@ body {
 
    (BUTTON)
 
-   Nicely done! ¯ You can find the final code here:
+   Nicely done! Â¯ You can find the final code here:
 
    IFRAME:
    [74]https://example-apps.xyflow.com/react/tutorials/mindmap/node-as-han
@@ -1896,6 +1896,6 @@ and more with React Flow Pro
    Legal
    [93]MIT License[94]Code of Conduct[95]Imprint
 
-   [96]info@xyflow.com -- Copyright © 2024 [97]webkid GmbH. All rights
+   [96]info@xyflow.com -- Copyright Â© 2024 [97]webkid GmbH. All rights
    reserved -- website design by [98]Facu Montanaro
 

@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/components/control-button.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -122,7 +122,7 @@ export default function Flow() {
   return (
     <ReactFlow nodes={[...]} edges={[...]}>
       <Controls>
-        <ControlButton onClick={() => alert('Something magical just happened. ¨'
+        <ControlButton onClick={() => alert('Something magical just happened. Â¨'
 )}>
           <MagicWand />
         </ControlButton>
@@ -156,6 +156,6 @@ Props
    Legal
    [123]MIT License[124]Code of Conduct[125]Imprint
 
-   [126]info@xyflow.com -- Copyright © 2024 [127]webkid GmbH. All rights
+   [126]info@xyflow.com -- Copyright Â© 2024 [127]webkid GmbH. All rights
    reserved -- website design by [128]Facu Montanaro
 

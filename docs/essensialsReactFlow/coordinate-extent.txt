@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/types/coordinate-extent.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -145,6 +145,6 @@ Notes
    Legal
    [122]MIT License[123]Code of Conduct[124]Imprint
 
-   [125]info@xyflow.com -- Copyright © 2024 [126]webkid GmbH. All rights
+   [125]info@xyflow.com -- Copyright Â© 2024 [126]webkid GmbH. All rights
    reserved -- website design by [127]Facu Montanaro
 

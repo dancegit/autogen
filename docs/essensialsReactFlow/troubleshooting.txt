@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/troubleshooting.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -105,7 +105,7 @@ Solution for B
    A possible solution is to wrap your component with a
    [67]<ReactFlowProvider /> or move the code that is accessing the state
    inside a child of your React Flow instance.
-   «
+   Â«
    This will cause an error:
 import { ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -120,7 +120,7 @@ function FlowWithoutProvider(props) {
 export default FlowWithoutProvider;
 
    (BUTTON)
-   «
+   Â«
    This will cause an error, too:
 import { ReactFlow, ReactFlowProvider } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -182,7 +182,7 @@ this
    happen easily that you are defining the nodeTypes or edgeTypes object
    inside of your component render function, which will cause React Flow
    to re-render every time your component re-renders.
-   «
+   Â«
    Causes a warning:
 import { ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -249,7 +249,7 @@ Node type not found. Using fallback type "default".
    of your nodes but not passing the correct nodeTypes property to React
    Flow. The string for the type option of your custom node needs to be
    exactly the same as the key of the nodeTypes object.
-   «
+   Â«
    Doesn't work:
 import { ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -271,7 +271,7 @@ mponent to render
 }
 
    (BUTTON)
-   «
+   Â«
    Doesn't work either:
 import { ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -331,7 +331,7 @@ The React Flow parent container needs a width and a height to render the
    you need to make sure that your wrapper component has some CSS attached
    to it so that it gets a fixed height or inherits the height of its
    parent.
-   «
+   Â«
    This will cause the warning:
 import { ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -363,7 +363,7 @@ Only child nodes can use a parent extent.
    This warning appears when you are trying to add the extent option to a
    node that does not have a parent node. Depending on what you are trying
    to do, you can remove the extent option or specify a parentNode.
-   «
+   Â«
    Does show a warning:
 import { ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -402,7 +402,7 @@ Can't create edge. An edge needs a source and a target.
    This happens when you do not pass a source and a target option to the
    edge object. Without the source and target, the edge cannot be
    rendered.
-   «
+   Â«
    Will show a warning:
 import { ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -566,6 +566,6 @@ element.
    Legal
    [88]MIT License[89]Code of Conduct[90]Imprint
 
-   [91]info@xyflow.com -- Copyright © 2024 [92]webkid GmbH. All rights
+   [91]info@xyflow.com -- Copyright Â© 2024 [92]webkid GmbH. All rights
    reserved -- website design by [93]Facu Montanaro
 

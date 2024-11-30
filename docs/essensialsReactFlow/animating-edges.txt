@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/examples/edges/animating-edges.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -261,6 +261,6 @@ export function AnimatedNodeEdge({
    Legal
    [94]MIT License[95]Code of Conduct[96]Imprint
 
-   [97]info@xyflow.com -- Copyright © 2024 [98]webkid GmbH. All rights
+   [97]info@xyflow.com -- Copyright Â© 2024 [98]webkid GmbH. All rights
    reserved -- website design by [99]Facu Montanaro
 

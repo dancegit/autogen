@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/hooks/use-internal-node.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -172,6 +172,6 @@ const internalNode = useInternalNode<CustomNodeType>();
    Legal
    [128]MIT License[129]Code of Conduct[130]Imprint
 
-   [131]info@xyflow.com -- Copyright © 2024 [132]webkid GmbH. All rights
+   [131]info@xyflow.com -- Copyright Â© 2024 [132]webkid GmbH. All rights
    reserved -- website design by [133]Facu Montanaro
 

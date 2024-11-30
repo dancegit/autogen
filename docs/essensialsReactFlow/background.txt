@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/components/background.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -235,6 +235,6 @@ Notes
    Legal
    [136]MIT License[137]Code of Conduct[138]Imprint
 
-   [139]info@xyflow.com -- Copyright © 2024 [140]webkid GmbH. All rights
+   [139]info@xyflow.com -- Copyright Â© 2024 [140]webkid GmbH. All rights
    reserved -- website design by [141]Facu Montanaro
 

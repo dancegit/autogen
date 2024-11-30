@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/types/xy-position.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -134,6 +134,6 @@ export type XYPosition = {
    Legal
    [120]MIT License[121]Code of Conduct[122]Imprint
 
-   [123]info@xyflow.com -- Copyright © 2024 [124]webkid GmbH. All rights
+   [123]info@xyflow.com -- Copyright Â© 2024 [124]webkid GmbH. All rights
    reserved -- website design by [125]Facu Montanaro
 

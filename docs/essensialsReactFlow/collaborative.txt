@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/examples/interaction/collaborative.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -122,6 +122,6 @@ About this Pro Example
    Legal
    [99]MIT License[100]Code of Conduct[101]Imprint
 
-   [102]info@xyflow.com -- Copyright © 2024 [103]webkid GmbH. All rights
+   [102]info@xyflow.com -- Copyright Â© 2024 [103]webkid GmbH. All rights
    reserved -- website design by [104]Facu Montanaro
 

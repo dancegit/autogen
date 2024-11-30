@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/utils/get-straight-path.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -188,6 +188,6 @@ Notes
    Legal
    [133]MIT License[134]Code of Conduct[135]Imprint
 
-   [136]info@xyflow.com -- Copyright © 2024 [137]webkid GmbH. All rights
+   [136]info@xyflow.com -- Copyright Â© 2024 [137]webkid GmbH. All rights
    reserved -- website design by [138]Facu Montanaro
 

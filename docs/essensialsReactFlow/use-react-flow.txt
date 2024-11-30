@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/hooks/use-react-flow.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -309,6 +309,6 @@ Notes
    Legal
    [175]MIT License[176]Code of Conduct[177]Imprint
 
-   [178]info@xyflow.com -- Copyright © 2024 [179]webkid GmbH. All rights
+   [178]info@xyflow.com -- Copyright Â© 2024 [179]webkid GmbH. All rights
    reserved -- website design by [180]Facu Montanaro
 

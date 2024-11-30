@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/tutorials/react-flow-and-the-web-audio-api.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -1038,7 +1038,7 @@ export const useStore = createWithEqualityFn((set, get) => ({
 
    (BUTTON)
 
-   Et voilà, we did it! We've now put enough together to actually make
+   Et voilÃ , we did it! We've now put enough together to actually make
    sounds! Let's see what we have in action.
 
    IFRAME:
@@ -1277,7 +1277,7 @@ Final thoughts
    out in the wild that are using node-based UIs for audio things. Some of
    my favourites are [76]Max/MSP, [77]Reaktor, and [78]Pure Data. Max and
    Reaktor are closed-source commercial software, but you can still steal
-   some ideas from them µ.
+   some ideas from them Âµ.
 
    You can use the completed [79]source code as a starting point, or you
    can just keep building on top of what we've made today. We'd love to
@@ -1310,6 +1310,6 @@ and more with React Flow Pro
    Legal
    [98]MIT License[99]Code of Conduct[100]Imprint
 
-   [101]info@xyflow.com -- Copyright © 2024 [102]webkid GmbH. All rights
+   [101]info@xyflow.com -- Copyright Â© 2024 [102]webkid GmbH. All rights
    reserved -- website design by [103]Facu Montanaro
 

@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/pro/case-studies/carto-case-study.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -14,7 +14,7 @@ Page: reactflow.dev_files/reactflow.dev/pro/case-studies/carto-case-study.html
 Improving Carto's end-user experience with React Flow Pro examples
 
    [9][Jesus89.png]
-   [10]Jesús Arroyo Torrens
+   [10]JesÃºs Arroyo Torrens
    Lead Software Engineer at Carto
    Improving Carto's end-user experience with React Flow Pro examples
    screenshot
@@ -116,6 +116,6 @@ and more with React Flow Pro
    Legal
    [30]Terms of Use[31]Ethical Standards[32]Privacy Policy[33]Imprint
 
-   [34]info@xyflow.com -- Copyright © 2024 [35]webkid GmbH. All rights
+   [34]info@xyflow.com -- Copyright Â© 2024 [35]webkid GmbH. All rights
    reserved -- website design by [36]Facu Montanaro
 

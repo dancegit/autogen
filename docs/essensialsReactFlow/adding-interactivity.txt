@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/getting-started/adding-interactivity.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -278,6 +278,6 @@ export default Flow;
    Legal
    [73]MIT License[74]Code of Conduct[75]Imprint
 
-   [76]info@xyflow.com -- Copyright © 2024 [77]webkid GmbH. All rights
+   [76]info@xyflow.com -- Copyright Â© 2024 [77]webkid GmbH. All rights
    reserved -- website design by [78]Facu Montanaro
 

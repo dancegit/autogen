@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/components/controls/zoom-slider.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -88,6 +88,6 @@ bun x shadcn@latest add https://ui.reactflow.dev/zoom-slider
    Legal
    [52]MIT License[53]Code of Conduct[54]Imprint
 
-   [55]info@xyflow.com -- Copyright © 2024 [56]webkid GmbH. All rights
+   [55]info@xyflow.com -- Copyright Â© 2024 [56]webkid GmbH. All rights
    reserved -- website design by [57]Facu Montanaro
 

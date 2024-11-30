@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/utils.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -219,6 +219,6 @@ Utils
    Legal
    [151]MIT License[152]Code of Conduct[153]Imprint
 
-   [154]info@xyflow.com -- Copyright © 2024 [155]webkid GmbH. All rights
+   [154]info@xyflow.com -- Copyright Â© 2024 [155]webkid GmbH. All rights
    reserved -- website design by [156]Facu Montanaro
 

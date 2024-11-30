@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/hooks/use-nodes-state.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -198,6 +198,6 @@ Notes
    Legal
    [134]MIT License[135]Code of Conduct[136]Imprint
 
-   [137]info@xyflow.com -- Copyright © 2024 [138]webkid GmbH. All rights
+   [137]info@xyflow.com -- Copyright Â© 2024 [138]webkid GmbH. All rights
    reserved -- website design by [139]Facu Montanaro
 

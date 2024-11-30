@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/hooks.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -234,6 +234,6 @@ Hooks
    Legal
    [155]MIT License[156]Code of Conduct[157]Imprint
 
-   [158]info@xyflow.com -- Copyright © 2024 [159]webkid GmbH. All rights
+   [158]info@xyflow.com -- Copyright Â© 2024 [159]webkid GmbH. All rights
    reserved -- website design by [160]Facu Montanaro
 

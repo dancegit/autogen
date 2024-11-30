@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/getting-started/installation-and-requirements.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -128,6 +128,6 @@ Prior Experience Needed
    Legal
    [71]MIT License[72]Code of Conduct[73]Imprint
 
-   [74]info@xyflow.com -- Copyright © 2024 [75]webkid GmbH. All rights
+   [74]info@xyflow.com -- Copyright Â© 2024 [75]webkid GmbH. All rights
    reserved -- website design by [76]Facu Montanaro
 

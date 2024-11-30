@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/tutorials/slide-shows-with-react-flow.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -72,7 +72,7 @@ Create a slide show presentation with React Flow
      * Support for markdown slides
      * Keyboard navigation around the viewport
      * Automatic layouting
-     * Click-drag panning navigation (à la Prezi)
+     * Click-drag panning navigation (Ã  la Prezi)
 
    Along the way, you'll learn a bit about the basics of layouting
    algorithms, creating static flows, and custom nodes.
@@ -176,7 +176,7 @@ ght
    If you're going to style your app differently from just writing CSS,
    for example with [55]Styled Components or [56]Tailwind CSS, you can
    skip the import to index.css.
-   ¡
+   Â¡
 
    How you style your app is up to you, but you must always include React
    Flow's styles! If you don't need the default styles, at a minimum you
@@ -234,7 +234,7 @@ export default function App() {
 }
 
    (BUTTON)
-   ¡
+   Â¡
 
    It's important to remember to define your nodeTypes object outside of
    the component (or to use React's useMemo hook)! When the nodeTypes
@@ -617,13 +617,13 @@ export default function App() {
 }
 
    (BUTTON)
-   ¡
+   Â¡
 
    It's important to remember to include fitView as in the dependency
    array of our handleNodeClick callback. That's because the fitView
    function is replaced once React Flow has initialised the viewport. If
    you forget this step you'll likely find out that handleNodeClick does
-   nothing at all (and yes, we also forget this ourselves sometimes too  
+   nothing at all (and yes, we also forget this ourselves sometimes too Â 
    ).
 
    Calling fitView with no arguments would attempt to fit every node in
@@ -1030,6 +1030,6 @@ and more with React Flow Pro
    Legal
    [93]MIT License[94]Code of Conduct[95]Imprint
 
-   [96]info@xyflow.com -- Copyright © 2024 [97]webkid GmbH. All rights
+   [96]info@xyflow.com -- Copyright Â© 2024 [97]webkid GmbH. All rights
    reserved -- website design by [98]Facu Montanaro
 

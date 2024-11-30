@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/hooks/use-store-api.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -199,6 +199,6 @@ const store = useStoreApi<CustomNodeType, CustomEdgeType>();
    Legal
    [131]MIT License[132]Code of Conduct[133]Imprint
 
-   [134]info@xyflow.com -- Copyright © 2024 [135]webkid GmbH. All rights
+   [134]info@xyflow.com -- Copyright Â© 2024 [135]webkid GmbH. All rights
    reserved -- website design by [136]Facu Montanaro
 

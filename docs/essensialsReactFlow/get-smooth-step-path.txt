@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/api-reference/utils/get-smooth-step-path.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -225,6 +225,6 @@ Notes
    Legal
    [139]MIT License[140]Code of Conduct[141]Imprint
 
-   [142]info@xyflow.com -- Copyright © 2024 [143]webkid GmbH. All rights
+   [142]info@xyflow.com -- Copyright Â© 2024 [143]webkid GmbH. All rights
    reserved -- website design by [144]Facu Montanaro
 

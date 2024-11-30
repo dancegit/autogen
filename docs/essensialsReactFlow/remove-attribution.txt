@@ -1,6 +1,6 @@
 Page: reactflow.dev_files/reactflow.dev/learn/troubleshooting/remove-attribution.html
 ----------------------------------------
-   [1]¥ We just released React Flow Components powered by shadcn CLI
+   [1]Â¥ We just released React Flow Components powered by shadcn CLI
    (BUTTON)
    [2]
 
@@ -78,7 +78,7 @@ Remove Attribution
    organization in the future, we would ask that you re-add the
    attribution or sign up for one of our subscriptions.
 
-   Thank you for supporting us mV¸»
+   Thank you for supporting us mVÂ¸Â»
      * [53]the xyflow team
 
    IFRAME:
@@ -138,6 +138,6 @@ export default RemoveAttributionExample;
    Legal
    [69]MIT License[70]Code of Conduct[71]Imprint
 
-   [72]info@xyflow.com -- Copyright © 2024 [73]webkid GmbH. All rights
+   [72]info@xyflow.com -- Copyright Â© 2024 [73]webkid GmbH. All rights
    reserved -- website design by [74]Facu Montanaro
 
