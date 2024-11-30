@@ -37,19 +37,19 @@ def parse_websocket_endpoint(file_path: Path) -> Dict[str, Any]:
     logger.debug("Parsing websocket_endpoint function")
     message_types = set()
     for node in ast.walk(websocket_function):
-        if isinstance(node, ast.Dict) and any(key.value == 'type' for key in node.keys):
+        if isinstance(node, ast.Dict) and any(isinstance(key, ast.Constant) and key.value == 'type' for key in node.keys):
             try:
-                message = ast.literal_eval(node)
-                if isinstance(message, dict) and 'type' in message:
-                    message_type = message['type']
-                    if message_type not in message_types:
-                        message_types.add(message_type)
-                        api_docs["messages"].append({
-                            "type": message_type,
-                            "description": f"Message of type '{message_type}'.",
-                            "example": message
-                        })
-                        logger.debug(f"Added message type: {message_type}")
+                message_type = next((value.value for key, value in zip(node.keys, node.values) 
+                                     if isinstance(key, ast.Constant) and key.value == 'type' 
+                                     and isinstance(value, ast.Constant)), None)
+                if message_type and message_type not in message_types:
+                    message_types.add(message_type)
+                    api_docs["messages"].append({
+                        "type": message_type,
+                        "description": f"Message of type '{message_type}'.",
+                        "example": {"type": message_type}
+                    })
+                    logger.debug(f"Added message type: {message_type}")
             except Exception as e:
                 logger.error(f"Error parsing message: {e}")
 
@@ -57,77 +57,76 @@ def parse_websocket_endpoint(file_path: Path) -> Dict[str, Any]:
     return api_docs
 
 def generate_example_messages(api_docs: Dict[str, Any]) -> Dict[str, Any]:
+    example_messages = {
+        'error': {
+            "type": "error",
+            "message": "An error occurred during task execution",
+            "details": "Traceback: ..."
+        },
+        'loaded_agents': {
+            "type": "loaded_agents",
+            "agents": ["Agent1", "Agent2", "Agent3"]
+        },
+        'warning': {
+            "type": "warning",
+            "message": "Warning: Task execution may be slow due to high load"
+        },
+        'pong': {
+            "type": "pong"
+        },
+        'ping': {
+            "type": "ping"
+        },
+        'status': {
+            "type": "status",
+            "message": "Task execution 50% complete"
+        },
+        'final_answer': {
+            "type": "final_answer",
+            "message": "The sentiment of the text is positive."
+        },
+        'log': {
+            "type": "log",
+            "data": {
+                "agent": "Agent1",
+                "message": "Processing input data..."
+            }
+        },
+        'agent_called': {
+            "type": "agent_called",
+            "agent": "Agent2"
+        },
+        'orchestrator_output': {
+            "type": "orchestrator_output",
+            "message": "Orchestrator: Delegating task to Agent3"
+        },
+        'agent_output': {
+            "type": "agent_output",
+            "agent": "Agent3",
+            "message": "Agent3: Task completed successfully"
+        },
+        'active_agents': {
+            "type": "active_agents",
+            "agents": ["Agent1", "Agent3"]
+        },
+        'retry': {
+            "type": "retry",
+            "attempt": 2,
+            "max_retries": 3
+        },
+        'agents_loaded': {
+            "type": "agents_loaded",
+            "agents": ["Agent1", "Agent2", "Agent3"]
+        }
+    }
+
     for message in api_docs['messages']:
         message_type = message['type']
-        if message_type == 'error':
-            message['example'] = {
-                "type": "error",
-                "message": "An error occurred during task execution",
-                "details": "Traceback: ..."
-            }
-        elif message_type == 'loaded_agents':
-            message['example'] = {
-                "type": "loaded_agents",
-                "agents": ["Agent1", "Agent2", "Agent3"]
-            }
-        elif message_type == 'warning':
-            message['example'] = {
-                "type": "warning",
-                "message": "Warning: Task execution may be slow due to high load"
-            }
-        elif message_type == 'pong':
-            message['example'] = {
-                "type": "pong"
-            }
-        elif message_type == 'ping':
-            message['example'] = {
-                "type": "ping"
-            }
-        elif message_type == 'status':
-            message['example'] = {
-                "type": "status",
-                "message": "Task execution 50% complete"
-            }
-        elif message_type == 'final_answer':
-            message['example'] = {
-                "type": "final_answer",
-                "message": "The sentiment of the text is positive."
-            }
-        elif message_type == 'log':
-            message['example'] = {
-                "type": "log",
-                "data": {
-                    "agent": "Agent1",
-                    "message": "Processing input data..."
-                }
-            }
-        elif message_type == 'agent_called':
-            message['example'] = {
-                "type": "agent_called",
-                "agent": "Agent2"
-            }
-        elif message_type == 'orchestrator_output':
-            message['example'] = {
-                "type": "orchestrator_output",
-                "message": "Orchestrator: Delegating task to Agent3"
-            }
-        elif message_type == 'agent_output':
-            message['example'] = {
-                "type": "agent_output",
-                "agent": "Agent3",
-                "message": "Agent3: Task completed successfully"
-            }
-        elif message_type == 'active_agents':
-            message['example'] = {
-                "type": "active_agents",
-                "agents": ["Agent1", "Agent3"]
-            }
-        elif message_type == 'retry':
-            message['example'] = {
-                "type": "retry",
-                "attempt": 2,
-                "max_retries": 3
-            }
+        if message_type in example_messages:
+            message['example'] = example_messages[message_type]
+        else:
+            message['example'] = {"type": message_type, "message": f"Example message for {message_type}"}
+
     return api_docs
 
 def generate_markdown_docs(api_docs: Dict[str, Any]) -> str:
