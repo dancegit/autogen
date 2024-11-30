@@ -36,7 +36,8 @@ def parse_websocket_endpoint(file_path: Path) -> Dict[str, Any]:
 
     logger.debug("Parsing websocket_endpoint function")
     message_types = set()
-    for node in ast.walk(websocket_function):
+    
+    def extract_message_types(node):
         if isinstance(node, ast.Dict) and any(isinstance(key, ast.Constant) and key.value == 'type' for key in node.keys):
             try:
                 message_type = next((value.value for key, value in zip(node.keys, node.values) 
@@ -52,6 +53,21 @@ def parse_websocket_endpoint(file_path: Path) -> Dict[str, Any]:
                     logger.debug(f"Added message type: {message_type}")
             except Exception as e:
                 logger.error(f"Error parsing message: {e}")
+        elif isinstance(node, ast.Str):
+            # Check for message types in string literals
+            potential_types = ['error', 'loaded_agents', 'warning', 'pong', 'ping', 'status', 'final_answer', 'log', 'agent_called', 'orchestrator_output', 'agent_output', 'active_agents', 'retry', 'agents_loaded']
+            for msg_type in potential_types:
+                if msg_type in node.s and msg_type not in message_types:
+                    message_types.add(msg_type)
+                    api_docs["messages"].append({
+                        "type": msg_type,
+                        "description": f"Message of type '{msg_type}'.",
+                        "example": {"type": msg_type}
+                    })
+                    logger.debug(f"Added message type from string: {msg_type}")
+
+    for node in ast.walk(websocket_function):
+        extract_message_types(node)
 
     logger.debug(f"Parsed {len(api_docs['messages'])} messages")
     return api_docs
@@ -125,7 +141,12 @@ def generate_example_messages(api_docs: Dict[str, Any]) -> Dict[str, Any]:
         if message_type in example_messages:
             message['example'] = example_messages[message_type]
         else:
-            message['example'] = {"type": message_type, "message": f"Example message for {message_type}"}
+            # Generate a generic example for unknown message types
+            message['example'] = {
+                "type": message_type,
+                "message": f"Example message for {message_type}",
+                "data": {"key": "value"}
+            }
 
     return api_docs
 
