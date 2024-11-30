@@ -36,7 +36,7 @@ pip install -e ./python/packages/autogen-agentchat
 pip install -e ./python/packages/agbench
 pip install -e ./python/packages/autogen-studio
 pip install -r ./requirements.txt
-pip install PyGithub
+pip install PyGithub tenacity
 
 # Generate WebSocket API documentation
 echo "Generating WebSocket API documentation..."
