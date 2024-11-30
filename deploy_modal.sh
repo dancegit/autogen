@@ -19,16 +19,17 @@ fi
 
 # Change to the root autogen directory
 cd "$SCRIPT_DIR"
-#setup venv
-#source ./venv/bin/activate
+# Setup venv
+source ./venv/bin/activate
 # Print current directory and list files
 echo "Current directory: $(pwd)"
 echo "Files in current directory:"
 ls -la
 
 # Install dependencies
-#echo "Installing dependencies..."
-#uv pip install -e ./python
+echo "Installing dependencies..."
+pip install -e ./python/packages/autogen-core
+pip install -e ./python/packages/autogen-magentic-one
 
 # Generate WebSocket API documentation
 echo "Generating WebSocket API documentation..."
