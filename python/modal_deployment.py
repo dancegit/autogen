@@ -105,6 +105,11 @@ def run_magentic_one(task: str):
     result = helper.run(task)
     return result
 
+import yaml
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from fastapi.templating import Jinja2Templates
+
 @app.function(image=image, mounts=project_mounts, keep_warm=1)
 @modal.asgi_app()
 def modal_fastapi_app():
@@ -114,6 +119,7 @@ def modal_fastapi_app():
         from autogen_magentic_one.web_interface import create_app
         
         fastapi_app = create_app()
+        templates = Jinja2Templates(directory="templates")
 
         @fastapi_app.get("/asyncapi", include_in_schema=False)
         async def get_asyncapi_spec():
