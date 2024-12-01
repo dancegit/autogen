@@ -3,30 +3,27 @@ info:
   title: AutoGen Magentic-One WebSocket API
   version: 1.0.0
   description: WebSocket API for real-time communication with AutoGen Magentic-One
-
 servers:
   production:
     url: wss://your-modal-app-url.modal.run/ws
     protocol: wss
-
 channels:
   /:
     publish:
       message:
         oneOf:
-          - $ref: '#/components/messages/TaskExecution'
-          - $ref: '#/components/messages/Ping'
+        - $ref: '#/components/messages/TaskExecution'
+        - $ref: '#/components/messages/Ping'
     subscribe:
       message:
         oneOf:
-          - $ref: '#/components/messages/Result'
-          - $ref: '#/components/messages/Error'
-          - $ref: '#/components/messages/Status'
-          - $ref: '#/components/messages/AgentsLoaded'
-          - $ref: '#/components/messages/Pong'
-          - $ref: '#/components/messages/Warning'
-          - $ref: '#/components/messages/Retry'
-
+        - $ref: '#/components/messages/Result'
+        - $ref: '#/components/messages/Error'
+        - $ref: '#/components/messages/Status'
+        - $ref: '#/components/messages/AgentsLoaded'
+        - $ref: '#/components/messages/Pong'
+        - $ref: '#/components/messages/Warning'
+        - $ref: '#/components/messages/Retry'
 components:
   messages:
     TaskExecution:
@@ -35,106 +32,115 @@ components:
         properties:
           type:
             type: string
-            enum: [task]
+            enum:
+            - task
           content:
             type: string
         required:
-          - type
-          - content
+        - type
+        - content
     Ping:
       payload:
         type: object
         properties:
           type:
             type: string
-            enum: [ping]
+            enum:
+            - ping
         required:
-          - type
+        - type
     Result:
       payload:
         type: object
         properties:
           type:
             type: string
-            enum: [result]
+            enum:
+            - result
           data:
             type: object
         required:
-          - type
-          - data
+        - type
+        - data
     Error:
       payload:
         type: object
         properties:
           type:
             type: string
-            enum: [error]
+            enum:
+            - error
           message:
             type: string
           details:
             type: string
         required:
-          - type
-          - message
+        - type
+        - message
     Status:
       payload:
         type: object
         properties:
           type:
             type: string
-            enum: [status]
+            enum:
+            - status
           message:
             type: string
         required:
-          - type
-          - message
+        - type
+        - message
     AgentsLoaded:
       payload:
         type: object
         properties:
           type:
             type: string
-            enum: [agents_loaded]
+            enum:
+            - agents_loaded
           agents:
             type: array
             items:
               type: string
         required:
-          - type
-          - agents
+        - type
+        - agents
     Pong:
       payload:
         type: object
         properties:
           type:
             type: string
-            enum: [pong]
+            enum:
+            - pong
         required:
-          - type
+        - type
     Warning:
       payload:
         type: object
         properties:
           type:
             type: string
-            enum: [warning]
+            enum:
+            - warning
           message:
             type: string
         required:
-          - type
-          - message
+        - type
+        - message
     Retry:
       payload:
         type: object
         properties:
           type:
             type: string
-            enum: [retry]
+            enum:
+            - retry
           attempt:
             type: integer
           max_retries:
             type: integer
         required:
-          - type
-          - attempt
-          - max_retries
+        - type
+        - attempt
+        - max_retries
