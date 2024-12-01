@@ -45,23 +45,27 @@ def create_app():
                 "description": "Establishes a WebSocket connection for real-time communication with MagenticOne",
                 "responses": {
                     "101": {
-                        "description": "WebSocket connection established",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/WebSocketMessage"}
-                            }
-                        }
+                        "description": "WebSocket connection established"
                     }
-                }
+                },
+                "tags": ["WebSocket"]
             }
         }
         
-        openapi_schema["components"]["schemas"]["WebSocketMessage"] = WebSocketMessage.schema()
+        openapi_schema["components"] = {
+            "schemas": {
+                "WebSocketMessage": WebSocketMessage.schema()
+            }
+        }
         
         app.openapi_schema = openapi_schema
         return app.openapi_schema
 
     app.openapi = custom_openapi
+
+    @app.get("/openapi.json", include_in_schema=False)
+    async def get_openapi_json():
+        return JSONResponse(content=app.openapi())
 
     # Get the path to the autogen_magentic_one directory
     base_dir = os.path.dirname(os.path.abspath(__file__))
