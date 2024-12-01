@@ -12,71 +12,6 @@ function waitForDependencies() {
     });
 }
 
-// ReactFlow is now available globally
-const ReactFlow = window.ReactFlow;
-
-// FlowChart component using ReactFlow
-const FlowChart = ({ agents, messages }) => {
-    const [nodes, setNodes] = React.useState([]);
-    const [edges, setEdges] = React.useState([]);
-    const [reactFlowInstance, setReactFlowInstance] = React.useState(null);
-
-    const onNodesChange = React.useCallback(
-        (changes) => setNodes((nds) => ReactFlow.applyNodeChanges(changes, nds)),
-        []
-    );
-
-    const onEdgesChange = React.useCallback(
-        (changes) => setEdges((eds) => ReactFlow.applyEdgeChanges(changes, eds)),
-        []
-    );
-
-    React.useEffect(() => {
-        if (agents.length > 0) {
-            setNodes(agents.map((agent, index) => ({
-                id: agent,
-                data: { label: agent },
-                position: { x: (index + 1) * 200, y: 20 },
-            })));
-        }
-
-        if (messages.length > 0) {
-            setEdges(messages.map((msg, index) => ({
-                id: `e${index}`,
-                source: msg.from,
-                target: msg.to,
-                label: msg.content.substring(0, 20) + (msg.content.length > 20 ? '...' : ''),
-                type: 'smoothstep',
-            })));
-        }
-    }, [agents, messages]);
-
-    const onConnect = React.useCallback(
-        (params) => setEdges((eds) => ReactFlow.addEdge(params, eds)),
-        []
-    );
-
-    if (!ReactFlow) {
-        return <div>Loading ReactFlow...</div>;
-    }
-
-    return (
-        <ReactFlow.ReactFlowProvider>
-            <ReactFlow.ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                onInit={setReactFlowInstance}
-                fitView
-            >
-                <ReactFlow.Background color="#c0c0c0" gap={20} />
-                <ReactFlow.Controls />
-            </ReactFlow.ReactFlow>
-        </ReactFlow.ReactFlowProvider>
-    );
-};
 
 async function initializeApp() {
     await waitForDependencies();
@@ -92,24 +27,6 @@ async function initializeApp() {
 
     let agents = ['Orchestrator'];
     let messages = [];
-
-    const updateGraphicalView = () => {
-        if (window.React && window.ReactDOM && window.ReactFlow) {
-            const root = window.ReactDOM.createRoot(graphicalView);
-            root.render(
-                window.React.createElement(
-                    window.React.StrictMode,
-                    null,
-                    window.React.createElement(FlowChart, { agents: agents, messages: messages })
-                )
-            );
-        } else {
-            console.error('React, ReactDOM, or ReactFlow is not available');
-        }
-    };
-
-    // Initial render
-    updateGraphicalView();
 
     function appendMessage(element, message, className = '') {
         console.log(`Appending message: ${message}`);
@@ -196,7 +113,6 @@ async function initializeApp() {
                         case 'final_answer':
                             appendMessage(orchestratorOutput, `Final Answer: ${data.message}`, 'status');
                             messages.push({from: 'Orchestrator', to: 'User', content: data.message});
-                            updateGraphicalView();
                             break;
                         case 'error':
                             appendMessage(orchestratorOutput, `Error: ${data.message}`, 'error');
@@ -215,7 +131,6 @@ async function initializeApp() {
                                     agents.push(agentName);
                                 }
                                 messages.push({from: 'Orchestrator', to: agentName, content: message});
-                                updateGraphicalView();
                             }
                             break;
                         case 'agents_loaded':

@@ -139,7 +139,6 @@
                     );
                 });
             </script>
-            <div id="graphicalView" class="graphical-view"></div>
             <div class="output-container">
                 <div class="output-section">
                     <h2>Orchestrator Output</h2>
@@ -163,27 +162,7 @@
             </div>
         </div>
 
-        <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-        <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-        <script src="https://unpkg.com/@xyflow/react/dist/umd/index.js"></script>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-        <link
-            rel="stylesheet"
-            href="https://unpkg.com/@xyflow/react/dist/style.css"
-        />
-        <script>
-            // Ensure ReactFlow is available globally
-            function ensureReactFlow() {
-                if (typeof ReactFlow !== 'undefined') {
-                    window.ReactFlow = ReactFlow;
-                    console.log("ReactFlow assigned to window object");
-                } else {
-                    console.error("ReactFlow is not defined");
-                }
-            }
-            // Run this after a short delay to ensure all scripts have loaded
-            setTimeout(ensureReactFlow, 1000);
-        </script>
 
         <script>
             function loadScript(src) {
@@ -272,23 +251,6 @@
                 }
             };
             console.log("HTML document loaded");
-        </script>
-        <script>
-            // Check if ReactFlow is loaded correctly
-            function checkReactFlow() {
-                console.log("Checking ReactFlow...");
-                if (window.ReactFlow && typeof window.ReactFlow === 'object') {
-                    console.log("ReactFlow loaded successfully");
-                    console.log("window.ReactFlow:", window.ReactFlow);
-                } else {
-                    console.error("ReactFlow not loaded properly");
-                    console.log("window.ReactFlow:", window.ReactFlow);
-                    console.log("typeof ReactFlow:", typeof ReactFlow);
-                    console.log("window object keys:", Object.keys(window));
-                }
-            }
-            // Run the check after a longer delay to ensure all scripts have had a chance to load
-            setTimeout(checkReactFlow, 3000);
         </script>
     </body>
 </html>
