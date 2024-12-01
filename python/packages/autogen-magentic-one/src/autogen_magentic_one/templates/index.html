@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>AutoGen Magentic-One Web Interface</title>
+        <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" />
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -20,97 +21,11 @@
                 border-radius: 5px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             }
-            h1,
-            h2 {
+            h1, h2 {
                 color: #333;
             }
-            form {
-                margin-bottom: 20px;
-            }
-            textarea {
-                width: 100%;
-                padding: 10px;
-                margin-bottom: 10px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-            }
-            button {
-                background-color: #4caf50;
-                color: white;
-                padding: 10px 15px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-            }
-            button:hover {
-                background-color: #45a049;
-            }
-            .output-container {
-                display: flex;
-                justify-content: space-between;
-            }
-            .output-section {
-                width: 48%;
-                background-color: #e9e9e9;
-                padding: 15px;
-                border-radius: 4px;
-                height: 400px;
-                overflow-y: auto;
-            }
-            #orchestratorOutput,
-            #agentsOutput {
-                white-space: pre-wrap;
-            }
-            .agent-message {
-                margin-bottom: 10px;
-                padding: 5px;
-                border-radius: 4px;
-            }
-            .status {
-                font-weight: bold;
-                color: #4caf50;
-            }
-            .error {
-                font-weight: bold;
-                color: #f44336;
-            }
-            .graphical-view {
-                width: 100%;
-                height: 600px;
-                border: 1px solid #ddd;
-                margin-bottom: 20px;
-            }
-            .react-flow {
-                background-color: #f0f0f0;
-            }
-            .react-flow__renderer {
-                background-color: #d3d3d3;
-                background-image: linear-gradient(
-                        to right,
-                        #c0c0c0 1px,
-                        transparent 1px
-                    ),
-                    linear-gradient(to bottom, #c0c0c0 1px, transparent 1px);
-                background-size: 20px 20px;
-            }
-            .react-flow__node {
-                padding: 10px;
-                border-radius: 3px;
-                width: 150px;
-                font-size: 12px;
-                color: #222;
-                text-align: center;
-                border-width: 1px;
-                border-style: solid;
-                background: #fff;
-                border-color: #1a192b;
-            }
-            .react-flow__edge-path {
-                stroke: #4caf50;
-                stroke-width: 2;
-            }
-            .react-flow__edge-text {
-                font-size: 10px;
+            #swagger-ui {
+                margin-top: 20px;
             }
         </style>
     </head>
@@ -118,142 +33,28 @@
         <div class="container">
             <h1>AutoGen Magentic-One Web Interface</h1>
             <p>This is the backend deployment for the AutoGen Magentic-One project. The frontend is deployed at a separate URL.</p>
-            <p>You can check the API and WebSocket documentation at <a href="/docs" target="_blank">/docs</a> (Swagger UI).</p>
-            <p>Below, you can interact with some basic agent functionality:</p>
-            <form id="taskForm">
-                <textarea
-                    id="taskInput"
-                    name="taskInput"
-                    rows="4"
-                    placeholder="Enter your task here..."
-                    required
-                ></textarea>
-                <button type="submit">Run Task</button>
-            </form>
-            <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    console.log(
-                        "Form in HTML:",
-                        document.getElementById("taskForm"),
-                    );
-                    console.log(
-                        "TaskInput in HTML:",
-                        document.getElementById("taskInput"),
-                    );
-                });
-            </script>
-            <div class="output-container">
-                <div class="output-section">
-                    <h2>Orchestrator Output</h2>
-                    <div id="orchestratorOutput"></div>
-                </div>
-                <div class="output-section">
-                    <h2>Agents Output</h2>
-                    <div id="agentsOutput"></div>
-                </div>
-            </div>
-            <div class="agents-overview">
-                <h2>Agents Overview</h2>
-                <div>
-                    <h3>Loaded Agents</h3>
-                    <ul id="loadedAgents"></ul>
-                </div>
-                <div>
-                    <h3>Currently Active Agent</h3>
-                    <p id="activeAgent">None</p>
-                </div>
-            </div>
+            <h2>API Documentation</h2>
+            <div id="swagger-ui"></div>
         </div>
 
-        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
+        <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js"></script>
         <script>
-            function loadScript(src) {
-                return new Promise((resolve, reject) => {
-                    const script = document.createElement("script");
-                    script.src = src;
-                    script.onload = () => {
-                        console.log(`Loaded: ${src}`);
-                        resolve();
-                    };
-                    script.onerror = (error) => {
-                        console.error(`Error loading ${src}:`, error);
-                        reject(error);
-                    };
-                    document.head.appendChild(script);
-                });
+            window.onload = function() {
+                fetch('/asyncapi')
+                    .then(response => response.json())
+                    .then(spec => {
+                        SwaggerUIBundle({
+                            spec: spec,
+                            dom_id: '#swagger-ui',
+                            presets: [
+                                SwaggerUIBundle.presets.apis,
+                                SwaggerUIBundle.SwaggerUIStandalonePreset
+                            ],
+                            layout: "BaseLayout",
+                            deepLinking: true
+                        });
+                    });
             }
-
-            async function loadLibraries() {
-                try {
-                    console.log("Starting to load libraries...");
-                    await loadScript(
-                        "{{ url_for('static', path='reactflow/react.production.min.js') }}",
-                    );
-                    await loadScript(
-                        "{{ url_for('static', path='reactflow/react-dom.production.min.js') }}",
-                    );
-                    await loadScript(
-                        "{{ url_for('static', path='reactflow/umd/reactflow.production.min.js') }}",
-                    );
-                    console.log(
-                        "React, ReactDOM, and ReactFlow loaded successfully",
-                    );
-
-                    // Load main.js after libraries are loaded
-                    const response = await fetch(
-                        "{{ url_for('static', path='main.js') }}",
-                    );
-                    const mainJsContent = await response.text();
-                    const transpiledCode = Babel.transform(mainJsContent, {
-                        presets: ["react"],
-                    }).code;
-                    const scriptElement = document.createElement("script");
-                    scriptElement.textContent = transpiledCode;
-                    document.body.appendChild(scriptElement);
-                    console.log(
-                        "All libraries and main.js loaded and transpiled successfully",
-                    );
-                } catch (error) {
-                    console.error("Failed to load libraries:", error);
-                    // Display error on the page
-                    const errorDiv = document.createElement("div");
-                    errorDiv.style.color = "red";
-                    errorDiv.textContent = `Error loading libraries: ${error.message}`;
-                    document.body.prepend(errorDiv);
-                }
-            }
-
-            window.onload = async function () {
-                await loadLibraries();
-                console.log("Libraries loaded, waiting for dependencies");
-                await new Promise((resolve) => setTimeout(resolve, 500)); // Add a small delay
-                if (typeof initializeApp === "function") {
-                    console.log("Initializing app");
-                    initializeApp();
-                } else {
-                    console.error("initializeApp function not found");
-                }
-            };
-        </script>
-        <script>
-            window.onerror = function (message, source, lineno, colno, error) {
-                console.error(
-                    "Global error:",
-                    message,
-                    "at",
-                    source,
-                    lineno,
-                    colno,
-                    error,
-                );
-                const orchestratorOutput =
-                    document.getElementById("orchestratorOutput");
-                if (orchestratorOutput) {
-                    orchestratorOutput.innerHTML += `<div class="agent-message error">Global error: ${message}</div>`;
-                }
-            };
-            console.log("HTML document loaded");
         </script>
     </body>
 </html>

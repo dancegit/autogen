@@ -112,22 +112,8 @@ def modal_fastapi_app():
         import autogen_magentic_one
         logger.info(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
         from autogen_magentic_one.web_interface import create_app
-        from autogen_magentic_one.generate_ws_api_docs import generate_ws_api_docs
         
-        # Generate WebSocket API documentation
-        generate_ws_api_docs()
-        logger.info("WebSocket API documentation generated successfully.")
-        
-        app = create_app()
-        
-        # Add the WebSocket API documentation to Swagger UI
-        @app.get("/ws-api-docs", include_in_schema=False)
-        async def get_ws_api_docs():
-            with open("/root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/ws_api_docs.md", "r") as f:
-                content = f.read()
-            return {"content": content}
-        
-        return app
+        return create_app()
     except ImportError as e:
         logger.error(f"Error importing app: {e}")
         logger.error("Detailed sys.path:")
@@ -151,22 +137,8 @@ def modal_fastapi_app():
 
             import autogen_magentic_one
             from autogen_magentic_one.web_interface import create_app
-            from autogen_magentic_one.generate_ws_api_docs import generate_ws_api_docs
             
-            # Generate WebSocket API documentation
-            generate_ws_api_docs()
-            logger.info("WebSocket API documentation generated successfully.")
-            
-            app = create_app()
-            
-            # Add the WebSocket API documentation to Swagger UI
-            @app.get("/ws-api-docs", include_in_schema=False)
-            async def get_ws_api_docs():
-                with open("/root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/ws_api_docs.md", "r") as f:
-                    content = f.read()
-                return {"content": content}
-            
-            return app
+            return create_app()
         else:
             logger.error(f"autogen_magentic_one directory does not exist: {autogen_magentic_one_dir}")
 
