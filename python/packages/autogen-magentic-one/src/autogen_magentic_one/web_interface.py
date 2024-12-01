@@ -24,6 +24,9 @@ async def lifespan(app: FastAPI):
 def create_app():
     fastapi_app = FastAPI(lifespan=lifespan)
     
+    # Initialize MagenticOneHelper
+    magnetic_one = MagenticOneHelper(logs_dir="/tmp/magentic_one_logs")
+    
     # Mount static files and templates
     base_dir = os.path.dirname(os.path.abspath(__file__))
     static_dir = os.path.join(base_dir, "static")
@@ -85,6 +88,8 @@ def create_app():
                 "message": str(e),
                 "details": traceback.format_exc()
             })
+
+    return fastapi_app
 
     @fastapi_app.exception_handler(HTTPException)
     async def http_exception_handler(request, exc):
