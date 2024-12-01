@@ -55,12 +55,18 @@ fi
 
 # Deploy to Modal
 echo "Deploying autogen-magentic-one to Modal..."
-modal deploy "$SCRIPT_DIR/python/modal_deployment.py"
+DEPLOY_OUTPUT=$(modal deploy "$SCRIPT_DIR/python/modal_deployment.py")
 
 # Check if the deployment was successful
 if [ $? -eq 0 ]; then
     echo "Deployment completed successfully!"
-    echo "WebSocket URL: $(modal app show autogen-magentic-one --url)/ws"
+    # Extract the URL from the deployment output
+    DEPLOY_URL=$(echo "$DEPLOY_OUTPUT" | grep -oP 'https://.*\.modal\.run')
+    if [ -n "$DEPLOY_URL" ]; then
+        echo "WebSocket URL: ${DEPLOY_URL}/ws"
+    else
+        echo "Warning: Couldn't extract the deployment URL. Please check the Modal dashboard for the correct URL."
+    fi
 else
     echo "Deployment failed. Please check the error messages above."
     exit 1
