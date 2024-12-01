@@ -60,6 +60,7 @@ modal deploy "$SCRIPT_DIR/python/modal_deployment.py"
 # Check if the deployment was successful
 if [ $? -eq 0 ]; then
     echo "Deployment completed successfully!"
+    echo "WebSocket URL: $(modal app show autogen-magentic-one --url)/ws"
 else
     echo "Deployment failed. Please check the error messages above."
     exit 1

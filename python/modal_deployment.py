@@ -118,7 +118,7 @@ def run_magentic_one(task: str):
     result = helper.run(task)
     return result
 
-@app.function(image=image, mounts=project_mounts)
+@app.function(image=image, mounts=project_mounts, keep_warm=1)
 @modal.asgi_app()
 def modal_fastapi_app():
     import sys
@@ -165,6 +165,7 @@ def modal_fastapi_app():
 def main(task: str):
     result = run_magentic_one.remote(task)
     print(result)
+    print(f"WebSocket URL: {modal_fastapi_app.web_url}")
 
 if __name__ == "__main__":
     print("Current working directory:", os.getcwd())
