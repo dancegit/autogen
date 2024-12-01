@@ -157,6 +157,9 @@ def generate_asyncapi_documentation(yaml_path):
         print("Then run this script again.")
         return
 
+    # Ensure the asyncapi-docs directory exists
+    os.makedirs("./asyncapi-docs", exist_ok=True)
+
     html_cmd = f"asyncapi generate html {yaml_path} -o ./asyncapi-docs"
     md_cmd = f"asyncapi generate markdown {yaml_path} -o ./asyncapi-docs/asyncapi.md"
     

@@ -23,7 +23,14 @@ def create_app():
     static_dir = os.path.join(base_dir, "static")
     templates_dir = os.path.join(base_dir, "templates")
     fastapi_app.mount("/static", StaticFiles(directory=static_dir), name="static")
-    fastapi_app.mount("/asyncapi-docs", StaticFiles(directory="./asyncapi-docs"), name="asyncapi-docs")
+    
+    # Check if asyncapi-docs directory exists before mounting
+    asyncapi_docs_dir = "./asyncapi-docs"
+    if os.path.exists(asyncapi_docs_dir):
+        fastapi_app.mount("/asyncapi-docs", StaticFiles(directory=asyncapi_docs_dir), name="asyncapi-docs")
+    else:
+        logger.warning(f"Directory '{asyncapi_docs_dir}' does not exist. Skipping mount.")
+    
     templates = Jinja2Templates(directory=templates_dir)
 
     @fastapi_app.on_event("startup")
