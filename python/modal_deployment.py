@@ -4,6 +4,7 @@ import pathlib
 import sys
 import subprocess
 import logging
+import asyncio
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -134,6 +135,19 @@ def modal_fastapi_app():
                 "swagger-ui.html",
                 {"request": request, "asyncapi_url": "/asyncapi"}
             )
+
+        @fastapi_app.on_event("startup")
+        async def startup_event():
+            # Initialize any resources or perform startup tasks here
+            pass
+
+        @fastapi_app.on_event("shutdown")
+        async def shutdown_event():
+            # Properly close any resources or perform cleanup tasks here
+            tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+            [task.cancel() for task in tasks]
+            await asyncio.gather(*tasks, return_exceptions=True)
+            await asyncio.sleep(0.5)  # Give tasks a moment to complete cancellation
 
         return fastapi_app
     except ImportError as e:
