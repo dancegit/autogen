@@ -113,7 +113,22 @@ def modal_fastapi_app():
         logger.info(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
         from autogen_magentic_one.web_interface import create_app
         
-        return create_app()
+        fastapi_app = create_app()
+
+        @fastapi_app.get("/asyncapi", include_in_schema=False)
+        async def get_asyncapi_spec():
+            with open("asyncapi.yaml", "r") as f:
+                asyncapi_spec = yaml.safe_load(f)
+            return JSONResponse(content=asyncapi_spec)
+
+        @fastapi_app.get("/docs", include_in_schema=False)
+        async def custom_swagger_ui_html(request: Request):
+            return templates.TemplateResponse(
+                "swagger-ui.html",
+                {"request": request, "asyncapi_url": "/asyncapi"}
+            )
+
+        return fastapi_app
     except ImportError as e:
         logger.error(f"Error importing app: {e}")
         logger.error("Detailed sys.path:")
