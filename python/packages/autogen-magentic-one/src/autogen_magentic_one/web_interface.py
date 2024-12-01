@@ -4,6 +4,8 @@ from fastapi import FastAPI, Request, Form, WebSocket, WebSocketDisconnect, HTTP
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.openapi.utils import get_openapi
+from pydantic import BaseModel
 import os
 import sys
 import json
@@ -19,9 +21,47 @@ logger = logging.getLogger(__name__)
 # Disable hpack debug logging
 logging.getLogger('hpack').setLevel(logging.WARNING)
 
+class WebSocketMessage(BaseModel):
+    type: str
+    data: dict
+
 def create_app():
     app = FastAPI()
     logger.info("FastAPI app initialized")
+
+    def custom_openapi():
+        if app.openapi_schema:
+            return app.openapi_schema
+        openapi_schema = get_openapi(
+            title="MagenticOne WebSocket API",
+            version="1.0.0",
+            description="WebSocket API for MagenticOne",
+            routes=app.routes,
+        )
+        
+        openapi_schema["paths"]["/ws"] = {
+            "get": {
+                "summary": "WebSocket Endpoint",
+                "description": "Establishes a WebSocket connection for real-time communication with MagenticOne",
+                "responses": {
+                    "101": {
+                        "description": "WebSocket connection established",
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/WebSocketMessage"}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        openapi_schema["components"]["schemas"]["WebSocketMessage"] = WebSocketMessage.schema()
+        
+        app.openapi_schema = openapi_schema
+        return app.openapi_schema
+
+    app.openapi = custom_openapi
 
     # Get the path to the autogen_magentic_one directory
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -210,25 +250,50 @@ def create_app():
     @app.websocket("/ws")
     async def websocket_endpoint(websocket: WebSocket):
         """
-        WebSocket endpoint for real-time communication.
+        WebSocket endpoint for real-time communication with MagenticOne.
 
         This endpoint handles the WebSocket connection for the MagenticOne application.
         It manages the connection lifecycle, processes incoming tasks, and sends responses back to the client.
 
-        Messages:
-        - type: "error" - Sent when an error occurs during initialization or task execution
-        - type: "loaded_agents" - Sent to inform about the loaded agents
-        - type: "warning" - Sent when there are no loaded agents
-        - type: "pong" - Sent in response to a ping message
-        - type: "ping" - Sent to keep the connection alive
-        - type: "status" - Sent to update the client on the current status of the task
-        - type: "final_answer" - Sent when the task is completed with a final answer
-        - type: "log" - Sent to provide detailed logs of the task execution
-        - type: "agent_called" - Sent when a specific agent is called during task execution
-        - type: "orchestrator_output" - Sent to provide output from the orchestrator
-        - type: "agent_output" - Sent to provide output from individual agents
-        - type: "active_agents" - Sent to update the list of currently active agents
-        - type: "retry" - Sent when a task execution is being retried
+        Message Types:
+        - error: Sent when an error occurs during initialization or task execution
+          {type: "error", message: string, details?: string}
+        
+        - loaded_agents: Sent to inform about the loaded agents
+          {type: "loaded_agents", agents: string[]}
+        
+        - warning: Sent when there are no loaded agents
+          {type: "warning", message: string}
+        
+        - pong: Sent in response to a ping message
+          {type: "pong"}
+        
+        - ping: Sent to keep the connection alive
+          {type: "ping"}
+        
+        - status: Sent to update the client on the current status of the task
+          {type: "status", message: string}
+        
+        - final_answer: Sent when the task is completed with a final answer
+          {type: "final_answer", message: string}
+        
+        - log: Sent to provide detailed logs of the task execution
+          {type: "log", data: object}
+        
+        - agent_called: Sent when a specific agent is called during task execution
+          {type: "agent_called", agent: string}
+        
+        - orchestrator_output: Sent to provide output from the orchestrator
+          {type: "orchestrator_output", message: string}
+        
+        - agent_output: Sent to provide output from individual agents
+          {type: "agent_output", agent: string, message: string}
+        
+        - active_agents: Sent to update the list of currently active agents
+          {type: "active_agents", agents: string[]}
+        
+        - retry: Sent when a task execution is being retried
+          {type: "retry", attempt: number, max_retries: number}
 
         Args:
             websocket (WebSocket): The WebSocket connection object.
