@@ -6,18 +6,24 @@ from fastapi import FastAPI, HTTPException, WebSocket, Request
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from contextlib import asynccontextmanager
 from autogen_magentic_one.magentic_one_helper import MagenticOneHelper
 import modal
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def create_app():
-    fastapi_app = FastAPI()
-    
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     # Initialize MagenticOneHelper
     magnetic_one = MagenticOneHelper(logs_dir="/tmp/magentic_one_logs")
+    await magnetic_one.initialize()
+    yield
+    # Cleanup code (if any) can go here
 
+def create_app():
+    fastapi_app = FastAPI(lifespan=lifespan)
+    
     # Mount static files and templates
     base_dir = os.path.dirname(os.path.abspath(__file__))
     static_dir = os.path.join(base_dir, "static")
@@ -32,10 +38,6 @@ def create_app():
         logger.warning(f"Directory '{asyncapi_docs_dir}' does not exist. Skipping mount.")
     
     templates = Jinja2Templates(directory=templates_dir)
-
-    @fastapi_app.on_event("startup")
-    async def startup_event():
-        await magnetic_one.initialize()
 
     @fastapi_app.get("/", response_class=HTMLResponse)
     async def read_root(request: Request):
