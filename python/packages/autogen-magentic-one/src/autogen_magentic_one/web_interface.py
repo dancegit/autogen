@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from autogen_magentic_one.magentic_one_helper import MagenticOneHelper
 import modal
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
@@ -28,16 +28,30 @@ def create_app():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     static_dir = os.path.join(base_dir, "static")
     templates_dir = os.path.join(base_dir, "templates")
-    fastapi_app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    logger.debug(f"Base directory: {base_dir}")
+    logger.debug(f"Static directory: {static_dir}")
+    logger.debug(f"Templates directory: {templates_dir}")
+    
+    if os.path.exists(static_dir):
+        fastapi_app.mount("/static", StaticFiles(directory=static_dir), name="static")
+        logger.info(f"Mounted static files from {static_dir}")
+    else:
+        logger.error(f"Static directory '{static_dir}' does not exist")
     
     # Check if asyncapi-docs directory exists before mounting
     asyncapi_docs_dir = "./asyncapi-docs"
+    logger.debug(f"AsyncAPI docs directory: {asyncapi_docs_dir}")
     if os.path.exists(asyncapi_docs_dir):
         fastapi_app.mount("/asyncapi-docs", StaticFiles(directory=asyncapi_docs_dir), name="asyncapi-docs")
+        logger.info(f"Mounted AsyncAPI docs from {asyncapi_docs_dir}")
     else:
         logger.warning(f"Directory '{asyncapi_docs_dir}' does not exist. Skipping mount.")
     
-    templates = Jinja2Templates(directory=templates_dir)
+    if os.path.exists(templates_dir):
+        templates = Jinja2Templates(directory=templates_dir)
+        logger.info(f"Loaded templates from {templates_dir}")
+    else:
+        logger.error(f"Templates directory '{templates_dir}' does not exist")
 
     @fastapi_app.get("/", response_class=HTMLResponse)
     async def read_root(request: Request):
