@@ -58,6 +58,16 @@ def create_app():
             content={"message": exc.detail},
         )
 
+    @fastapi_app.get("/ws-api-docs", include_in_schema=False)
+    async def get_ws_api_docs():
+        docs_path = os.path.join(base_dir, "ws_api_docs.md")
+        if os.path.exists(docs_path):
+            with open(docs_path, "r") as f:
+                content = f.read()
+            return JSONResponse(content={"content": content})
+        else:
+            return JSONResponse(content={"error": "WebSocket API documentation not found"}, status_code=404)
+
     return fastapi_app
 
 # Use modal.asgi_app decorator with App instead of Stub

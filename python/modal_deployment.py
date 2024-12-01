@@ -112,7 +112,22 @@ def modal_fastapi_app():
         import autogen_magentic_one
         logger.info(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
         from autogen_magentic_one.web_interface import create_app
-        return create_app()
+        from autogen_magentic_one.generate_ws_api_docs import generate_ws_api_docs
+        
+        # Generate WebSocket API documentation
+        generate_ws_api_docs()
+        logger.info("WebSocket API documentation generated successfully.")
+        
+        app = create_app()
+        
+        # Add the WebSocket API documentation to Swagger UI
+        @app.get("/ws-api-docs", include_in_schema=False)
+        async def get_ws_api_docs():
+            with open("/root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/ws_api_docs.md", "r") as f:
+                content = f.read()
+            return {"content": content}
+        
+        return app
     except ImportError as e:
         logger.error(f"Error importing app: {e}")
         logger.error("Detailed sys.path:")
@@ -136,7 +151,22 @@ def modal_fastapi_app():
 
             import autogen_magentic_one
             from autogen_magentic_one.web_interface import create_app
-            return create_app()
+            from autogen_magentic_one.generate_ws_api_docs import generate_ws_api_docs
+            
+            # Generate WebSocket API documentation
+            generate_ws_api_docs()
+            logger.info("WebSocket API documentation generated successfully.")
+            
+            app = create_app()
+            
+            # Add the WebSocket API documentation to Swagger UI
+            @app.get("/ws-api-docs", include_in_schema=False)
+            async def get_ws_api_docs():
+                with open("/root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/ws_api_docs.md", "r") as f:
+                    content = f.read()
+                return {"content": content}
+            
+            return app
         else:
             logger.error(f"autogen_magentic_one directory does not exist: {autogen_magentic_one_dir}")
 
@@ -147,6 +177,7 @@ def main(task: str):
     result = run_magentic_one.remote(task)
     logger.info(result)
     logger.info(f"WebSocket URL: {modal_fastapi_app.web_url}/ws")
+    logger.info(f"WebSocket API Documentation: {modal_fastapi_app.web_url}/ws-api-docs")
 
 if __name__ == "__main__":
     logger.info(f"Current working directory: {os.getcwd()}")
