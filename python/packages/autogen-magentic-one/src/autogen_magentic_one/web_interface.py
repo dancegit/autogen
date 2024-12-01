@@ -1,12 +1,13 @@
 import logging
 import os
 import traceback
+import yaml
 from fastapi import FastAPI, HTTPException, WebSocket, Request
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from asyncapi import AsyncAPI
 from autogen_magentic_one.magentic_one_helper import MagenticOneHelper
+from .generate_asyncapi_docs import generate_asyncapi_docs
 import modal
 
 logging.basicConfig(level=logging.INFO)
@@ -18,11 +19,8 @@ def create_app():
     # Initialize MagenticOneHelper
     magnetic_one = MagenticOneHelper(logs_dir="/tmp/magentic_one_logs")
 
-    # Load AsyncAPI specification
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    async_api = AsyncAPI.from_yaml(os.path.join(base_dir, 'asyncapi.yaml'))
-
     # Mount static files and templates
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     static_dir = os.path.join(base_dir, "static")
     templates_dir = os.path.join(base_dir, "templates")
     fastapi_app.mount("/static", StaticFiles(directory=static_dir), name="static")
@@ -47,21 +45,23 @@ def create_app():
             while True:
                 data = await websocket.receive_json()
                 if data.get('type') == 'ping':
-                    await websocket.send_json(async_api.get_message('Pong').payload)
+                    await websocket.send_json({"type": "pong"})
                 elif data.get('type') == 'task':
                     result = await magnetic_one.run_task(data.get('content'))
-                    await websocket.send_json(async_api.get_message('Result').payload(data=result))
+                    await websocket.send_json({"type": "result", "data": result})
                 else:
-                    await websocket.send_json(async_api.get_message('Error').payload(
-                        message="Invalid message type",
-                        details=f"Received: {data}"
-                    ))
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": "Invalid message type",
+                        "details": f"Received: {data}"
+                    })
         except Exception as e:
             logger.exception("WebSocket error")
-            await websocket.send_json(async_api.get_message('Error').payload(
-                message=str(e),
-                details=traceback.format_exc()
-            ))
+            await websocket.send_json({
+                "type": "error",
+                "message": str(e),
+                "details": traceback.format_exc()
+            })
 
     @fastapi_app.exception_handler(HTTPException)
     async def http_exception_handler(request, exc):
@@ -72,7 +72,10 @@ def create_app():
 
     @fastapi_app.get("/asyncapi", include_in_schema=False)
     async def get_asyncapi_spec():
-        return async_api.to_dict()
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(base_dir, 'asyncapi.yaml'), 'r') as f:
+            asyncapi_spec = yaml.safe_load(f)
+        return JSONResponse(content=asyncapi_spec)
 
     return fastapi_app
 
