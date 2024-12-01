@@ -1,6 +1,7 @@
 import yaml
 from pathlib import Path
 import subprocess
+import os
 
 def generate_asyncapi_docs():
     asyncapi_spec = {
