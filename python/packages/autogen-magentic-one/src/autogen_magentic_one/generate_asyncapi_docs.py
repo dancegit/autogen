@@ -145,14 +145,28 @@ def generate_asyncapi_docs():
 
     print(f"AsyncAPI specification generated: {output_path}")
 
+import shutil
+
+def is_asyncapi_cli_installed():
+    return shutil.which("asyncapi") is not None
+
 def generate_asyncapi_documentation(yaml_path):
+    if not is_asyncapi_cli_installed():
+        print("AsyncAPI CLI is not installed. Please install it using:")
+        print("npm install -g @asyncapi/cli")
+        print("Then run this script again.")
+        return
+
     html_cmd = f"asyncapi generate html {yaml_path} -o ./asyncapi-docs"
     md_cmd = f"asyncapi generate markdown {yaml_path} -o ./asyncapi-docs/asyncapi.md"
     
-    subprocess.run(html_cmd, shell=True, check=True)
-    subprocess.run(md_cmd, shell=True, check=True)
-    
-    print("AsyncAPI documentation generated in ./asyncapi-docs")
+    try:
+        subprocess.run(html_cmd, shell=True, check=True)
+        subprocess.run(md_cmd, shell=True, check=True)
+        print("AsyncAPI documentation generated in ./asyncapi-docs")
+    except subprocess.CalledProcessError as e:
+        print(f"Error generating AsyncAPI documentation: {e}")
+        print("Please make sure AsyncAPI CLI is correctly installed and accessible.")
 
 if __name__ == "__main__":
     generate_asyncapi_docs()

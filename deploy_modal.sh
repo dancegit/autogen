@@ -43,13 +43,21 @@ pip install PyGithub tenacity
 
 # Generate WebSocket API documentation
 echo "Generating WebSocket API documentation..."
-if "$SCRIPT_DIR/venv/bin/python" -c "from autogen_magentic_one.generate_asyncapi_docs import generate_asyncapi_docs; generate_asyncapi_docs()"; then
-    echo "AsyncAPI documentation generated successfully."
+if "$SCRIPT_DIR/venv/bin/python" -c "from autogen_magentic_one.generate_asyncapi_docs import generate_asyncapi_docs, generate_asyncapi_documentation; generate_asyncapi_docs(); generate_asyncapi_documentation('asyncapi.yaml')"; then
+    echo "AsyncAPI specification generated successfully."
     # Copy the generated AsyncAPI YAML file to the current directory
     cp "$SCRIPT_DIR/python/packages/autogen-magentic-one/src/autogen_magentic_one/asyncapi.yaml" ./
-    echo "AsyncAPI documentation copied to the current directory."
+    echo "AsyncAPI specification copied to the current directory."
+    
+    if [ -d "./asyncapi-docs" ]; then
+        echo "AsyncAPI documentation generated successfully."
+    else
+        echo "Warning: AsyncAPI CLI might not be installed. HTML and Markdown documentation were not generated."
+        echo "To install AsyncAPI CLI, run: npm install -g @asyncapi/cli"
+        echo "Then run this script again to generate the full documentation."
+    fi
 else
-    echo "Error: Failed to generate AsyncAPI documentation."
+    echo "Error: Failed to generate AsyncAPI specification."
     exit 1
 fi
 
