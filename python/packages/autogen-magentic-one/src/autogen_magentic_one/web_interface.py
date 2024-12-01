@@ -7,7 +7,6 @@ from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from autogen_magentic_one.magentic_one_helper import MagenticOneHelper
-from .generate_asyncapi_docs import generate_asyncapi_docs
 import modal
 
 logging.basicConfig(level=logging.INFO)

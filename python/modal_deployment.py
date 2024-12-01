@@ -119,11 +119,12 @@ def modal_fastapi_app():
         from autogen_magentic_one.web_interface import create_app
         
         fastapi_app = create_app()
-        templates = Jinja2Templates(directory="templates")
+        templates = Jinja2Templates(directory=os.path.join(os.path.dirname(autogen_magentic_one.__file__), "templates"))
 
         @fastapi_app.get("/asyncapi", include_in_schema=False)
         async def get_asyncapi_spec():
-            with open("asyncapi.yaml", "r") as f:
+            asyncapi_path = os.path.join(os.path.dirname(autogen_magentic_one.__file__), "asyncapi.yaml")
+            with open(asyncapi_path, "r") as f:
                 asyncapi_spec = yaml.safe_load(f)
             return JSONResponse(content=asyncapi_spec)
 
