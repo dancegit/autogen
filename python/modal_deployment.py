@@ -79,17 +79,7 @@ image = (
     )
     .workdir("/root")
     .run_commands(
-        "apt-get install -y nodejs npm",
-        "npm init -y",
-        "npm install @xyflow/react @babel/core @babel/cli @babel/preset-env @babel/preset-react --no-fund --no-audit",
-        "echo 'Contents of /root/node_modules:' && find /root/node_modules -print",
-        "mkdir -p /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd",
-        "cp -R /root/node_modules/@xyflow /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/",
-        "cp /root/node_modules/@xyflow/react/dist/umd/index.js /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/umd/reactflow.production.min.js",
-        "cp /root/node_modules/@xyflow/react/dist/style.css /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
-        "echo '{ \"presets\": [\"@babel/preset-env\", \"@babel/preset-react\"] }' > /root/.babelrc",
-        "ls -R /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/reactflow/",
-        "ls -R /root/autogen/python/packages/autogen-magentic-one/src/autogen_magentic_one/static/@xyflow/"
+        # Removed ReactFlow-related commands
     )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),

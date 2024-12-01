@@ -75,27 +75,11 @@ def create_app():
 
     try:
         app.mount("/static", StaticFiles(directory=static_dir), name="static")
-        reactflow_dir = os.path.join(static_dir, "reactflow")
-        if not os.path.exists(reactflow_dir):
-            os.makedirs(reactflow_dir)
-            logger.warning(f"Created ReactFlow directory: {reactflow_dir}")
-        reactflow_umd_dir = os.path.join(reactflow_dir, "umd")
-        if not os.path.exists(reactflow_umd_dir):
-            os.makedirs(reactflow_umd_dir)
-            logger.warning(f"Created ReactFlow UMD directory: {reactflow_umd_dir}")
-        
-        # Log the contents of the ReactFlow directory after copying
-        logger.info("Contents of ReactFlow directory after copying:")
-        for root, dirs, files in os.walk(reactflow_dir):
-            for file in files:
-                logger.info(f"  {os.path.join(root, file)}")
+        # Removed ReactFlow-related code
         templates = Jinja2Templates(directory=templates_dir)
         templates.env.globals["url_for"] = app.url_path_for
 
-        # Log the contents of the ReactFlow directory
-        logger.info("Contents of ReactFlow directory:")
-        for item in os.listdir(reactflow_dir):
-            logger.info(f"  {item}")
+        # Removed ReactFlow-related logging
     except Exception as e:
         logger.error(f"Error mounting static files or templates: {str(e)}")
         raise
