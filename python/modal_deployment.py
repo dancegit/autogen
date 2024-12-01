@@ -40,7 +40,7 @@ app = modal.App("autogen-magentic-one")
 autogen_mount = modal.Mount.from_local_dir(
     current_dir.parent,
     remote_path="/root/autogen",
-    condition=lambda path: not any(excluded in path for excluded in [".github", "dotnet", "venv", ".venv", r"\.aider.*", r"docs(?!/blob/modalComDocs)"])
+    condition=lambda path: not any(excluded in path for excluded in [".github", "dotnet", "venv", ".venv", r"\.aider.*", "./docs", r"docs(?!/blob/modalComDocs)"])
 )
 
 # Combine all mounts
