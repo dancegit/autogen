@@ -42,7 +42,7 @@ def create_app():
         logger.error(f"Static directory '{static_dir}' does not exist")
     
     # Check if asyncapi-docs directory exists before mounting
-    asyncapi_docs_dir = "./asyncapi-docs"
+    asyncapi_docs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "asyncapi-docs")
     logger.debug(f"AsyncAPI docs directory: {asyncapi_docs_dir}")
     if os.path.exists(asyncapi_docs_dir):
         fastapi_app.mount("/asyncapi-docs", StaticFiles(directory=asyncapi_docs_dir), name="asyncapi-docs")
