@@ -3,21 +3,24 @@ import os
 import pathlib
 import sys
 import subprocess
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Get the directory of this file
 current_dir = pathlib.Path(__file__).parent.resolve()
 
-# Print current directory and its contents for debugging
-print(f"Current directory: {current_dir}")
-print("Contents of current directory:")
+logger.info(f"Current directory: {current_dir}")
+logger.info("Contents of current directory:")
 for item in current_dir.iterdir():
-    print(f"  {item}")
+    logger.info(f"  {item}")
 
 # Add the necessary paths to the Python path
 autogen_path = current_dir.parent  # Go up one level to reach the autogen root
 packages_path = current_dir / "packages"
 autogen_magentic_one_path = packages_path / "autogen-magentic-one"
-
 
 # Define the base image
 base_image = (modal.Image
@@ -30,10 +33,7 @@ base_image = (modal.Image
         "apt-get install -y google-chrome-stable"
     ))
 
-# Remove the Docker image definition as it's not needed for now
-
 app = modal.App("autogen-magentic-one")
-__all__ = ['app', 'image', 'docker_image']
 
 # Create a single mount for the autogen folder
 autogen_mount = modal.Mount.from_local_dir(
@@ -78,9 +78,6 @@ image = (
         r"/root/autogen/python/.venv/bin/python -m playwright install chromium"
     )
     .workdir("/root")
-    .run_commands(
-        # Removed ReactFlow-related commands
-    )
     .env({
         "BING_API_KEY": os.environ.get("BING_API_KEY", ""),
         "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
@@ -89,11 +86,10 @@ image = (
     })
 )
 
-# Print environment variables for debugging
-print("Environment variables:")
-print(f"BING_API_KEY: {'Set' if os.environ.get('BING_API_KEY') else 'Not set'}")
-print(f"OPENAI_API_KEY: {'Set' if os.environ.get('OPENAI_API_KEY') else 'Not set'}")
-print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
+logger.info("Environment variables:")
+logger.info(f"BING_API_KEY: {'Set' if os.environ.get('BING_API_KEY') else 'Not set'}")
+logger.info(f"OPENAI_API_KEY: {'Set' if os.environ.get('OPENAI_API_KEY') else 'Not set'}")
+logger.info(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSON', 'Not set')}")
 
 @app.function(
     image=image,
@@ -105,73 +101,66 @@ print(f"CHAT_COMPLETION_KWARGS_JSON: {os.environ.get('CHAT_COMPLETION_KWARGS_JSO
 )
 def run_magentic_one(task: str):
     from autogen_magentic_one import MagenticOneHelper
-    helper = MagenticOneHelper()
+    helper = MagenticOneHelper(logs_dir="/tmp/magentic_one_logs")
     result = helper.run(task)
     return result
 
 @app.function(image=image, mounts=project_mounts, keep_warm=1)
 @modal.asgi_app()
 def modal_fastapi_app():
-    import sys
-    import os
-    import subprocess
     try:
         import autogen_magentic_one
-        print(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
+        logger.info(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
         from autogen_magentic_one.web_interface import create_app
         return create_app()
     except ImportError as e:
-        print(f"Error importing app: {e}")
-        print("Detailed sys.path:")
+        logger.error(f"Error importing app: {e}")
+        logger.error("Detailed sys.path:")
         for i, path in enumerate(sys.path):
-            print(f"  {i}: {path}")
+            logger.error(f"  {i}: {path}")
             if os.path.exists(path):
-                print(f"    Contents: {os.listdir(path)}")
+                logger.error(f"    Contents: {os.listdir(path)}")
             else:
-                print("    Path does not exist")
+                logger.error("    Path does not exist")
 
-        # Check if the autogen_magentic_one directory exists
         autogen_magentic_one_dir = os.path.join(current_dir, "packages", "autogen-magentic-one")
         if os.path.exists(autogen_magentic_one_dir):
-            print(f"autogen_magentic_one directory exists: {autogen_magentic_one_dir}")
-            print("Contents:")
+            logger.info(f"autogen_magentic_one directory exists: {autogen_magentic_one_dir}")
+            logger.info("Contents:")
             for item in os.listdir(autogen_magentic_one_dir):
-                print(f"  {item}")
+                logger.info(f"  {item}")
 
-            # Try to install the package again
-            print("Attempting to install autogen_magentic_one package...")
+            logger.info("Attempting to install autogen_magentic_one package...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", autogen_magentic_one_dir])
-            print("autogen_magentic_one package installed successfully.")
+            logger.info("autogen_magentic_one package installed successfully.")
 
-            # Try importing again
             import autogen_magentic_one
             from autogen_magentic_one.web_interface import create_app
             return create_app()
         else:
-            print(f"autogen_magentic_one directory does not exist: {autogen_magentic_one_dir}")
+            logger.error(f"autogen_magentic_one directory does not exist: {autogen_magentic_one_dir}")
 
         raise ImportError("Failed to import autogen_magentic_one after attempted installation")
 
 @app.local_entrypoint()
 def main(task: str):
     result = run_magentic_one.remote(task)
-    print(result)
-    print(f"WebSocket URL: {modal_fastapi_app.web_url}")
+    logger.info(result)
+    logger.info(f"WebSocket URL: {modal_fastapi_app.web_url}/ws")
 
 if __name__ == "__main__":
-    print("Current working directory:", os.getcwd())
-    print("Contents of current directory:")
+    logger.info(f"Current working directory: {os.getcwd()}")
+    logger.info("Contents of current directory:")
     for item in os.listdir():
-        print(f"  {item}")
-    print("To deploy this app, run the following command:")
-    print("modal deploy " + __file__)
+        logger.info(f"  {item}")
+    logger.info("To deploy this app, run the following command:")
+    logger.info(f"modal deploy {__file__}")
 
-    # Check if the autogen_magentic_one package is installed and print its location
     try:
         import autogen_magentic_one
-        print(f"autogen_magentic_one is installed at: {autogen_magentic_one.__file__}")
-        print(f"autogen_magentic_one version: {autogen_magentic_one.__version__}")
+        logger.info(f"autogen_magentic_one is installed at: {autogen_magentic_one.__file__}")
+        logger.info(f"autogen_magentic_one version: {autogen_magentic_one.__version__}")
     except ImportError as e:
-        print(f"Warning: autogen_magentic_one is not installed. Error: {e}")
+        logger.warning(f"Warning: autogen_magentic_one is not installed. Error: {e}")
     except AttributeError:
-        print("Warning: autogen_magentic_one is installed but __version__ is not available")
+        logger.warning("Warning: autogen_magentic_one is installed but __version__ is not available")
