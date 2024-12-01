@@ -47,8 +47,8 @@ def parse_websocket_endpoint(file_path: Path) -> Dict[str, Any]:
                     message_types.add(message_type)
                     api_docs["messages"].append({
                         "type": message_type,
-                        "description": f"Message of type '{message_type}'.",
-                        "example": {"type": message_type}
+                        "description": extract_message_description(node),
+                        "example": extract_message_example(node)
                     })
                     logger.debug(f"Added message type: {message_type}")
             except Exception as e:
@@ -65,6 +65,26 @@ def parse_websocket_endpoint(file_path: Path) -> Dict[str, Any]:
                         "example": {"type": msg_type}
                     })
                     logger.debug(f"Added message type from string: {msg_type}")
+
+    def extract_message_description(node):
+        # Try to extract a more detailed description from comments or nearby string literals
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.Str):
+                return child.s
+        return f"Message of type '{extract_message_type(node)}'."
+
+    def extract_message_example(node):
+        example = {"type": extract_message_type(node)}
+        for key, value in zip(node.keys, node.values):
+            if isinstance(key, ast.Constant) and isinstance(value, ast.Constant):
+                example[key.value] = value.value
+        return example
+
+    def extract_message_type(node):
+        for key, value in zip(node.keys, node.values):
+            if isinstance(key, ast.Constant) and key.value == 'type' and isinstance(value, ast.Constant):
+                return value.value
+        return "unknown"
 
     for node in ast.walk(websocket_function):
         extract_message_types(node)
