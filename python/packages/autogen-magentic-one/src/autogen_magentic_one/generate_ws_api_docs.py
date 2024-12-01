@@ -158,31 +158,48 @@ def generate_markdown_docs(api_docs: Dict[str, Any]) -> str:
     markdown += "## Messages\n\n"
 
     markdown += "### Incoming Messages (Client to Server)\n\n"
-    markdown += "1. Task Execution\n   ```json\n   {\n     \"type\": \"task\",\n     \"content\": \"Your task description here\"\n   }\n   ```\n\n"
-    markdown += "2. Ping (to keep connection alive)\n   ```json\n   {\n     \"type\": \"ping\"\n   }\n   ```\n\n"
+    markdown += "1. Task Execution\n   ```json\n   {\n     \"type\": \"task\",\n     \"content\": \"Your task description here\"\n   }\n   ```\n   Description: Send a task to be executed by the server.\n\n"
+    markdown += "2. Ping (to keep connection alive)\n   ```json\n   {\n     \"type\": \"ping\"\n   }\n   ```\n   Description: Keep the WebSocket connection alive.\n\n"
 
     markdown += "### Outgoing Messages (Server to Client)\n\n"
     for i, message in enumerate(api_docs['messages'], 1):
         markdown += f"{i}. {message['type']}\n   ```json\n"
         markdown += json.dumps(message['example'], indent=3)
-        markdown += "\n   ```\n\n"
+        markdown += "\n   ```\n"
+        markdown += f"   Description: {message['description']}\n\n"
+
+    markdown += "## Connection Lifecycle\n\n"
+    markdown += "1. Client establishes a WebSocket connection to the server.\n"
+    markdown += "2. Client sends a task message to initiate processing.\n"
+    markdown += "3. Server processes the task and sends various message types as updates.\n"
+    markdown += "4. Client sends periodic ping messages to keep the connection alive.\n"
+    markdown += "5. Server sends a final_answer message when the task is complete.\n"
+    markdown += "6. Client can send a new task or close the connection.\n\n"
 
     markdown += "## Error Handling\n\n"
-    markdown += "The server may disconnect the WebSocket connection in case of critical errors. Clients should implement reconnection logic with exponential backoff.\n\n"
+    markdown += "- The server may send error messages with details about any issues encountered.\n"
+    markdown += "- The server may disconnect the WebSocket connection in case of critical errors.\n"
+    markdown += "- Clients should implement reconnection logic with exponential backoff.\n\n"
 
     markdown += "## Rate Limiting\n\n"
-    markdown += "To prevent abuse, implement appropriate rate limiting on the client side. The server may enforce its own rate limits and disconnect clients that exceed these limits.\n\n"
+    markdown += "- To prevent abuse, implement appropriate rate limiting on the client side.\n"
+    markdown += "- The server may enforce its own rate limits and disconnect clients that exceed these limits.\n\n"
 
     markdown += "## Example Usage\n\n"
     markdown += "1. Connect to the WebSocket endpoint.\n"
     markdown += "2. Send a task:\n   ```json\n   {\n     \"type\": \"task\",\n     \"content\": \"Analyze the sentiment of the following text: 'I love this product!'\"\n   }\n   ```\n"
-    markdown += "3. Listen for incoming messages and handle them according to their types.\n"
-    markdown += "4. Send periodic ping messages to keep the connection alive.\n\n"
+    markdown += "3. Listen for incoming messages and handle them according to their types:\n"
+    markdown += "   - Update UI with status messages\n"
+    markdown += "   - Display agent outputs and logs\n"
+    markdown += "   - Handle and display the final answer\n"
+    markdown += "4. Send periodic ping messages to keep the connection alive.\n"
+    markdown += "5. Handle any error messages and implement appropriate error recovery.\n\n"
 
     markdown += "## Notes\n\n"
     markdown += "- All messages are in JSON format.\n"
     markdown += "- The server may send multiple messages of various types during the execution of a single task.\n"
     markdown += "- Clients should be prepared to handle all message types, even if they're not explicitly using all of them.\n"
+    markdown += "- Consider implementing a timeout mechanism on the client side for long-running tasks.\n"
 
     return markdown
 
