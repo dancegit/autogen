@@ -127,8 +127,8 @@ def modal_fastapi_app():
     try:
         import autogen_magentic_one
         print(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
-        from autogen_magentic_one.web_interface import app
-        return app
+        from autogen_magentic_one.web_interface import create_app
+        return create_app()
     except ImportError as e:
         print(f"Error importing app: {e}")
         print("Detailed sys.path:")
@@ -154,8 +154,8 @@ def modal_fastapi_app():
 
             # Try importing again
             import autogen_magentic_one
-            from autogen_magentic_one.web_interface import app
-            return app
+            from autogen_magentic_one.web_interface import create_app
+            return create_app()
         else:
             print(f"autogen_magentic_one directory does not exist: {autogen_magentic_one_dir}")
 
