@@ -1,5 +1,6 @@
 import yaml
 from pathlib import Path
+import subprocess
 
 def generate_asyncapi_docs():
     asyncapi_spec = {
@@ -144,5 +145,15 @@ def generate_asyncapi_docs():
 
     print(f"AsyncAPI specification generated: {output_path}")
 
+def generate_asyncapi_documentation(yaml_path):
+    html_cmd = f"asyncapi generate html {yaml_path} -o ./asyncapi-docs"
+    md_cmd = f"asyncapi generate markdown {yaml_path} -o ./asyncapi-docs/asyncapi.md"
+    
+    subprocess.run(html_cmd, shell=True, check=True)
+    subprocess.run(md_cmd, shell=True, check=True)
+    
+    print("AsyncAPI documentation generated in ./asyncapi-docs")
+
 if __name__ == "__main__":
     generate_asyncapi_docs()
+    generate_asyncapi_documentation("asyncapi.yaml")

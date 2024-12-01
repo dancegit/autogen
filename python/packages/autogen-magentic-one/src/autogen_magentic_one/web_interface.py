@@ -23,6 +23,7 @@ def create_app():
     static_dir = os.path.join(base_dir, "static")
     templates_dir = os.path.join(base_dir, "templates")
     fastapi_app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    fastapi_app.mount("/asyncapi-docs", StaticFiles(directory="./asyncapi-docs"), name="asyncapi-docs")
     templates = Jinja2Templates(directory=templates_dir)
 
     @fastapi_app.on_event("startup")
