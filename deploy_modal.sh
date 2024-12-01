@@ -63,7 +63,8 @@ if [ $? -eq 0 ]; then
     # Extract the URL from the deployment output
     DEPLOY_URL=$(echo "$DEPLOY_OUTPUT" | grep -oP 'https://.*\.modal\.run')
     if [ -n "$DEPLOY_URL" ]; then
-        echo "WebSocket URL: ${DEPLOY_URL}/ws"
+        WS_URL=$(echo "$DEPLOY_URL" | sed 's|^https://|wss://|')
+        echo "WebSocket URL: ${WS_URL}/ws"
     else
         echo "Warning: Couldn't extract the deployment URL. Please check the Modal dashboard for the correct URL."
     fi
