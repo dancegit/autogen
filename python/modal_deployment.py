@@ -69,6 +69,7 @@ image = (
         "/root/autogen/python/.venv/bin/pip install /root/autogen/python/packages/autogen-studio",
         "/root/autogen/python/.venv/bin/pip install tenacity",
         "/root/autogen/python/.venv/bin/pip install playwright",
+        "/root/autogen/python/.venv/bin/pip install pydantic fastapi",
         r"/root/autogen/python/.venv/bin/playwright install --with-deps chromium",
         r"/root/autogen/python/.venv/bin/playwright install-deps",
         r"/root/autogen/python/.venv/bin/playwright install chromium",
