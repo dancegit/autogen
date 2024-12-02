@@ -4,11 +4,7 @@ Endpoint: `/ws`
 
 Method: WebSocket
 
-Description: WebSocket endpoint for real-time communication with the MagenticOne application. This endpoint manages the connection lifecycle, processes incoming tasks, and sends responses back to the client.
-
-## Connection
-
-To establish a WebSocket connection, connect to: `ws://<your-domain>/ws`
+Description: WebSocket endpoint for real-time communication.
 
 ## Messages
 
@@ -21,6 +17,7 @@ To establish a WebSocket connection, connect to: `ws://<your-domain>/ws`
      "content": "Your task description here"
    }
    ```
+   Description: Send a task to be executed by the server.
 
 2. Ping (to keep connection alive)
    ```json
@@ -28,118 +25,67 @@ To establish a WebSocket connection, connect to: `ws://<your-domain>/ws`
      "type": "ping"
    }
    ```
+   Description: Keep the WebSocket connection alive.
 
 ### Outgoing Messages (Server to Client)
 
-1. Error
+1. ping
    ```json
-   {
-     "type": "error",
-     "message": "Error description",
-     "details": "Optional detailed error information"
-   }
+{
+   "type": "ping"
+}
    ```
+   Description: Message of type 'ping'.
 
-2. Loaded Agents
+2. error
    ```json
-   {
-     "type": "loaded_agents",
-     "agents": ["Agent1", "Agent2", "Agent3"]
-   }
+{
+   "type": "error",
+   "message": "An error occurred during task execution",
+   "details": "Traceback: ..."
+}
    ```
+   Description: Message of type 'error'.
 
-3. Warning
+3. pong
    ```json
-   {
-     "type": "warning",
-     "message": "Warning message"
-   }
+{
+   "type": "pong"
+}
    ```
+   Description: type
 
-4. Pong (response to ping)
+4. result
    ```json
-   {
-     "type": "pong"
+{
+   "type": "result",
+   "message": "Example message for result",
+   "data": {
+      "key": "value"
    }
+}
    ```
+   Description: type
 
-5. Status Update
-   ```json
-   {
-     "type": "status",
-     "message": "Current status of the task"
-   }
-   ```
+## Connection Lifecycle
 
-6. Final Answer
-   ```json
-   {
-     "type": "final_answer",
-     "message": "The final result of the task"
-   }
-   ```
-
-7. Log
-   ```json
-   {
-     "type": "log",
-     "data": {
-       "agent": "AgentName",
-       "message": "Log message",
-       "timestamp": "2023-01-01T12:00:00Z"
-     }
-   }
-   ```
-
-8. Agent Called
-   ```json
-   {
-     "type": "agent_called",
-     "agent": "AgentName"
-   }
-   ```
-
-9. Orchestrator Output
-   ```json
-   {
-     "type": "orchestrator_output",
-     "message": "Output from the orchestrator"
-   }
-   ```
-
-10. Agent Output
-    ```json
-    {
-      "type": "agent_output",
-      "agent": "AgentName",
-      "message": "Output from the agent"
-    }
-    ```
-
-11. Active Agents Update
-    ```json
-    {
-      "type": "active_agents",
-      "agents": ["Agent1", "Agent2"]
-    }
-    ```
-
-12. Retry Attempt
-    ```json
-    {
-      "type": "retry",
-      "attempt": 1,
-      "max_retries": 3
-    }
-    ```
+1. Client establishes a WebSocket connection to the server.
+2. Client sends a task message to initiate processing.
+3. Server processes the task and sends various message types as updates.
+4. Client sends periodic ping messages to keep the connection alive.
+5. Server sends a final_answer message when the task is complete.
+6. Client can send a new task or close the connection.
 
 ## Error Handling
 
-The server may disconnect the WebSocket connection in case of critical errors. Clients should implement reconnection logic with exponential backoff.
+- The server may send error messages with details about any issues encountered.
+- The server may disconnect the WebSocket connection in case of critical errors.
+- Clients should implement reconnection logic with exponential backoff.
 
 ## Rate Limiting
 
-To prevent abuse, implement appropriate rate limiting on the client side. The server may enforce its own rate limits and disconnect clients that exceed these limits.
+- To prevent abuse, implement appropriate rate limiting on the client side.
+- The server may enforce its own rate limits and disconnect clients that exceed these limits.
 
 ## Example Usage
 
@@ -151,12 +97,16 @@ To prevent abuse, implement appropriate rate limiting on the client side. The se
      "content": "Analyze the sentiment of the following text: 'I love this product!'"
    }
    ```
-3. Listen for incoming messages and handle them according to their types.
+3. Listen for incoming messages and handle them according to their types:
+   - Update UI with status messages
+   - Display agent outputs and logs
+   - Handle and display the final answer
 4. Send periodic ping messages to keep the connection alive.
+5. Handle any error messages and implement appropriate error recovery.
 
 ## Notes
 
 - All messages are in JSON format.
 - The server may send multiple messages of various types during the execution of a single task.
 - Clients should be prepared to handle all message types, even if they're not explicitly using all of them.
-
+- Consider implementing a timeout mechanism on the client side for long-running tasks.
