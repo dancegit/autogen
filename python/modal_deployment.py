@@ -40,7 +40,7 @@ app = modal.App("autogen-magentic-one")
 autogen_mount = modal.Mount.from_local_dir(
     current_dir.parent,
     remote_path="/root/autogen",
-    condition=lambda path: not any(excluded in path for excluded in [".github", "dotnet", "venv", ".venv", r"\.aider.*", "./docs", r"docs(?!/blob/modalComDocs)"])
+    condition=lambda path: not any(excluded in path for excluded in [".github", "dotnet", "venv", ".venv", r"\.aider.*", "./docs", r"docs(?!/asyncapi-docs)"])
 )
 
 # Combine all mounts
@@ -118,7 +118,7 @@ def modal_fastapi_app():
         import autogen_magentic_one
         logger.info(f"autogen_magentic_one path: {autogen_magentic_one.__file__}")
         from autogen_magentic_one.web_interface import create_app
-        
+
         fastapi_app = create_app()
         templates = Jinja2Templates(directory=os.path.join(os.path.dirname(autogen_magentic_one.__file__), "templates"))
 
@@ -160,7 +160,7 @@ def modal_fastapi_app():
 
             import autogen_magentic_one
             from autogen_magentic_one.web_interface import create_app
-            
+
             return create_app()
         else:
             logger.error(f"autogen_magentic_one directory does not exist: {autogen_magentic_one_dir}")
